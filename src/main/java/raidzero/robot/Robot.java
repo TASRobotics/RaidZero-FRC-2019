@@ -2,6 +2,9 @@ package raidzero.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 
+/**
+ * The main robot class.
+ */
 public class Robot extends TimedRobot {
 
     @Override
