@@ -7,7 +7,7 @@ function motionProfile = RobotPath()
     DeltaD = Updatetime*CruiseVel;
     Nacc = ceil(CruiseVel^2/(TargetAcc*DeltaD)); % ??
     % ceil - rounds to nearest integer (math.ceiling)
-    Waypoints = [0 0; 3 7; 8 8];
+    Waypoints = [0 0; 3 6; 8 8];
     numPoints = length(Waypoints(:,1));
     % r 7
     interpoints = 0:.01:1;
