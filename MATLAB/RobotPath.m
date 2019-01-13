@@ -5,7 +5,7 @@ function motionProfile = RobotPath()
     Updatetime = 0.1; % Default update time: 0.1 DON'T CHANGE!
     DeltaD = Updatetime*CruiseVel; % Self Explanatory
     
-    Waypoints = [0 0; 1 12; 36 72; 83 95; 96 96]; % Input the waypoints here! Units: Inches
+    Waypoints = [0 0; 1 12; 36 72; 83 95; 96 96; 85 85; -10 50;]; % Input the waypoints here! Units: Inches
     
     numPoints = length(Waypoints(:,1)); % Number of waypoints
     interpoints = 0:.01:1; % Create points from 0 -> 1 incrementing 0.01
@@ -63,7 +63,7 @@ function motionProfile = RobotPath()
         comparison = [trajectory(1,1) trajectory(1,2);
             trajectory;
             trajectory(numpoints,1) trajectory(numpoints,1)];
-        comparison(1,:) = []; % This is here to fix an extra row which messes up the initial angles. It removes the first row.
+        comparison(2,:) = [(comparison(1,1)+comparison(3,1))/2, (comparison(1,2)+comparison(3,2))/2]; % This is here to fix the second row which messes up the initial angles. It removes the first row.
         angles = unwrap(atan2(comparison(2:numpoints+1,2)-comparison(1:numpoints,2),(comparison(2:numpoints+1,1)-comparison(1:numpoints,1))));
         angles = 360/(2*pi)*angles;
     end
