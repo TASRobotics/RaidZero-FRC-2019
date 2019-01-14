@@ -5,7 +5,7 @@ function motionProfile = RobotPath()
     Updatetime = 0.1; % Default update time: 0.1 DON'T CHANGE!
     DeltaD = Updatetime*CruiseVel; % Self Explanatory
     
-    Waypoints = [0 0; 1 12; 36 72; 83 95; 96 96; 85 85; -10 50;]; % Input the waypoints here! Units: Inches
+    Waypoints = [76 212; 76 401; 124 472; 180 472; 240 401; 240 230; 187 175; 124 175]; % Input the waypoints here! Units: Inches
     
     numPoints = length(Waypoints(:,1)); % Number of waypoints
     interpoints = 0:.01:1; % Create points from 0 -> 1 incrementing 0.01
@@ -22,6 +22,9 @@ function motionProfile = RobotPath()
     % scatter(Fit(1,:), Fit(2,:)); 
     plot(Fit(1,:),Fit(2,:));
     hold on;
+    axis equal;
+    xlim([0, 324]);
+    ylim([0, 647]);
     angles = makeAngles(Fit');
     % finds the angle in between each point from one point to next
     travelled = zeros(length(param),1);
