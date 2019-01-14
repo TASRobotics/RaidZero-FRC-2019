@@ -57,7 +57,22 @@ function motionProfile = RobotPath()
     dist2Param = spline(travelled,interpoints',distmarks);
     anglemarks = spline(interpoints,angles,dist2Param)-90;
     quiver(spline(interpoints,Fit(1,:),dist2Param),spline(interpoints,Fit(2,:),dist2Param),cos(pi/180*spline(interpoints,angles,dist2Param)),sin(pi/180*spline(interpoints,angles,dist2Param)));
-    motionProfile = [distmarks velmarks times' anglemarks];
+    motionProfileRaw = [distmarks velmarks times' anglemarks];
+    
+    % Convert to Java Format
+    motionProfile = strings([length(motionProfileRaw), 1]); % Create empty list of strings
+    for i = 1:length(motionProfileRaw)
+        allOne = sprintf('%.4f,' , motionProfileRaw(i,:)); % Combine the columns for that row
+        motionProfile(i) = allOne(1:end-1); % Remove extra comma
+        if i == length(motionProfileRaw)
+           motionProfile(i) = "{" + motionProfile(i) + "}";
+        else
+            motionProfile(i) = "{" + motionProfile(i) + "},";
+        end
+    end
+    fprintf('%s\n', motionProfile{:});
+    
+    motionProfile = length(motionProfile); % Returns # of points
     hold off;
     
     function angles = makeAngles(trajectory)
