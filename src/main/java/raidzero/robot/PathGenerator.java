@@ -6,32 +6,46 @@ public class PathGenerator {
 
     private static final double cruiseVelocity = 10;
     private static final double targetAcceleration = 20;
-    private static final double updateTime = 0.1;
-    private static final double deltaD = updateTime * cruiseVelocity;
 
-    private static final double samplingInterval = 1;
+    private static final double queryInterval = 1;
+
+    private static SplineInterpolator splineInterpolator = new SplineInterpolator();
 
     public static void generatePath(Point[] waypoints) {
-        var cumulativeDistances = new double[waypoints.length];
-        for (var i = 1; i < waypoints.length; i++) {
-            cumulativeDistances[i] = cumulativeDistances[i - 1]
-                + Math.hypot(waypoints[i].x - waypoints[i - 1].x,
-                    waypoints[i].y - waypoints[i - 1].y);
-        }
-        var totalDistance = cumulativeDistances[cumulativeDistances.length - 1];
-        var xValues = new double[waypoints.length];
-        var yValues = new double[waypoints.length];
+
+        var waypointXValues = new double[waypoints.length];
+        var waypointYValues = new double[waypoints.length];
         for (var i = 0; i < waypoints.length; i++) {
-            xValues[i] = waypoints[i].x;
-            yValues[i] = waypoints[i].y;
+            waypointXValues[i] = waypoints[i].x;
+            waypointYValues[i] = waypoints[i].y;
         }
-        var splineInterpolator = new SplineInterpolator();
-        var xSpline = splineInterpolator.interpolate(cumulativeDistances, xValues);
-        var ySpline = splineInterpolator.interpolate(cumulativeDistances, yValues);
-        var angles = new double[(int) (totalDistance / samplingInterval)];
+
+        var cumulativeWaypointDistances = new double[waypoints.length];
         for (var i = 1; i < waypoints.length; i++) {
-            angles[i] = Math.toDegrees(
-                Math.atan2(yValues[i] - yValues[i - 1], xValues[i] - xValues[i - 1]));
+            cumulativeWaypointDistances[i] = cumulativeWaypointDistances[i - 1]
+                + Math.hypot(waypointXValues[i] - waypointXValues[i - 1],
+                    waypointYValues[i] - waypointYValues[i - 1]);
+        }
+        var totalWaypointDistance =
+            cumulativeWaypointDistances[cumulativeWaypointDistances.length - 1];
+
+        var xSpline = splineInterpolator.interpolate(cumulativeWaypointDistances, waypointXValues);
+        var ySpline = splineInterpolator.interpolate(cumulativeWaypointDistances, waypointYValues);
+
+        var queryCount = (int) Math.ceil(totalWaypointDistance / queryInterval) + 1;
+        var xQueries = new double[queryCount];
+        var yQueries = new double[queryCount];
+        for (var i = 0; i < queryCount - 1; i++) {
+            xQueries[i] = xSpline.value(i * queryInterval);
+            yQueries[i] = ySpline.value(i * queryInterval);
+        }
+        xQueries[queryCount - 1] = waypointXValues[waypointXValues.length - 1];
+        yQueries[queryCount - 1] = waypointYValues[waypointYValues.length - 1];
+
+        var angles = new double[queryCount];
+        for (var i = 1; i < angles.length; i++) {
+            angles[i] = Math.toDegrees(Math.atan2(
+                yQueries[i] - yQueries[i - 1], xQueries[i] - xQueries[i - 1]));
             if (i > 1) {
                 if (angles[i] - angles[i - 1] > 180) {
                     angles[i] -= 360;
@@ -41,6 +55,13 @@ public class PathGenerator {
             }
         }
         angles[0] = angles[1];
+
+        var positions = new double[queryCount];
+        for (var i = 1; i < positions.length; i++) {
+            positions[i] = positions[i - 1]
+                + Math.hypot(xQueries[i] - xQueries[i - 1], yQueries[i] - yQueries[i - 1]);
+        }
+
     }
 
 }
