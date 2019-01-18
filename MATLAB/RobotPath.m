@@ -5,7 +5,7 @@ function motionProfile = RobotPath()
     Updatetime = 0.1; % Default update time: 0.1 DON'T CHANGE!
     DeltaD = Updatetime*CruiseVel; % Self Explanatory
     
-    Waypoints = [65.8 203.2; 78.3 267.7; 134.2 293.1; 128.5 211.8; 192.6 179.4]; % Input the waypoints here! Units: Inches
+    Waypoints = [123.4 264.5; 168.5 262.0; 252.34 231.5; 364.78 271.51]; % Input the waypoints here! Units: Inches
     
     numPoints = length(Waypoints(:,1)); % Number of waypoints
     interpoints = 0:.01:1; % Create points from 0 -> 1 incrementing 0.01
