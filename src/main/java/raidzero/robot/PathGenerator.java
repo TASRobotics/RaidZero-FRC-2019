@@ -35,6 +35,7 @@ public class PathGenerator {
         var queryCount = (int) Math.ceil(totalWaypointDistance / queryInterval) + 1;
         var xQueries = new double[queryCount];
         var yQueries = new double[queryCount];
+
         for (var i = 0; i < queryCount - 1; i++) {
             xQueries[i] = xSpline.value(i * queryInterval);
             yQueries[i] = ySpline.value(i * queryInterval);
@@ -60,6 +61,54 @@ public class PathGenerator {
         for (var i = 1; i < positions.length; i++) {
             positions[i] = positions[i - 1]
                 + Math.hypot(xQueries[i] - xQueries[i - 1], yQueries[i] - yQueries[i - 1]);
+        }
+        var totalDistance = positions[positions.length - 1];
+
+        var velocities = new double[queryCount];
+        var times = new double[queryCount];
+        {
+            boolean reachesCruiseVelocity = false;
+            int i;
+            for (i = 0; positions[i] <= totalDistance / 2; i++) {
+                var velocity = Math.sqrt(2 * targetAcceleration * positions[i]);
+                if (velocity > cruiseVelocity) {
+                    reachesCruiseVelocity = true;
+                    break;
+                }
+                velocities[i] = velocity;
+                times[i] = Math.sqrt(2 * positions[i] / targetAcceleration);
+            }
+            int j;
+            for (j = velocities.length - 1; j >= i; j--) {
+                var velocity = Math.sqrt(2 * targetAcceleration * (totalDistance - positions[j]));
+                if (velocity > cruiseVelocity) {
+                    break;
+                }
+                velocities[j] = velocity;
+            }
+            var cruiseStartTime = cruiseVelocity / targetAcceleration;
+            var cruiseStartPosition = cruiseVelocity * cruiseVelocity / (2 * targetAcceleration);
+            int k;
+            for (k = i; k <= j; k++) {
+                velocities[k] = cruiseVelocity;
+                times[k] = cruiseStartTime + (positions[k] - cruiseStartPosition) / cruiseVelocity;
+            }
+            var decelerateStartPosition = reachesCruiseVelocity
+                ? totalDistance - cruiseStartPosition
+                : totalDistance / 2;
+            var decelerateStartTime = reachesCruiseVelocity
+                ? cruiseStartTime + (decelerateStartPosition - cruiseStartPosition) / cruiseVelocity
+                : Math.sqrt(totalDistance / targetAcceleration);
+            var decelerateInitialVelocity = reachesCruiseVelocity
+                ? cruiseVelocity
+                : Math.sqrt(targetAcceleration * totalDistance);
+            for (; k < times.length; k++) {
+                times[k] = decelerateStartTime
+                    + (-decelerateInitialVelocity
+                        + Math.sqrt(decelerateInitialVelocity * decelerateInitialVelocity
+                            - 2 * -targetAcceleration * (decelerateStartPosition - positions[k])))
+                    / -targetAcceleration;
+            }
         }
 
     }
