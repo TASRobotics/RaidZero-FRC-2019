@@ -48,9 +48,10 @@ public class PathGenerator {
             angles[i] = Math.toDegrees(Math.atan2(
                 yQueries[i] - yQueries[i - 1], xQueries[i] - xQueries[i - 1]));
             if (i > 1) {
-                if (angles[i] - angles[i - 1] > 180) {
+                while (angles[i] - angles[i - 1] > 180) {
                     angles[i] -= 360;
-                } else if (angles[i] - angles[i - 1] < -180) {
+                }
+                while (angles[i] - angles[i - 1] < -180) {
                     angles[i] += 360;
                 }
             }
