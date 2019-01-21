@@ -4,14 +4,12 @@ import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
 
 public class PathGenerator {
 
-    private static final double cruiseVelocity = 10;
-    private static final double targetAcceleration = 20;
-
     private static final double queryInterval = 1;
 
     private static SplineInterpolator splineInterpolator = new SplineInterpolator();
 
-    public static void generatePath(Point[] waypoints) {
+    public static PathPoint[] generatePath(Point[] waypoints,
+    double cruiseVelocity, double targetAcceleration) {
 
         var waypointXValues = new double[waypoints.length];
         var waypointYValues = new double[waypoints.length];
@@ -43,56 +41,59 @@ public class PathGenerator {
         xQueries[queryCount - 1] = waypointXValues[waypointXValues.length - 1];
         yQueries[queryCount - 1] = waypointYValues[waypointYValues.length - 1];
 
-        var angles = new double[queryCount];
-        for (var i = 1; i < angles.length; i++) {
-            angles[i] = Math.toDegrees(Math.atan2(
+        var path = new PathPoint[queryCount];
+        for (var i = 0; i < path.length; i++) {
+            path[i] = new PathPoint();
+        }
+
+        for (var i = 1; i < path.length; i++) {
+            path[i].angle = Math.toDegrees(Math.atan2(
                 yQueries[i] - yQueries[i - 1], xQueries[i] - xQueries[i - 1]));
             if (i > 1) {
-                while (angles[i] - angles[i - 1] > 180) {
-                    angles[i] -= 360;
+                while (path[i].angle - path[i - 1].angle > 180) {
+                    path[i].angle -= 360;
                 }
-                while (angles[i] - angles[i - 1] < -180) {
-                    angles[i] += 360;
+                while (path[i].angle - path[i - 1].angle < -180) {
+                    path[i].angle += 360;
                 }
             }
         }
-        angles[0] = angles[1];
+        path[0].angle = path[1].angle;
 
-        var positions = new double[queryCount];
-        for (var i = 1; i < positions.length; i++) {
-            positions[i] = positions[i - 1]
+        for (var i = 1; i < path.length; i++) {
+            path[i].position = path[i - 1].position
                 + Math.hypot(xQueries[i] - xQueries[i - 1], yQueries[i] - yQueries[i - 1]);
         }
-        var totalDistance = positions[positions.length - 1];
+        var totalDistance = path[path.length - 1].position;
 
-        var velocities = new double[queryCount];
-        var times = new double[queryCount];
         {
             boolean reachesCruiseVelocity = false;
             int i;
-            for (i = 0; positions[i] <= totalDistance / 2; i++) {
-                var velocity = Math.sqrt(2 * targetAcceleration * positions[i]);
+            for (i = 0; path[i].position <= totalDistance / 2; i++) {
+                var velocity = Math.sqrt(2 * targetAcceleration * path[i].position);
                 if (velocity > cruiseVelocity) {
                     reachesCruiseVelocity = true;
                     break;
                 }
-                velocities[i] = velocity;
-                times[i] = Math.sqrt(2 * positions[i] / targetAcceleration);
+                path[i].velocity = velocity;
+                path[i].time = Math.sqrt(2 * path[i].position / targetAcceleration);
             }
             int j;
-            for (j = velocities.length - 1; j >= i; j--) {
-                var velocity = Math.sqrt(2 * targetAcceleration * (totalDistance - positions[j]));
+            for (j = path.length - 1; j >= i; j--) {
+                var velocity = Math.sqrt(2 * targetAcceleration
+                    * (totalDistance - path[j].position));
                 if (velocity > cruiseVelocity) {
                     break;
                 }
-                velocities[j] = velocity;
+                path[j].velocity = velocity;
             }
             var cruiseStartTime = cruiseVelocity / targetAcceleration;
             var cruiseStartPosition = cruiseVelocity * cruiseVelocity / (2 * targetAcceleration);
             int k;
             for (k = i; k <= j; k++) {
-                velocities[k] = cruiseVelocity;
-                times[k] = cruiseStartTime + (positions[k] - cruiseStartPosition) / cruiseVelocity;
+                path[k].velocity = cruiseVelocity;
+                path[k].time = cruiseStartTime
+                    + (path[k].position - cruiseStartPosition) / cruiseVelocity;
             }
             var decelerateStartPosition = reachesCruiseVelocity
                 ? totalDistance - cruiseStartPosition
@@ -103,14 +104,17 @@ public class PathGenerator {
             var decelerateInitialVelocity = reachesCruiseVelocity
                 ? cruiseVelocity
                 : Math.sqrt(targetAcceleration * totalDistance);
-            for (; k < times.length; k++) {
-                times[k] = decelerateStartTime
+            for (; k < path.length; k++) {
+                path[k].time = decelerateStartTime
                     + (-decelerateInitialVelocity
                         + Math.sqrt(decelerateInitialVelocity * decelerateInitialVelocity
-                            - 2 * -targetAcceleration * (decelerateStartPosition - positions[k])))
+                            - 2 * -targetAcceleration
+                                * (decelerateStartPosition - path[k].position)))
                     / -targetAcceleration;
             }
         }
+
+        return path;
 
     }
 
