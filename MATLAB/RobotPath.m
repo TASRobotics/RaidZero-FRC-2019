@@ -5,7 +5,7 @@ function motionProfile = RobotPath()
     Updatetime = 0.1; % Default update time: 0.1 DON'T CHANGE!
     DeltaD = Updatetime*CruiseVel; % Self Explanatory
     
-    Waypoints = [0 0; 1 12; 36 72; 83 95; 96 96; 85 85; -10 50;]; % Input the waypoints here! Units: Inches
+    Waypoints = [123.4 264.5; 168.5 262.0; 252.34 231.5; 385.74 210.54]; % Input the waypoints here! Units: Inches
     
     numPoints = length(Waypoints(:,1)); % Number of waypoints
     interpoints = 0:.01:1; % Create points from 0 -> 1 incrementing 0.01
@@ -22,6 +22,9 @@ function motionProfile = RobotPath()
     % scatter(Fit(1,:), Fit(2,:)); 
     plot(Fit(1,:),Fit(2,:));
     hold on;
+    axis equal;
+    xlim([0, 648]);
+    ylim([0, 324]);
     angles = makeAngles(Fit');
     % finds the angle in between each point from one point to next
     travelled = zeros(length(param),1);
@@ -52,9 +55,24 @@ function motionProfile = RobotPath()
     end
     times = 0:Updatetime:Updatetime*(length(distmarks)-1);
     dist2Param = spline(travelled,interpoints',distmarks);
-    anglemarks = spline(interpoints,angles,dist2Param)-90;
+    anglemarks = spline(interpoints,angles,dist2Param);
     quiver(spline(interpoints,Fit(1,:),dist2Param),spline(interpoints,Fit(2,:),dist2Param),cos(pi/180*spline(interpoints,angles,dist2Param)),sin(pi/180*spline(interpoints,angles,dist2Param)));
-    motionProfile = [distmarks velmarks times' anglemarks];
+    motionProfileRaw = [distmarks velmarks times' anglemarks];
+    
+    % Convert to Java Format
+    motionProfile = strings([length(motionProfileRaw), 1]); % Create empty list of strings
+    for i = 1:length(motionProfileRaw)
+        allOne = sprintf('%.4f,' , motionProfileRaw(i,:)); % Combine the columns for that row
+        motionProfile(i) = allOne(1:end-1); % Remove extra comma
+        if i == length(motionProfileRaw)
+            motionProfile(i) = "{" + motionProfile(i) + "}";
+        else
+            motionProfile(i) = "{" + motionProfile(i) + "},";
+        end
+    end
+    fprintf('%s\n', motionProfile{:});
+    
+    motionProfile = length(motionProfile); % Returns # of points
     hold off;
     
     function angles = makeAngles(trajectory)
