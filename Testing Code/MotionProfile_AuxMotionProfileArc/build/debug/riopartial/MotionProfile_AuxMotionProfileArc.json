@@ -1,0 +1,9 @@
+[
+  {
+    "artifact": "frcJava (in project MotionProfile_AuxMotionProfileArc)",
+    "target": "roborio",
+    "debugfile": "frcJava_roborio.debugconfig",
+    "project": "MotionProfile_AuxMotionProfileArc",
+    "language": "java"
+  }
+]
