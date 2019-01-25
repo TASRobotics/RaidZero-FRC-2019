@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "es2018",
+        "module": "commonjs",
+        "sourceMap": true,
+        "rootDir": "ts",
+        "outDir": "js",
+        "noEmitOnError": true,
+        "strict": true,
+        "strictFunctionTypes": false
+    }
+}

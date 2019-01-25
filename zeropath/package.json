@@ -1,0 +1,22 @@
+{
+    "name": "zeropath",
+    "version": "0.1.0",
+    "description": "Path planning tool",
+    "main": "js/main",
+    "scripts": {
+        "start": "electron ."
+    },
+    "devDependencies": {
+        "electron": "^4.0.1"
+    },
+    "dependencies": {
+        "@types/d3-drag": "^1.2.2",
+        "@types/d3-selection": "^1.3.4",
+        "@types/electron-debug": "^1.1.0",
+        "d3-drag": "^1.2.3",
+        "d3-selection": "^1.3.2",
+        "electron-debug": "^2.0.0"
+    },
+    "repository": "TASRobotics/RaidZero-FRC-2019",
+    "license": "MIT"
+}
