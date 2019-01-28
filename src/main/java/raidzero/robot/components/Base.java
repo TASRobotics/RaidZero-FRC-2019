@@ -48,8 +48,8 @@ public class Base {
         follower.setNeutralMode(NeutralMode.Brake);
         follower1.setNeutralMode(NeutralMode.Brake);
 
-        follower.set(ControlMode.Follower, leaderID);
-        follower1.set(ControlMode.Follower, leaderID);
+        follower.follow(TalonSRX(leaderID));
+        follower1.follow(TalonSRX(leaderID));
 
         leader.setInverted(invert);
         follower.setInverted(!invert);
