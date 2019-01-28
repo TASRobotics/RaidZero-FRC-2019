@@ -10,8 +10,6 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
  */
 public class Intake {
 
-    private static final double IDLE_POWER = 0.1;
-    private static final double WHEEL_POWER = 0.9;
     private static DoubleSolenoid.Value OPEN_POSITION = DoubleSolenoid.Value.kReverse;
     private static DoubleSolenoid.Value CLOSED_POSITION = DoubleSolenoid.Value.kForward;
 
@@ -30,7 +28,6 @@ public class Intake {
         hook = new DoubleSolenoid(forwardChannel, backwardChannel);
 
         intakeMotor.setNeutralMode(NeutralMode.Brake);
-        intakeMotor.setInverted(false);
     }
 
     public TalonSRX getIntakeMotor() {
@@ -38,17 +35,17 @@ public class Intake {
     }
 
     /**
-     * Grab using the hook.
+     * Grabs using the hook.
      */
-    public void grabHook() {
-        hook.set(OPEN_POSITION);
+    public void grab() {
+        hook.set(CLOSED_POSITION);
     }
 
     /**
-     * Release the hook.
+     * Releases the hook.
      */
-    public void releaseHook() {
-        hook.set(CLOSED_POSITION);
+    public void release() {
+        hook.set(OPEN_POSITION);
     }
 
     /**
