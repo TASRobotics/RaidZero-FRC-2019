@@ -6,9 +6,15 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 
 public class SparkMaxPrime extends CANSparkMax {
+
     private CANPIDController controller;
     private CANEncoder encoder;
-    private double relZero = 0;
+
+    /**
+     * zeroPos exists to deal with the inability to reset encoders
+     * It basically gets the current position and becomes the relative position you want 
+     */
+    private double zeroPos = 0;
 
     /**
      * Creates the SparkMaxPrime object.
@@ -26,14 +32,14 @@ public class SparkMaxPrime extends CANSparkMax {
      * Sets up the PID.
      * 
      * @param FPID the FPID values and integral zone in that order
-     * @param PIDSlot the PID slot for this PID
+     * @param pidSlot the PID slot for this PID
      */
-    public void setPID(double[] FPID, int PIDSlot) {
-        controller.setFF(FPID[0], PIDSlot);
-        controller.setP(FPID[1], PIDSlot);
-        controller.setI(FPID[2], PIDSlot);
-        controller.setD(FPID[3], PIDSlot);
-        controller.setIZone(FPID[4], PIDSlot);
+    public void setPID(double kF, double kP, double kI, double kD, double iZone, int pidSlot) {
+        controller.setFF(kF, pidSlot);
+        controller.setP(kP, pidSlot);
+        controller.setI(kI, pidSlot);
+        controller.setD(kD, pidSlot);
+        controller.setIZone(iZone, pidSlot);
     }
     
     /**
@@ -46,13 +52,13 @@ public class SparkMaxPrime extends CANSparkMax {
      * 
      * @param args the argument
      * @param type the control type
-     * @param PIDSlot the PID Slot
+     * @param pidSlot the PID Slot
      */
-    public void set(double args, ControlType type, int PIDSlot) {
-        if (type == ControlType.kPosition){
-            controller.setReference(args + relZero, type, PIDSlot);
+    public void set(double args, ControlType type, int pidSlot) {
+        if (type == ControlType.kPosition) {
+            controller.setReference(args + zeroPos, type, pidSlot);
         } else {
-            controller.setReference(args, type, PIDSlot);
+            controller.setReference(args, type, pidSlot);
         }
     }
 
@@ -61,8 +67,8 @@ public class SparkMaxPrime extends CANSparkMax {
      * 
      * @param pos the position desired
      */
-    public void setEncoder(double pos) {
-        relZero = encoder.getPosition() - pos;
+    public void setPosition(double pos) {
+        zeroPos = encoder.getPosition() - pos;
     }
 
     /**
@@ -71,6 +77,7 @@ public class SparkMaxPrime extends CANSparkMax {
      * @return the encoder position
      */
     public double getPosition() {
-        return encoder.getPosition() - relZero;
+        return encoder.getPosition() - zeroPos;
     }
+
 }

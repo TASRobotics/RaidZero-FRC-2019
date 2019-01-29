@@ -7,9 +7,14 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class Lift {
-    private final static double[] FPID = {0, 0 , 0 , 0, 0};
+
+    private final static double kF = 0.0;
+    private final static double kP = 0.0;
+    private final static double kI = 0.0;
+    private final static double kD = 0.0;
+    private final static double iZone = 0.0;
     private final static double rampRate = 0.5;
-    private final static int PIDSlot = 0;
+    private final static int pidSlot = 0;
 
     private SparkMaxPrime leader;
 
@@ -22,7 +27,7 @@ public class Lift {
      */
     public Lift(int leaderID, int followerID, boolean inverted) {
         leader = init(leaderID, followerID, inverted);
-        leader.setPID(FPID, PIDSlot);
+        leader.setPID(kF, kP, kI, kD, iZone, pidSlot);
     }
 
     /**
@@ -60,7 +65,7 @@ public class Lift {
      */
     public void limitReset() {
         if (leader.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyClosed).get()) {
-            leader.setEncoder(0);
+            leader.setPosition(0);
         }
     }
 
@@ -70,7 +75,7 @@ public class Lift {
      * @param percentV The percentage voltage from -1.0 to 1.0 to run the motors
      */
     public void movePercent(double percentV) {
-        leader.set(percentV, ControlType.kDutyCycle, PIDSlot);
+        leader.set(percentV, ControlType.kDutyCycle, pidSlot);
     }
 
     /**
@@ -79,6 +84,7 @@ public class Lift {
      * @param pos the encoder position to move to
      */
     public void movePosition(double pos) {
-        leader.set(pos, ControlType.kPosition, PIDSlot);
+        leader.set(pos, ControlType.kPosition, pidSlot);
     }
+
 }
