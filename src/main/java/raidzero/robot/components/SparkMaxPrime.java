@@ -29,7 +29,7 @@ public class SparkMaxPrime extends CANSparkMax {
     }
 
     /**
-     * Sets up the PID.
+     * Sets up the FPID and IZone.
      * 
      * @param FPID the FPID values and integral zone in that order
      * @param pidSlot the PID slot for this PID

@@ -8,15 +8,16 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class Lift {
 
-    private final static double kF = 0.0;
-    private final static double kP = 0.0;
-    private final static double kI = 0.0;
-    private final static double kD = 0.0;
-    private final static double iZone = 0.0;
-    private final static double rampRate = 0.5;
-    private final static int pidSlot = 0;
+    private static final double KF = 0.0;
+    private static final double KP = 0.0;
+    private static final double KI = 0.0;
+    private static final double KD = 0.0;
+    private static final double I_Zone = 0.0;
+    private static final double RAMP_Rate = 0.5;
+    private static final int pidSlot = 0;
 
     private SparkMaxPrime leader;
+    private CANSparkMax follower;
 
     /**
      * Constucts the Lift object and sets up the motors.
@@ -25,37 +26,24 @@ public class Lift {
      * @param followerID the follower ID
      * @param inverted the boolean to invert
      */
-    public Lift(int leaderID, int followerID, boolean inverted) {
-        leader = init(leaderID, followerID, inverted);
-        leader.setPID(kF, kP, kI, kD, iZone, pidSlot);
-    }
-
-    /**
-     * Inits the motors and configs the settings.
-     * 
-     * @param leaderID the leader ID
-     * @param followerID the follower ID
-     * @param inverted inversion of the motor direction
-     * @return the leader talon
-     */
-    private SparkMaxPrime init(int leaderID, int followerID, boolean inverted) {
-        SparkMaxPrime leader = new SparkMaxPrime(leaderID, MotorType.kBrushless);
-        CANSparkMax follower = new CANSparkMax(followerID, MotorType.kBrushless);
+    public Lift(int leaderID, int followerID) {
+        leader = new SparkMaxPrime(leaderID, MotorType.kBrushless);
+        follower = new CANSparkMax(followerID, MotorType.kBrushless);
 
         // Set Brake Mode
         leader.setIdleMode(IdleMode.kBrake);
         follower.setIdleMode(IdleMode.kBrake);
         
         // Set Inverted
-        leader.setInverted(inverted);
-        follower.setInverted(inverted);
+        leader.setInverted(false);
+        follower.setInverted(false);
         
         // Set Ramp Rate
-        leader.setRampRate(rampRate);
-        follower.setRampRate(rampRate);
+        leader.setRampRate(RAMP_Rate);
+        follower.setRampRate(RAMP_Rate);
 
         follower.follow(leader);
-        return leader;
+        leader.setPID(KF, KP, KI, KD, I_Zone, pidSlot);
     }
     
     /**
