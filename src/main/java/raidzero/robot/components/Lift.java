@@ -2,6 +2,7 @@ package raidzero.robot.components;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
+import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -10,8 +11,7 @@ public class Lift {
     private final static double rampRate = 0.5;
     private final static int PIDSlot = 0;
 
-    private CANSparkMax leader;
-    private SparkSensors sensors;
+    private SparkMaxPrime leader;
 
     /**
      * Constucts the Lift object and sets up the motors.
@@ -22,8 +22,7 @@ public class Lift {
      */
     public Lift(int leaderID, int followerID, boolean inverted) {
         leader = init(leaderID, followerID, inverted);
-        sensors = new SparkSensors(leader);
-        sensors.setPID(FPID, PIDSlot);
+        leader.setPID(FPID, PIDSlot);
     }
 
     /**
@@ -34,8 +33,8 @@ public class Lift {
      * @param inverted inversion of the motor direction
      * @return the leader talon
      */
-    private CANSparkMax init(int leaderID, int followerID, boolean inverted) {
-        CANSparkMax leader = new CANSparkMax(leaderID, MotorType.kBrushless);
+    private SparkMaxPrime init(int leaderID, int followerID, boolean inverted) {
+        SparkMaxPrime leader = new SparkMaxPrime(leaderID, MotorType.kBrushless);
         CANSparkMax follower = new CANSparkMax(followerID, MotorType.kBrushless);
 
         // Set Brake Mode
@@ -48,7 +47,7 @@ public class Lift {
         
         // Set Ramp Rate
         leader.setRampRate(rampRate);
-        follower.setRampRate(rampRate);        
+        follower.setRampRate(rampRate);
 
         follower.follow(leader);
         return leader;
@@ -60,8 +59,8 @@ public class Lift {
      * <p> Should be periodically called.
      */
     public void limitReset() {
-        if (sensors.getLimitSwitch().get()) {
-            sensors.setEncoder(0);
+        if (leader.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyClosed).get()) {
+            leader.setEncoder(0);
         }
     }
 
@@ -71,15 +70,15 @@ public class Lift {
      * @param percentV The percentage voltage from -1.0 to 1.0 to run the motors
      */
     public void movePercent(double percentV) {
-        sensors.getPIDController().setReference(percentV, ControlType.kDutyCycle);
+        leader.set(percentV, ControlType.kDutyCycle, PIDSlot);
     }
 
     /**
-     * Moves the lift to a certain encoder position.
+     * Runs the lift to a certain encoder position.
      * 
      * @param pos the encoder position to move to
      */
-    public void movePosition(int pos) {
-        sensors.getPIDController().setReference(pos, ControlType.kPosition, PIDSlot);
+    public void movePosition(double pos) {
+        leader.set(pos, ControlType.kPosition, PIDSlot);
     }
 }
