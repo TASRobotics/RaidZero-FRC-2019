@@ -62,7 +62,7 @@ public class SparkMaxPrime extends CANSparkMax {
      * @param pos the position desired
      */
     public void setEncoder(double pos) {
-        relZero = pos + encoder.getPosition();
+        relZero = encoder.getPosition() - pos;
     }
 
     /**
