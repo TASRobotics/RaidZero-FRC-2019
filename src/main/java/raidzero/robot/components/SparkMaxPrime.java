@@ -31,7 +31,11 @@ public class SparkMaxPrime extends CANSparkMax {
     /**
      * Sets up the FPID and IZone.
      * 
-     * @param FPID the FPID values and integral zone in that order
+     * @param kF the feed forward value to set
+     * @param kP the P gain value to set
+     * @param kI the I gain value to set
+     * @param kD the D gain value to set
+     * @param iZone the IZone value to set
      * @param pidSlot the PID slot for this PID
      */
     public void setPID(double kF, double kP, double kI, double kD, double iZone, int pidSlot) {
