@@ -1,6 +1,8 @@
 package raidzero.robot.components;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+
+import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -76,7 +78,7 @@ public class Base {
     public TalonSRX getLeftMotor() {
         return leftMotor;
     }
-
+     
     public void setLowGear() {
         gearShift.set(DoubleSolenoid.Value.kReverse);
     }
@@ -88,5 +90,31 @@ public class Base {
     public PigeonIMU getPigeon() {
         return pigeon;
     }
+
+    public TrajectoryPoint PathpointToTP(PathPoint pp) {
+        TrajectoryPoint tp = new TrajectoryPoint();
+
+        // There may be some constants that need to be multiplied to correct values below
+        tp.position = pp.position;
+        tp.velocity = pp.velocity;
+        tp.timeDur = pp.time;
+        tp.auxiliaryPos = pp.degree; // may be tp.headingDeg instead
+        return tp;
+    }
+
+    // Starts to fill the PathPoints into CANTalons for motion profiling
+    public void startFilling(PathPoint[] waypoints, TalonSRX talon, int PID_SLOT) {
+        for (int i = 0; i < waypoints.length; i++) {
+            TrajectoryPoint temp = PathpointToTP(waypoints[i]);
+            temp.profileSlotSelect0 = PID_SLOT;
+            temp.profileSlotSelect1 = 0;
+            temp.zeroPos = false;
+            if (i == waypoints.length - 1)
+                temp.zeroPos = true;
+            talon.pushMotionProfileTrajectory(temp);
+        }
+
+    }
+
 
 }
