@@ -20,6 +20,8 @@ public class Base {
     private static final double[] motProfFPID = { 0, 0, 0, 0, 0, 1.0};
     private static final double[] turnFPID = { 0, 0, 0, 0, 0, 1.0};
 
+    private PigeonIMU pigeon;
+
     public Base() {
         rightMotor = initSide(0, false);
         leftMotor = initSide(1, true);
@@ -31,6 +33,7 @@ public class Base {
         rightMotor = initSide(rLeaderid, false);
         leftMotor = initSide(lLeaderid, true);
         gearShift = new DoubleSolenoid(forwardChannel, reverseChannel);
+        pigeon = new PigeonIMU(0);
     }
 
     public TalonSRX initSide(int leaderID, boolean invert) {
@@ -48,8 +51,8 @@ public class Base {
         follower.setNeutralMode(NeutralMode.Brake);
         follower1.setNeutralMode(NeutralMode.Brake);
 
-        follower.follow(TalonSRX(leaderID));
-        follower1.follow(TalonSRX(leaderID));
+        follower.follow(new TalonSRX(leaderID));
+        follower1.follow(new TalonSRX(leaderID));
 
         leader.setInverted(invert);
         follower.setInverted(!invert);
@@ -66,5 +69,24 @@ public class Base {
         temp.config_IntegralZone(PID_SLOT, (int) FPID[4]);
     }
 
+    public TalonSRX getRightMotor() {
+        return rightMotor;
+    }
+
+    public TalonSRX getLeftMotor() {
+        return leftMotor;
+    }
+
+    public void setLowGear() {
+        gearShift.set(DoubleSolenoid.Value.kReverse);
+    }
+
+    public void setHighGear() {
+        gearShift.set(DoubleSolenoid.Value.kForward);
+    }
+
+    public PigeonIMU getPigeon() {
+        return pigeon;
+    }
 
 }
