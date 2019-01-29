@@ -14,7 +14,7 @@ public class Lift {
     private static final double KD = 0.0;
     private static final double I_ZONE = 0.0;
     private static final double RAMP_RATE = 0.5;
-    private static final int PID_Slot = 0;
+    private static final int PID_SLOT = 0;
 
     private SparkMaxPrime leader;
     private CANSparkMax follower;
@@ -43,7 +43,7 @@ public class Lift {
         follower.setRampRate(RAMP_RATE);
 
         follower.follow(leader);
-        leader.setPID(KF, KP, KI, KD, I_ZONE, PID_Slot);
+        leader.setPID(KF, KP, KI, KD, I_ZONE, PID_SLOT);
     }
     
     /**
@@ -63,7 +63,7 @@ public class Lift {
      * @param percentV The percentage voltage from -1.0 to 1.0 to run the motors
      */
     public void movePercent(double percentV) {
-        leader.set(percentV, ControlType.kDutyCycle, PID_Slot);
+        leader.set(percentV, ControlType.kDutyCycle, PID_SLOT);
     }
 
     /**
@@ -72,7 +72,7 @@ public class Lift {
      * @param pos the encoder position to move to
      */
     public void movePosition(double pos) {
-        leader.set(pos, ControlType.kPosition, PID_Slot);
+        leader.set(pos, ControlType.kPosition, PID_SLOT);
     }
 
 }
