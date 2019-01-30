@@ -1,6 +1,9 @@
 package raidzero.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Joystick;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 /**
@@ -9,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 public class Robot extends TimedRobot {
 
     Joystick stick;
+
     @Override
     public void robotInit() {
         stick = new Joystick(0);
@@ -31,9 +35,11 @@ public class Robot extends TimedRobot {
         
     }
 
-    public void setMotor(TalonSRX a, int b) {
-    	if (stick.getRawAxis(b) > 0.2 || stick.getRawAxis(b) < -0.2)
-    	a.set(stick.getRawAxis(b));
+    public void setMotor(TalonSRX target, int axis) {
+        double axisValue = stick.getRawAxis(axis);
+    	if (axisValue > 0.2 || axisValue < -0.2) {
+            target.set(ControlMode.PercentOutput, axisValue);
+        }
     }
 
     @Override
