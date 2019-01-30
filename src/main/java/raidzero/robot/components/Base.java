@@ -38,10 +38,10 @@ public class Base {
      * @param invert whether to invert the leader or not
      * @return the newly constructed leader motor object
      */
-    private TalonSRX initSide(int leaderID, boolean invert) {
-        TalonSRX leader = new TalonSRX(leaderID);
-        TalonSRX follower = new TalonSRX(leaderID + 2);
-        TalonSRX follower1 = new TalonSRX(leaderID + 4);
+    private TalonSRX initSide(int leaderId, boolean invert) {
+        TalonSRX leader = new TalonSRX(leaderId);
+        TalonSRX follower = new TalonSRX(leaderId + 2);
+        TalonSRX follower1 = new TalonSRX(leaderId + 4);
 
         leader.configFactoryDefault();
         leader.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
