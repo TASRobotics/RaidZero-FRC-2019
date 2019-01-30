@@ -18,16 +18,21 @@ public class Base {
     /**
      * Constructs a Drive object and sets up the motors and gear shift.
      * 
-     * @param lLeaderID the ID of the left leader motor
-     * @param rLeaderID the ID of the right leader motor
+     * @param lLeaderId the ID of the left leader motor
+     * @param lFollower1Id the ID of the first left follower motor
+     * @param lFollower2Id the ID of the second left follower motor
+     * @param rLeaderId the ID of the right leader motor
+     * @param rFollower1Id the ID of the first right follower motor
+     * @param rFollower2Id the ID of the second right follower motor
      * @param forwardChannel the forward channel for the gear shift
      * @param reverseChannel the reverse channel for the gear shift
+     * @param pigeonId the ID of the pigeon
      */
-    public Base(int rLeaderId, int lLeaderId, int forwardChannel, int reverseChannel) {
-        rightMotor = initSide(rLeaderId, false);
-        leftMotor = initSide(lLeaderId, true);
+    public Base(int rLeaderId, int rFollower1Id, int rFollower2Id, int lLeaderId, int lFollower1Id, int lFollower2Id, int forwardChannel, int reverseChannel, int pigeonId) {
+        rightMotor = initSide(rLeaderId, rFollower1Id, rFollower2Id, false);
+        leftMotor = initSide(lLeaderId, lFollower1Id, lFollower2Id, true);
         gearShift = new DoubleSolenoid(forwardChannel, reverseChannel);
-        pigeon = new PigeonIMU(0);
+        pigeon = new PigeonIMU(pigeonId);
     }
 
     /**
@@ -38,10 +43,10 @@ public class Base {
      * @param invert whether to invert the leader or not
      * @return the newly constructed leader motor object
      */
-    private TalonSRX initSide(int leaderId, boolean invert) {
+    private TalonSRX initSide(int leaderId, int follower1Id, int follower2Id, boolean invert) {
         TalonSRX leader = new TalonSRX(leaderId);
-        TalonSRX follower = new TalonSRX(leaderId + 2);
-        TalonSRX follower1 = new TalonSRX(leaderId + 4);
+        TalonSRX follower1 = new TalonSRX(follower1Id);
+        TalonSRX follower2 = new TalonSRX(follower2Id);
 
         leader.configFactoryDefault();
         leader.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
@@ -49,15 +54,15 @@ public class Base {
         leader.configNeutralDeadband(0.001);
 
         leader.setNeutralMode(NeutralMode.Brake);
-        follower.setNeutralMode(NeutralMode.Brake);
         follower1.setNeutralMode(NeutralMode.Brake);
+        follower2.setNeutralMode(NeutralMode.Brake);
 
-        follower.follow(leader);
         follower1.follow(leader);
+        follower2.follow(leader);
 
         leader.setInverted(invert);
-        follower.setInverted(!invert);
         follower1.setInverted(!invert);
+        follower2.setInverted(!invert);
 
         return leader;
     }
