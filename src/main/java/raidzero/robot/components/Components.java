@@ -9,8 +9,9 @@ package raidzero.robot.components;
  */
 public class Components {
 
-    private static Intake intake;
     private static Lift lift;
+    private static Arm arm;
+    private static Intake intake;
 
     /**
      * Initializes each component by calling its constructor.
@@ -20,8 +21,9 @@ public class Components {
      */
 
     public static void initialize() {
-        intake = new Intake(14, 2, 3); 
         lift = new Lift(10, 11);
+        arm = new Arm(12, 13);
+        intake = new Intake(14, 2, 3); 
     }
 
     /**
@@ -41,6 +43,15 @@ public class Components {
 
     public static Lift getLift() {
         return lift;
+    }
+
+    /**
+     * Returns the arm component.
+     * 
+     * @return the arm component
+     */
+    public static Arm getArm() {
+        return arm;
     }
 
 }

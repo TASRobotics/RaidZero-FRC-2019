@@ -49,7 +49,10 @@ public class Teleop {
         
         // Player 2
 
-        // Intake
+        // Arm
+        Components.getArm().movePercentOutput(controller2.getY(kRight));
+
+        // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
         double leftTriggerAxis2 = controller2.getTriggerAxis(kLeft);
         if (rightTriggerAxis2 > 0.1) {
@@ -60,6 +63,13 @@ public class Teleop {
             Components.getIntake().stopWheels();
         }
 
+        // Hook
+        if (controller2.getBumperPressed(kRight)) {
+            Components.getIntake().grab();
+        } else if (controller2.getBumperPressed(kLeft)) {
+            Components.getIntake().release();
+        }
+        
     }
 
 }
