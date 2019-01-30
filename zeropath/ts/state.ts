@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events';
 
+import * as field from './field';
+
 export interface Point {
     x: number;
     y: number;
@@ -11,12 +13,15 @@ export const enum StateEvent {
 }
 
 export const waypoints = [{
-    x: 100,
-    y: 200
+    x: 0,
+    y: 0
 }, {
-    x: 200,
-    y: 400
+    x: field.length,
+    y: 0
 }, {
-    x: 300,
-    y: 400
+    x: 0,
+    y: field.width
+}, {
+    x: field.length,
+    y: field.width
 }];
