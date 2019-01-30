@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kLeft;
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
 import raidzero.robot.components.Components;
 
 public class Teleop {
@@ -29,7 +31,7 @@ public class Teleop {
      * {@link #run()}.
      */
     public static void setup() {
-        
+        Components.getBase().setHighGear();
     }
 
     /**
@@ -40,6 +42,19 @@ public class Teleop {
     public static void run() {
         
         // Player 1
+
+        // Drive
+        Components.getBase().getRightMotor().set(ControlMode.PercentOutput, 
+            controller1.getY(kRight));
+        Components.getBase().getLeftMotor().set(ControlMode.PercentOutput, 
+            controller1.getY(kLeft));
+        
+        // Gear Shift
+        if (controller1.getBumperPressed(kRight)) {
+            Components.getBase().setHighGear();
+        } else if (controller1.getBumperPressed(kLeft)) {
+            Components.getBase().setLowGear();
+        }
 
         // Lift
         double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);

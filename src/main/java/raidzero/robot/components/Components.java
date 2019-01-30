@@ -9,6 +9,7 @@ package raidzero.robot.components;
  */
 public class Components {
 
+    private static Base base;
     private static Lift lift;
     private static Arm arm;
     private static Intake intake;
@@ -19,11 +20,11 @@ public class Components {
      * <p>Make sure this method has been called before accessing any components, as they will be
      * null before this method is called.
      */
-
     public static void initialize() {
+        base = new Base(0, 2, 4, 1, 3, 5, 0, 1, 0);
         lift = new Lift(10, 11);
         arm = new Arm(12, 13);
-        intake = new Intake(14, 2, 3); 
+        intake = new Intake(14, 2, 3);
     }
 
     /**
@@ -52,6 +53,15 @@ public class Components {
      */
     public static Arm getArm() {
         return arm;
+    }
+
+    /**
+     * Returns the base component.
+     * 
+     * @return the base component
+     */
+    public static Base getBase() {
+        return base;
     }
 
 }
