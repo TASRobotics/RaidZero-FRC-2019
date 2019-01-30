@@ -11,6 +11,8 @@ public class PathGenerator {
     public static PathPoint[] generatePath(Point[] waypoints,
     double cruiseVelocity, double targetAcceleration) {
 
+        targetAcceleration /= 10;
+
         var waypointXValues = new double[waypoints.length];
         var waypointYValues = new double[waypoints.length];
         for (var i = 0; i < waypoints.length; i++) {
