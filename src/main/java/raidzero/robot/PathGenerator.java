@@ -4,7 +4,7 @@ import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
 
 public class PathGenerator {
 
-    private static final double queryInterval = 1;
+    private static final double QUERY_INTERVAL = 1;
 
     private static SplineInterpolator splineInterpolator = new SplineInterpolator();
 
@@ -32,13 +32,13 @@ public class PathGenerator {
         var xSpline = splineInterpolator.interpolate(cumulativeWaypointDistances, waypointXValues);
         var ySpline = splineInterpolator.interpolate(cumulativeWaypointDistances, waypointYValues);
 
-        var queryCount = (int) Math.ceil(totalWaypointDistance / queryInterval) + 1;
+        var queryCount = (int) Math.ceil(totalWaypointDistance / QUERY_INTERVAL) + 1;
         var xQueries = new double[queryCount];
         var yQueries = new double[queryCount];
 
         for (var i = 0; i < queryCount - 1; i++) {
-            xQueries[i] = xSpline.value(i * queryInterval);
-            yQueries[i] = ySpline.value(i * queryInterval);
+            xQueries[i] = xSpline.value(i * QUERY_INTERVAL);
+            yQueries[i] = ySpline.value(i * QUERY_INTERVAL);
         }
         xQueries[queryCount - 1] = waypointXValues[waypointXValues.length - 1];
         yQueries[queryCount - 1] = waypointYValues[waypointYValues.length - 1];
