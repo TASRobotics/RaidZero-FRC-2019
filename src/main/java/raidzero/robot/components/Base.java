@@ -28,7 +28,8 @@ public class Base {
      * @param reverseChannel the reverse channel for the gear shift
      * @param pigeonId the ID of the pigeon
      */
-    public Base(int rLeaderId, int rFollower1Id, int rFollower2Id, int lLeaderId, int lFollower1Id, int lFollower2Id, int forwardChannel, int reverseChannel, int pigeonId) {
+    public Base(int rLeaderId, int rFollower1Id, int rFollower2Id, int lLeaderId, int lFollower1Id, 
+    int lFollower2Id, int forwardChannel, int reverseChannel, int pigeonId) {
         rightMotor = initSide(rLeaderId, rFollower1Id, rFollower2Id, false);
         leftMotor = initSide(lLeaderId, lFollower1Id, lFollower2Id, true);
         gearShift = new DoubleSolenoid(forwardChannel, reverseChannel);
