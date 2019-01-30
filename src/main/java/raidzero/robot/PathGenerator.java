@@ -116,6 +116,10 @@ public class PathGenerator {
             }
         }
 
+        for (var i = path.length - 1; i > 0; i--) {
+            path[i].time -= path[i - 1].time;
+        }
+
         return path;
 
     }
