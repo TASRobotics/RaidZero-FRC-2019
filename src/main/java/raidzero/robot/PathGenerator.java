@@ -2,17 +2,42 @@ package raidzero.robot;
 
 import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
 
+/**
+ * Calculations for generating path from waypoints.
+ */
 public class PathGenerator {
 
+    /**
+     * Number of query points per inch of approximate distance.
+     * 
+     * <p>Increasing this number results in more query points and greater
+     * accuracy for path generation.
+     */
     private static final double QUERY_INTERVAL = 1;
 
     private static SplineInterpolator splineInterpolator = new SplineInterpolator();
 
+    /**
+     * Generates a path that passes through the given waypoints on the field.
+     * 
+     * <p>The returned path contains data which can be passed to motion profile to execute the path.
+     * The robot will accelerate at a constant rate, then reach a constant cruise velocity, then
+     * decelerate at the same rate. In other words, the velocity vs time graph shows an isosceles
+     * trapezoid.
+     * 
+     * @param waypoints points that the path should pass through
+     * @param cruiseVelocity the target constant cruise velocity of the robot in in/100ms
+     * @param targetAcceleration the target constant acceleration (and deceleration) of the robot in
+     * in/100ms/s
+     * @return an array of points on the path
+     */
     public static PathPoint[] generatePath(Point[] waypoints,
     double cruiseVelocity, double targetAcceleration) {
 
+        // Convert the target acceleration to in/(100ms)^2 for consistent unit of time
         targetAcceleration /= 10;
 
+        // Separate the waypoints array into two arrays of x and y values respectively
         var waypointXValues = new double[waypoints.length];
         var waypointYValues = new double[waypoints.length];
         for (var i = 0; i < waypoints.length; i++) {
@@ -20,6 +45,7 @@ public class PathGenerator {
             waypointYValues[i] = waypoints[i].y;
         }
 
+        // Calculate the running total of straight-line distances between waypoints
         var cumulativeWaypointDistances = new double[waypoints.length];
         for (var i = 1; i < waypoints.length; i++) {
             cumulativeWaypointDistances[i] = cumulativeWaypointDistances[i - 1]
@@ -29,9 +55,18 @@ public class PathGenerator {
         var totalWaypointDistance =
             cumulativeWaypointDistances[cumulativeWaypointDistances.length - 1];
 
+        // Use the straight-line distance between waypoints as a monotonically increasing
+        // approximation for the time/distance parameter (since we don't know the time or distance
+        // yet) to calculate spline interpolations for the x values and y values separately.
+        // This means that the resulting query points for the spline will NOT be evenly spaced with
+        // respect to time or distance.
         var xSpline = splineInterpolator.interpolate(cumulativeWaypointDistances, waypointXValues);
         var ySpline = splineInterpolator.interpolate(cumulativeWaypointDistances, waypointYValues);
 
+        // We want queries to be evenly spaced (with respect to straight-line distance between
+        // waypoints) starting from the first waypoint, then have a query at the last waypoint no
+        // matter what. This may result in the spacing between the second-to-last waypoint and the
+        // last waypoint to be different than the standard query interval.
         var queryCount = (int) Math.ceil(totalWaypointDistance / QUERY_INTERVAL) + 1;
         var xQueries = new double[queryCount];
         var yQueries = new double[queryCount];
@@ -48,6 +83,12 @@ public class PathGenerator {
             path[i] = new PathPoint();
         }
 
+        // The angle for each point is calculated relative to the previous point.
+        // Since atan2 wraps the angle to be within -180 to 180 (because it has no way of knowing
+        // the actual angle of the robot), we estimate the real unwrapped angle by looking at if the
+        // current angle would be closer to the previous angle after adding or subtracting 360. This
+        // is fine because the robot can't turn more than 180 degrees in between two data points on
+        // the path. The angle for the first point is the same as that of the second point.
         for (var i = 1; i < path.length; i++) {
             path[i].angle = Math.toDegrees(Math.atan2(
                 yQueries[i] - yQueries[i - 1], xQueries[i] - xQueries[i - 1]));
@@ -62,24 +103,39 @@ public class PathGenerator {
         }
         path[0].angle = path[1].angle;
 
+        // Position is calculated with a running total of linear chordal arc length approximations.
         for (var i = 1; i < path.length; i++) {
             path[i].position = path[i - 1].position
                 + Math.hypot(xQueries[i] - xQueries[i - 1], yQueries[i] - yQueries[i - 1]);
         }
         var totalDistance = path[path.length - 1].position;
 
+        // Calculations for velocity and time are in three separate stages for the acceleration,
+        // constant velocity, and deceleration parts respectively.
         {
-            boolean reachesCruiseVelocity = false;
+            var reachesCruiseVelocity = false;
+            // First stage: we find velocity and time for data points assuming constant acceleration
+            // up until either (1) we reach the cruise velocity, or (2) we have not reached cruise
+            // velocity and we are halfway through the path already, in which case we must start
+            // decelerating.
             int i;
             for (i = 0; path[i].position <= totalDistance / 2; i++) {
+                // v^2 = 2 a x
+                // v = sqrt(2 a x)
                 var velocity = Math.sqrt(2 * targetAcceleration * path[i].position);
                 if (velocity > cruiseVelocity) {
                     reachesCruiseVelocity = true;
                     break;
                 }
                 path[i].velocity = velocity;
+                // x = (1/2) a t^2
+                // t^2 = 2 x / a
+                // t = sqrt(2 x / a)
                 path[i].time = Math.sqrt(2 * path[i].position / targetAcceleration);
             }
+            // Third stage for velocity: we do the same thing as the first stage, but working
+            // backwards instead. We stop when either (1) we reach the cruise velocity, or (2) we
+            // reach where stage 1 stopped, in which case there is no constant velocity part.
             int j;
             for (j = path.length - 1; j >= i; j--) {
                 var velocity = Math.sqrt(2 * targetAcceleration
@@ -89,15 +145,27 @@ public class PathGenerator {
                 }
                 path[j].velocity = velocity;
             }
+            // v = a t
+            // t = v / a
             var cruiseStartTime = cruiseVelocity / targetAcceleration;
+            // v^2 = 2 a x
+            // x = v^2 / (2 a)
             var cruiseStartPosition = cruiseVelocity * cruiseVelocity / (2 * targetAcceleration);
             int k;
+            // Second stage: we calculate velocity and time in between the end of first stage and
+            // start of third stage. If we never reach the cruise velocity, this loop never runs.
             for (k = i; k <= j; k++) {
                 path[k].velocity = cruiseVelocity;
+                // t = t0 + delta_t
+                // v = delta_x / delta_t
+                // delta_t = delta_x / v
+                // delta_x = x - x0
+                // t = t0 + (x - x0) / v
                 path[k].time = cruiseStartTime
                     + (path[k].position - cruiseStartPosition) / cruiseVelocity;
             }
             var decelerateStartPosition = reachesCruiseVelocity
+                // It takes the same distance to accelerate and decelerate to/from the same velocity
                 ? totalDistance - cruiseStartPosition
                 : totalDistance / 2;
             var decelerateStartTime = reachesCruiseVelocity
@@ -105,8 +173,17 @@ public class PathGenerator {
                 : Math.sqrt(totalDistance / targetAcceleration);
             var decelerateInitialVelocity = reachesCruiseVelocity
                 ? cruiseVelocity
+                // v^2 = 2 a x_mid
+                // v = sqrt(2 a x_mid)
+                // x_mid = x_total / 2
+                // v = sqrt(a x_total)
                 : Math.sqrt(targetAcceleration * totalDistance);
+            // Third stage for time: calculate from end of stage 2 to end of path
             for (; k < path.length; k++) {
+                // x = x0 + v0 t + (1/2) (-a) t^2
+                // (1/2) (-a) t^2 + v0 t + (x0 - x) = 0
+                // t = (-v0 +- sqrt(v0^2 - 4 ((1/2) (-a)) (x0 - x))) / (2 ((1/2) (-a)))
+                // t = (-v0 +- sqrt(v0^2 - 2 (-a) (x0 - x))) / -a
                 path[k].time = decelerateStartTime
                     + (-decelerateInitialVelocity
                         + Math.sqrt(decelerateInitialVelocity * decelerateInitialVelocity
@@ -116,6 +193,7 @@ public class PathGenerator {
             }
         }
 
+        // Calculate the time differences (i.e. make the times not cumulative)
         for (var i = path.length - 1; i > 0; i--) {
             path[i].time -= path[i - 1].time;
         }
