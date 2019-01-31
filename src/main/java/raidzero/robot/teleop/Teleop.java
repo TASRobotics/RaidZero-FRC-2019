@@ -11,6 +11,7 @@ import raidzero.robot.components.Components;
 
 public class Teleop {
 
+    private static final double powerDecreaseConstant = 0.25;
     private static XboxController controller1;
     private static XboxController controller2;
 
@@ -45,9 +46,9 @@ public class Teleop {
 
         // Drive
         Components.getBase().getRightMotor().set(ControlMode.PercentOutput, 
-            controller1.getY(kRight));
+            controller1.getY(kRight)*powerDecreaseConstant);
         Components.getBase().getLeftMotor().set(ControlMode.PercentOutput, 
-            controller1.getY(kLeft));
+            controller1.getY(kLeft)*powerDecreaseConstant);
         
         // Gear Shift
         if (controller1.getBumperPressed(kRight)) {
@@ -61,9 +62,9 @@ public class Teleop {
         double leftTriggerAxis1 = controller1.getTriggerAxis(kLeft);
 
         if (rightTriggerAxis1 > 0.1) {
-            Components.getLift().movePercent(rightTriggerAxis1);
+            Components.getLift().movePercent(rightTriggerAxis1*powerDecreaseConstant);
         } else if (leftTriggerAxis1 > 0.1) {
-            Components.getLift().movePercent(-leftTriggerAxis1 * 0.5);
+            Components.getLift().movePercent((-leftTriggerAxis1 * 0.5)*powerDecreaseConstant);
         } else {
             Components.getLift().movePercent(0);
         }
@@ -71,7 +72,7 @@ public class Teleop {
         // Player 2
 
         // Arm
-        Components.getArm().movePercentOutput(controller2.getY(kRight));
+        Components.getArm().movePercentOutput(controller2.getY(kRight)*powerDecreaseConstant);
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
