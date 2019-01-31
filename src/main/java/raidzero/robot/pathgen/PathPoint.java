@@ -1,4 +1,4 @@
-package raidzero.robot;
+package raidzero.robot.pathgen;
 
 /**
  * Point along a generated robot path.

@@ -1,4 +1,4 @@
-package raidzero.robot;
+package raidzero.robot.pathgen;
 
 /**
  * Simple tuple-like data class with x and y coordinates.

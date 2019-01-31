@@ -1,4 +1,4 @@
-package raidzero.robot;
+package raidzero.robot.pathgen;
 
 import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
 
