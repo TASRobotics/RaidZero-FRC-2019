@@ -60,7 +60,13 @@ public class Teleop {
         double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);
         double leftTriggerAxis1 = controller1.getTriggerAxis(kLeft);
 
-        Components.getLift().movePercent(rightTriggerAxis1 - (leftTriggerAxis1 * 0.5));
+        if (rightTriggerAxis1 > 0.1) {
+            Components.getLift().movePercent(rightTriggerAxis1);
+        } else if (leftTriggerAxis1 > 0.1) {
+            Components.getLift().movePercent(-leftTriggerAxis1 * 0.5);
+        } else {
+            Components.getLift().movePercent(0);
+        }
         
         // Player 2
 

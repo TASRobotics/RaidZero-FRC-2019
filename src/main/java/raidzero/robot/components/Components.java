@@ -41,7 +41,6 @@ public class Components {
      * 
      * @return the lift component
      */
-
     public static Lift getLift() {
         return lift;
     }

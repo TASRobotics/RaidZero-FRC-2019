@@ -126,6 +126,7 @@ public class Arm {
     }
 
     /**
+     * Checks if the arm has reached its target.
      * 
      * @param targetPos the target position
      * @return whether the target has been reached or not
