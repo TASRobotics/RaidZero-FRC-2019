@@ -22,9 +22,9 @@ public class Components {
      */
     public static void initialize() {
         base = new Base(0, 2, 4, 1, 3, 5, 0, 1, 0);
-        lift = new Lift(10, 11);
-        arm = new Arm(12, 13);
-        intake = new Intake(14, 2, 3);
+        lift = new Lift(0, 1);
+        arm = new Arm(6, 7);
+        intake = new Intake(9, 2, 3);
     }
 
     /**
