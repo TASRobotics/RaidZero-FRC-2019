@@ -1,7 +1,6 @@
 package raidzero.robot.pathgen;
 
-import org.apache.commons.math3.analysis.interpolation.HermiteInterpolator;
-import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
+import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
 
 /**
  * Calculations for generating path from waypoints.
@@ -10,7 +9,7 @@ public class PathGenerator {
 
     /**
      * Number of query points per inch of approximate distance.
-     *
+     * 
      * <p>Increasing this number results in more query points and greater
      * accuracy for path generation.
      */
@@ -20,12 +19,12 @@ public class PathGenerator {
 
     /**
      * Generates a path that passes through the given waypoints on the field.
-     *
+     * 
      * <p>The returned path contains data which can be passed to motion profile to execute the path.
      * The robot will accelerate at a constant rate, then reach a constant cruise velocity, then
      * decelerate at the same rate. In other words, the velocity vs time graph shows an isosceles
      * trapezoid.
-     *
+     * 
      * @param waypoints points that the path should pass through
      * @param cruiseVelocity the target constant cruise velocity of the robot in in/100ms
      * @param targetAcceleration the target constant acceleration (and deceleration) of the robot in
@@ -58,28 +57,11 @@ public class PathGenerator {
 
         // Use the straight-line distance between waypoints as a monotonically increasing
         // approximation for the time/distance parameter (since we don't know the time or distance
-        // yet) to calculate hermite spline interpolations for the x values and y values separately.
+        // yet) to calculate spline interpolations for the x values and y values separately.
         // This means that the resulting query points for the spline will NOT be evenly spaced with
         // respect to time or distance.
-        HermiteInterpolator hermiteInterpolatorX = new HermiteInterpolator();
-        HermiteInterpolator hermiteInterpolatorY = new HermiteInterpolator();
-        for (var i = 0; i < waypoints.length; i++) {
-            if (waypoints[i].a.isPresent()) {
-                hermiteInterpolatorX.addSamplePoint(cumulativeWaypointDistances[i],
-                    new double[] {waypoints[i].x}, new double[] {Math.cos(waypoints[i].a.getAsDouble())});
-                hermiteInterpolatorY.addSamplePoint(cumulativeWaypointDistances[i],
-                    new double[] {waypoints[i].y}, new double[] {Math.sin(waypoints[i].a.getAsDouble())});
-            } else {
-                hermiteInterpolatorX.addSamplePoint(cumulativeWaypointDistances[i],
-                    new double[] {waypoints[i].x});
-                hermiteInterpolatorY.addSamplePoint(cumulativeWaypointDistances[i],
-                    new double[] {waypoints[i].y});
-            }
-        }
-        var xSpline = hermiteInterpolatorX.getPolynomials()[0];
-        var ySpline = hermiteInterpolatorY.getPolynomials()[0];
-        var dxSpline = hermiteInterpolatorX.getPolynomials()[0].derivative();
-        var dySpline = hermiteInterpolatorY.getPolynomials()[0].derivative();
+        var xSpline = splineInterpolator.interpolate(cumulativeWaypointDistances, waypointXValues);
+        var ySpline = splineInterpolator.interpolate(cumulativeWaypointDistances, waypointYValues);
 
         // We want queries to be evenly spaced (with respect to straight-line distance between
         // waypoints) starting from the first waypoint, then have a query at the last waypoint no
@@ -101,19 +83,15 @@ public class PathGenerator {
             path[i] = new PathPoint();
         }
 
-        // The angle for each point is calculated from the arctan of the ratio of the y and x derivatives.
+        // The angle for each point is calculated relative to the previous point.
         // Since atan2 wraps the angle to be within -180 to 180 (because it has no way of knowing
         // the actual angle of the robot), we estimate the real unwrapped angle by looking at if the
         // current angle would be closer to the previous angle after adding or subtracting 360. This
         // is fine because the robot can't turn more than 180 degrees in between two data points on
-        // the path. The angle for the first point should be given. The angle of the last points
-        // needs to be inputted directly from last waypoint because derivative function breaks there.
-        path[0].angle = Math.toDegrees(waypoints[0].a.getAsDouble());
+        // the path. The angle for the first point is the same as that of the second point.
         for (var i = 1; i < path.length; i++) {
-            path[i].angle = Math.toDegrees(Math.atan2(dyQueries[i], dxQueries[i]));
-            if (i == path.length - 1) {
-                path[i].angle = Math.toDegrees(waypoints[waypoints.length - 1].a.getAsDouble());
-            }
+            path[i].angle = Math.toDegrees(Math.atan2(
+                yQueries[i] - yQueries[i - 1], xQueries[i] - xQueries[i - 1]));
             if (i > 1) {
                 while (path[i].angle - path[i - 1].angle > 180) {
                     path[i].angle -= 360;
@@ -123,13 +101,12 @@ public class PathGenerator {
                 }
             }
         }
+        path[0].angle = path[1].angle;
 
-        // Position is calculated with a running total of arc lengths with Riemann sum.
-        var cumPos = 0;
+        // Position is calculated with a running total of linear chordal arc length approximations.
         for (var i = 1; i < path.length; i++) {
-            cumPos += 0.5*Math.hypot(dxQueries[i - 1], dyQueries[i - 1])*queryInterval
-                + 0.5*Math.hypot(dxQueries[i], dyQueries[i])*queryInterval;
-            path[i].position = cumPos;
+            path[i].position = path[i - 1].position
+                + Math.hypot(xQueries[i] - xQueries[i - 1], yQueries[i] - yQueries[i - 1]);
         }
         var totalDistance = path[path.length - 1].position;
 
