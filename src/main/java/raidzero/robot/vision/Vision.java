@@ -1,5 +1,6 @@
 package raidzero.robot.vision;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -8,15 +9,16 @@ import raidzero.robot.pathgen.*;
 
 public class Vision {
 
-    private static NetworkTableEntry tx, ty, tv, thor, pipeline;
+    private static NetworkTableEntry tx, tv, thor, pipeline;
 
     private static double xpos, ypos, absoluteAng, pipedex, ang;
+    private static boolean targPres;
 
 	private static final double tapeWidth = 14.0;
 	private static final double ballWidth = 12;//9.2;
     
         
-    public static void initVision() {
+    public static void setup() {
 		NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-kaluza");
 
 		tx = table.getEntry("tx");
@@ -25,20 +27,41 @@ public class Vision {
 		pipeline = table.getEntry("pipeline");
 
 		pipedex = pipeline.getDouble(0.0);
-    }
+	}
+	
+	public static void postToSmartDashBoard() {
+		SmartDashboard.putBoolean("Target Presence", targPres);
+		SmartDashboard.putNumber("XTarget", xpos);
+		SmartDashboard.putNumber("YTarget", ypos);
+		SmartDashboard.putNumber("AbsAng", absoluteAng);
+		SmartDashboard.putNumber("AngTarget", ang);
+		SmartDashboard.putNumber("Pipeline", pipedex);
+	}
+
+	public static Point[] pathToTarg() {
+		if(targPres) {
+			if(pipedex == 0) return new Point[] {new Point(0, 0, absoluteAng), new Point(xpos + 3, ypos - 35, 90)};
+			else return new Point[] {new Point(0, 0, absoluteAng), new Point(xpos, ypos, ang + absoluteAng)};
+		} else {
+			return null;
+		}
+	}
     
-    public static Point[] getTargetPos(double absAng) {
+    public static void calculateTargPos(int mode, double absAng) {
+        pipedex = mode;
+        pipeline.setNumber(pipedex);
+
         if(tv.getDouble(0) == 1.0) {
+			targPres = true;
             absoluteAng = absAng;
 			if(pipedex == 0) {
                 calculateTapePos();
-                return new Point[] {new Point(0, 0, absoluteAng), new Point(xpos + 3, ypos - 35, 90)};
             } else {
                 calculateBallPos();
-                return new Point[] {new Point(0, 0, absoluteAng), new Point(xpos, ypos, ang + absoluteAng)};
             }
-        }
-        return null;
+        } else {
+			targPres = false;
+		}
     }
 
 	public static void calculateTapePos() {
@@ -57,11 +80,9 @@ public class Vision {
 		double ax2 = Math.atan2(Math.tan(Math.toRadians(27))/160*(px - pwidth/2.0 - 160), 1);
 
 		xpos = tapeWidth*Math.tan(radAng - ax1)/(Math.tan(radAng - ax2) - Math.tan(radAng - ax1));
-		ypos = xpos*Math.tan(radAng - ax2);
+        ypos = xpos*Math.tan(radAng - ax2);
         xpos += tapeWidth/2;
         ang = ax;
-        
-        return;
 	}
 
 	public static void calculateBallPos() {
@@ -86,7 +107,5 @@ public class Vision {
 		// ypos = xpos/Math.tan(ax2);
 		// xpos += ballWidth/2;
 		ang = Math.toDegrees((ax1 + ax2)/2);
-
-		// System.out.println(ang +  " " + ax1 + " " + ax2);
 	}
 }
