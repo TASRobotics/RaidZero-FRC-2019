@@ -126,7 +126,7 @@ public class PathGenerator {
         // Position is calculated with a running total of arc lengths with Riemann sum.
         var cumPos = 0;
         for (var i = 1; i < path.length; i++) {
-            cumPos += 0.5*Math.hypot(dxQueries[i - 1], dyQueries[i - 1])*QUERY_INTERVAL
+            cumPos += 0.5 * Math.hypot(dxQueries[i - 1], dyQueries[i - 1]) * QUERY_INTERVAL
                 + 0.5*Math.hypot(dxQueries[i], dyQueries[i])*QUERY_INTERVAL;
             path[i].position = cumPos;
         }
