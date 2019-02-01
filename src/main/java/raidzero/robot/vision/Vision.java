@@ -9,16 +9,16 @@ import raidzero.robot.pathgen.*;
 
 public class Vision {
 
-    private static NetworkTableEntry tx, tv, thor, pipeline;
+	private static NetworkTableEntry tx, tv, thor, pipeline;
 
-    private static double xpos, ypos, absoluteAng, pipedex, ang;
-    private static boolean targPres;
+	public static double xpos, ypos, absoluteAng, pipedex, ang;
+	private static boolean targPres;
 
-	private static final double tapeWidth = 14.0;
+	private static final double tapeWidth = 15.4;
 	private static final double ballWidth = 12;//9.2;
-    
-        
-    public static void setup() {
+	
+		
+	public static void setup() {
 		NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-kaluza");
 
 		tx = table.getEntry("tx");
@@ -40,35 +40,36 @@ public class Vision {
 
 	public static Point[] pathToTarg() {
 		if(targPres) {
-			if(pipedex == 0) return new Point[] {new Point(0, 0, absoluteAng), new Point(xpos + 3, ypos - 35, 90)};
+			if(pipedex == 0) return new Point[] {new Point(0, 0, absoluteAng), new Point(xpos + 4, ypos + 10, 90)};
 			else return new Point[] {new Point(0, 0, absoluteAng), new Point(xpos, ypos, ang + absoluteAng)};
 		} else {
 			return null;
 		}
 	}
-    
-    public static void calculateTargPos(int mode, double absAng) {
-        pipedex = mode;
-        pipeline.setNumber(pipedex);
+	
+	public static void calculateTargPos(int mode, double absAng) {
+		pipedex = mode;
+		pipeline.setNumber(pipedex);
+		
+		absoluteAng = absAng;
 
-        if(tv.getDouble(0) == 1.0) {
-			targPres = true;
-            absoluteAng = absAng;
+		if(tv.getDouble(0) == 1.0) {
+			targPres = true;            
 			if(pipedex == 0) {
-                calculateTapePos();
-            } else {
-                calculateBallPos();
-            }
-        } else {
+				calculateTapePos();
+			} else {
+				calculateBallPos();
+			}
+		} else {
 			targPres = false;
 		}
-    }
+	}
 
 	public static void calculateTapePos() {
 		double radAng = Math.toRadians(absoluteAng);
 
 		//read values
-		double ax = tx.getDouble(0);
+		double ax = tx.getDouble(0) - 8.78;
 		//double ay = ty.getDouble(0);
 		double pwidth = thor.getDouble(0);
 
@@ -80,9 +81,9 @@ public class Vision {
 		double ax2 = Math.atan2(Math.tan(Math.toRadians(27))/160*(px - pwidth/2.0 - 160), 1);
 
 		xpos = tapeWidth*Math.tan(radAng - ax1)/(Math.tan(radAng - ax2) - Math.tan(radAng - ax1));
-        ypos = xpos*Math.tan(radAng - ax2);
-        xpos += tapeWidth/2;
-        ang = ax;
+		ypos = xpos*Math.tan(radAng - ax2);
+		xpos += tapeWidth/2;
+		ang = ax;
 	}
 
 	public static void calculateBallPos() {
