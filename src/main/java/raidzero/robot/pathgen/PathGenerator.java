@@ -1,7 +1,6 @@
 package raidzero.robot.pathgen;
 
 import org.apache.commons.math3.analysis.interpolation.HermiteInterpolator;
-import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
 
 /**
  * Calculations for generating path from waypoints.
@@ -86,13 +85,19 @@ public class PathGenerator {
         var queryCount = (int) Math.ceil(totalWaypointDistance / QUERY_INTERVAL) + 1;
         var xQueries = new double[queryCount];
         var yQueries = new double[queryCount];
+        var dxQueries = new double[queryCount];
+        var dyQueries = new double[queryCount];
 
         for (var i = 0; i < queryCount - 1; i++) {
             xQueries[i] = xSpline.value(i * QUERY_INTERVAL);
-            yQueries[i] = ySpline.value(i * QUERY_INTERVAL);
+            yQueries[i] = ySpline.value(i * QUERY_INTERVAL);            
+            dxQueries[i] = dxSpline.value(i * QUERY_INTERVAL);
+            dyQueries[i] = dySpline.value(i * QUERY_INTERVAL);
         }
         xQueries[queryCount - 1] = waypointXValues[waypointXValues.length - 1];
         yQueries[queryCount - 1] = waypointYValues[waypointYValues.length - 1];
+        dxQueries[queryCount - 1] = Math.cos(waypoints[waypoints.length - 1].a.getAsDouble());
+        dyQueries[queryCount - 1] = Math.sin(waypoints[waypoints.length - 1].a.getAsDouble());
 
         var path = new PathPoint[queryCount];
         for (var i = 0; i < path.length; i++) {
@@ -104,14 +109,10 @@ public class PathGenerator {
         // the actual angle of the robot), we estimate the real unwrapped angle by looking at if the
         // current angle would be closer to the previous angle after adding or subtracting 360. This
         // is fine because the robot can't turn more than 180 degrees in between two data points on
-        // the path. The angle for the first point should be given. The angle of the last points
-        // needs to be inputted directly from last waypoint because derivative function breaks there.
+        // the path. The angle for the first point should be given.
         path[0].angle = Math.toDegrees(waypoints[0].a.getAsDouble());
         for (var i = 1; i < path.length; i++) {
-            path[i].angle = Math.toDegrees(Math.atan2(dyQueries[i], dxQueries[i]));
-            if (i == path.length - 1) {
-                path[i].angle = Math.toDegrees(waypoints[waypoints.length - 1].a.getAsDouble());
-            }
+            path[i].angle = Math.toDegrees(Math.atan2(dyQueries[i], dxQueries[i]));            
             if (i > 1) {
                 while (path[i].angle - path[i - 1].angle > 180) {
                     path[i].angle -= 360;
@@ -125,8 +126,8 @@ public class PathGenerator {
         // Position is calculated with a running total of arc lengths with Riemann sum.
         var cumPos = 0;
         for (var i = 1; i < path.length; i++) {
-            cumPos += 0.5*Math.hypot(dxQueries[i - 1], dyQueries[i - 1])*queryInterval
-                + 0.5*Math.hypot(dxQueries[i], dyQueries[i])*queryInterval;
+            cumPos += 0.5*Math.hypot(dxQueries[i - 1], dyQueries[i - 1])*QUERY_INTERVAL
+                + 0.5*Math.hypot(dxQueries[i], dyQueries[i])*QUERY_INTERVAL;
             path[i].position = cumPos;
         }
         var totalDistance = path[path.length - 1].position;
