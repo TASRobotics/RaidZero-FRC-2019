@@ -71,7 +71,7 @@ public class Teleop {
         // Player 2
 
         // Arm
-        Components.getArm().movePercentOutput(controller2.getY(kRight));
+        Components.getArm().movePercentOutput(controller2.getY(kRight) * 0.5);
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
