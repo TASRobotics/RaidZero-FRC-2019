@@ -92,7 +92,7 @@ public class PathGenerator {
             dyQueries[i] = dySpline.value(i * QUERY_INTERVAL);
         }
         dxQueries[queryCount - 1] = dxSpline.value(totalWaypointDistance);
-        dyQueries[queryCount - 1] = dySpline.value(totalWaypointDistance);        
+        dyQueries[queryCount - 1] = dySpline.value(totalWaypointDistance);
 
         var path = new PathPoint[queryCount];
         for (var i = 0; i < path.length; i++) {
