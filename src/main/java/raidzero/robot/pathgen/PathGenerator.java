@@ -126,7 +126,7 @@ public class PathGenerator {
             double interval = i == path.length - 1 ? lastQueryInterval : QUERY_INTERVAL;
             path[i].position = 0.5 * interval * (Math.hypot(dxQueries[i], dyQueries[i])
                 + Math.hypot(dxQueries[i - 1], dyQueries[i - 1])) + path[i - 1].position;
-        }        
+        }
         var totalDistance = path[path.length - 1].position;
 
         // Calculations for velocity and time are in three separate stages for the acceleration,
