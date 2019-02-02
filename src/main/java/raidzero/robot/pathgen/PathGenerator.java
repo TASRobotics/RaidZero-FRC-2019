@@ -92,6 +92,7 @@ public class PathGenerator {
         }
         dxQueries[queryCount - 1] = dxSpline.value(totalWaypointDistance);
         dxQueries[queryCount - 1] = dxSpline.value(totalWaypointDistance);
+        var lastQueryInterval = totalWaypointDistance - (queryCount - 2) * QUERY_INTERVAL;
 
         var path = new PathPoint[queryCount];
         for (var i = 0; i < path.length; i++) {
@@ -121,9 +122,10 @@ public class PathGenerator {
         // Rectangles are centered at each querypoint, so the cumulative area under curve
         // is half a rectangle each from the last point and the current point.
         for (var i = 1; i < path.length; i++) {
-            path[i].position = 0.5 * QUERY_INTERVAL * (Math.hypot(dxQueries[i], dyQueries[i])
+            double interval = (i == path.length - 1)? lastQueryInterval : QUERY_INTERVAL;            
+            path[i].position = 0.5 * interval * (Math.hypot(dxQueries[i], dyQueries[i])
                 + Math.hypot(dxQueries[i - 1], dyQueries[i - 1])) + path[i - 1].position;
-        }
+        }        
         var totalDistance = path[path.length - 1].position;
 
         // Calculations for velocity and time are in three separate stages for the acceleration,
