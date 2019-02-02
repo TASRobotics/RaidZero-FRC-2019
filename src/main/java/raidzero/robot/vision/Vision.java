@@ -21,7 +21,7 @@ public class Vision {
 	/**
      * Width of tape target
      */
-	public static final double tapeWidth = 15.4;
+	public static final double tapeWidth = 11;
 
 	/**
      * Width of tape target
@@ -69,13 +69,13 @@ public class Vision {
 			Point endPoint;
 			if (pipedex == 0) {
 				// Must be pointing directly at target for tape, while offsets tunable.
-				endPoint = new Point(xpos + 4, ypos + 10, 90);
+				endPoint = new Point(xpos, ypos - 40, 90);
 			} else {
 				// Approach at an angle slightly steeper than angle at which target is seen.
 				// This will make the spline "smoother" in a sense.
 				endPoint = new Point(xpos, ypos, 1.5 * ang + absoluteAng);
 			}
-			return Optional.of(new Point[] {startPoint, endPoint});
+			return Optional.of(new Point[] { startPoint, endPoint });
 		}
 		return Optional.empty();
 	}
@@ -109,7 +109,7 @@ public class Vision {
 
 	private static void calculateTapePos() {
 		// Read x position and width from NetworkTable Entries
-		double ax = tx.getDouble(0) - 8.78;
+		double ax = tx.getDouble(0);
 		double pwidth = thor.getDouble(0);
 
 		// Convert angle of box center to pixel
