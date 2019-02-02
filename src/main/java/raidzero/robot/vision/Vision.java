@@ -7,17 +7,34 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 
 import raidzero.robot.pathgen.*;
 
+/**
+ * Finding position of vision targets and generating waypoints to them.
+ */
 public class Vision {
 
+	/**
+     * NetworkTable Entries from the limelight about target contour
+	 * 
+     * <p>includes x position, y position, bounding box width, and pipeline
+     */
 	private static NetworkTableEntry tx, tv, thor, pipeline;
 
 	public static double xpos, ypos, absoluteAng, pipedex, ang;
 	private static boolean targPres;
 
-	private static final double tapeWidth = 15.4;
-	private static final double ballWidth = 12;//9.2;
+	/**
+     * Width of tape target
+     */
+	public static final double tapeWidth = 15.4;
+
+	/**
+     * Width of tape target
+     */
+	public static final double ballWidth = 12;//9.2;
 	
-		
+	/**
+     * Initializes limelight network table entries.
+     */
 	public static void setup() {
 		NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-kaluza");
 
@@ -29,6 +46,9 @@ public class Vision {
 		pipedex = pipeline.getDouble(0.0);
 	}
 	
+	/**
+     * Posts target information to SmartDashboard.
+     */
 	public static void postToSmartDashBoard() {
 		SmartDashboard.putBoolean("Target Presence", targPres);
 		SmartDashboard.putNumber("XTarget", xpos);
@@ -38,6 +58,9 @@ public class Vision {
 		SmartDashboard.putNumber("Pipeline", pipedex);
 	}
 
+	/**
+     * Generates waypoints for splining to vision target.
+     */
 	public static Point[] pathToTarg() {
 		if(targPres) {
 			if(pipedex == 0) return new Point[] {new Point(0, 0, absoluteAng), new Point(xpos + 4, ypos + 10, 90)};
@@ -47,8 +70,16 @@ public class Vision {
 		}
 	}
 	
-	public static void calculateTargPos(int mode, double absAng) {
-		pipedex = mode;
+	/**
+     * Calculates and stores target position.
+	 * 
+	 * <p>Call periodically when using vision.
+     *
+     * @param pipelineIndex the pipeline to use (0=tape, 1=ball)
+     * @param absAng the gyroscope angle
+     */
+	public static void calculateTargPos(int pipelineIndex, double absAng) {
+		pipedex = pipelineIndex;
 		pipeline.setNumber(pipedex);
 		
 		absoluteAng = absAng;
@@ -65,6 +96,9 @@ public class Vision {
 		}
 	}
 
+	/**
+     * Calculates position of tape relative to robot.
+     */
 	public static void calculateTapePos() {
 		double radAng = Math.toRadians(absoluteAng);
 
@@ -86,6 +120,9 @@ public class Vision {
 		ang = ax;
 	}
 
+	/**
+     * Calculates position of ball relative to robot.
+     */
 	public static void calculateBallPos() {
 		//read values
 		double ax = tx.getDouble(0);
