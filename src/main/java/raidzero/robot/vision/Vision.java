@@ -66,13 +66,16 @@ public class Vision {
 	public static Optional<Point[]> pathToTarg() {
 		if (targPres) {
 			Point startPoint = new Point(0, 0, absoluteAng);
+			Point endPoint;
 			if (pipedex == 0) {
-				return Optional.of(new Point[] {startPoint,
-					new Point(xpos + 4, ypos + 10, 90)});
+				// Must be pointing directly at target for tape, while offsets tunable.
+				endPoint = new Point(xpos + 4, ypos + 10, 90);
 			} else {
-				return Optional.of(new Point[] {startPoint,
-					new Point(xpos, ypos, ang + absoluteAng)});
+				// Approach at an angle slightly steeper than angle at which target is seen.
+				// This will make the spline "smoother" in a sense.
+				endPoint = new Point(xpos, ypos, 1.5 * ang + absoluteAng);
 			}
+			return Optional.of(new Point[] {startPoint, endPoint});
 		}
 		return Optional.empty();
 	}
