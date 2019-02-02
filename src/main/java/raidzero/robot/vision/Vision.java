@@ -12,14 +12,8 @@ import raidzero.robot.pathgen.*;
  */
 public class Vision {
 
-	/**
-     * NetworkTable Entries from the limelight about target contour
-	 * 
-     * <p>includes x position, y position, bounding box width, and pipeline
-     */
 	private static NetworkTableEntry tx, tv, thor, pipeline;
-
-	public static double xpos, ypos, absoluteAng, pipedex, ang;
+	private static double xpos, ypos, absoluteAng, pipedex, ang;
 	private static boolean targPres;
 
 	/**
@@ -96,54 +90,42 @@ public class Vision {
 		}
 	}
 
-	/**
-     * Calculates position of tape relative to robot.
-     */
-	public static void calculateTapePos() {
-		double radAng = Math.toRadians(absoluteAng);
-
-		//read values
+	private static void calculateTapePos() {
+		// Read x position and width from NetworkTable Entries
 		double ax = tx.getDouble(0) - 8.78;
-		//double ay = ty.getDouble(0);
 		double pwidth = thor.getDouble(0);
 
-		//convert ang to pixel
+		// Convert angle of box center to pixel
 		double px = 160*Math.tan(Math.toRadians(ax))/Math.tan(Math.toRadians(27)) + 160;
 
-		//get back to angle for left and right bounds of target
+		// Get angle for left and right bounds of box
 		double ax1 = Math.atan2(Math.tan(Math.toRadians(27))/160*(px + pwidth/2.0 - 160), 1);
 		double ax2 = Math.atan2(Math.tan(Math.toRadians(27))/160*(px - pwidth/2.0 - 160), 1);
 
-		xpos = tapeWidth*Math.tan(radAng - ax1)/(Math.tan(radAng - ax2) - Math.tan(radAng - ax1));
-		ypos = xpos*Math.tan(radAng - ax2);
+		// Calculate position to ball using trigonometry with gyroscope angle
+		xpos = tapeWidth*Math.tan(Math.toRadians(absoluteAng) - ax1)/(Math.tan(Math.toRadians(absoluteAng) - ax2) - Math.tan(Math.toRadians(absoluteAng) - ax1));
+		ypos = xpos*Math.tan(Math.toRadians(absoluteAng) - ax2);
 		xpos += tapeWidth/2;
 		ang = ax;
 	}
 
-	/**
-     * Calculates position of ball relative to robot.
-     */
-	public static void calculateBallPos() {
-		//read values
+	private static void calculateBallPos() {
+		// Read x position and width from NetworkTable Entries
 		double ax = tx.getDouble(0);
-		//double ay = ty.getDouble(0);
 		double pwidth = thor.getDouble(0);
 
-		//convert ang to pixel
+		// Convert angle of box center to pixel
 		double px = 160*Math.tan(Math.toRadians(ax))/Math.tan(Math.toRadians(27)) + 160;
 
-		//get back to angle for left and right bounds of target
+		// Get angle for left and right bounds of box
 		double ax1 = -Math.atan2(Math.tan(Math.toRadians(27))/160*(px + pwidth/2.0 - 160), 1);
 		double ax2 = -Math.atan2(Math.tan(Math.toRadians(27))/160*(px - pwidth/2.0 - 160), 1);
 
-		// System.out.println(ax +  " " + ax1 + " " + ax2);
-
+		// Calculate distance to ball using left and right bounding angles and use
+		// polar to Cartesian formula to get position.
 		double ballDist = ballWidth/2/Math.sin((ax2 - ax1)/2) - 44;
 		xpos = ballDist*Math.cos((ax1 + ax2)/2 + Math.toRadians(absoluteAng));
 		ypos = ballDist*Math.sin((ax1 + ax2)/2 + Math.toRadians(absoluteAng));
-		// xpos = ballWidth*Math.tan(ax2)/(Math.tan(ax1) - Math.tan(ax2));
-		// ypos = xpos/Math.tan(ax2);
-		// xpos += ballWidth/2;
 		ang = Math.toDegrees((ax1 + ax2)/2);
 	}
 }
