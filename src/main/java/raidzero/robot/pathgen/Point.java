@@ -1,9 +1,9 @@
 package raidzero.robot.pathgen;
 
-import java.util.*;
+import java.util.OptionalDouble;
 
 /**
- * Simple tuple-like data class with x and y coordinates.
+ * Simple tuple-like data class with x y coordinates and optional angle.
  */
 public class Point {
 
@@ -20,7 +20,7 @@ public class Point {
     /**
      * The angle, if provided.
      */
-    public final OptionalDouble a;
+    public final OptionalDouble angle;
 
     /**
      * Constructs a Point object.
@@ -31,7 +31,7 @@ public class Point {
     public Point(double x, double y) {
         this.x = x;
         this.y = y;
-        this.a = OptionalDouble.empty();
+        this.angle = OptionalDouble.empty();
     }
 
     /**
@@ -44,6 +44,6 @@ public class Point {
     public Point(double x, double y, double a) {
         this.x = x;
         this.y = y;
-        this.a = OptionalDouble.of(Math.toRadians(a));
+        this.angle = OptionalDouble.of(Math.toRadians(a));
     }
 }
