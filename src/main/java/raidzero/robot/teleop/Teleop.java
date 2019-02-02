@@ -11,7 +11,7 @@ import raidzero.robot.components.Components;
 
 public class Teleop {
 
-    private static final double powerDecreaseConstant = 0.25;
+    private static final double powerDecreaseConstant = 1;
     private static XboxController controller1;
     private static XboxController controller2;
 
@@ -72,7 +72,7 @@ public class Teleop {
         // Player 2
 
         // Arm
-        Components.getArm().movePercentOutput(controller2.getY(kRight)*powerDecreaseConstant);
+        Components.getArm().movePercentOutput(controller2.getY(kRight)*powerDecreaseConstant*0.5);
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);

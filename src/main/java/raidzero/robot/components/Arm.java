@@ -56,9 +56,9 @@ public class Arm {
         //the tachs are daisy chained together
         //which solder pad is soldered will decide which one is forward and reverse
         arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, 
-            LimitSwitchNormal.NormallyClosed);
+            LimitSwitchNormal.NormallyOpen);
         arm.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-            LimitSwitchNormal.NormallyClosed);
+            LimitSwitchNormal.NormallyOpen);
 
         arm.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
         
