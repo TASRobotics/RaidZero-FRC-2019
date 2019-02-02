@@ -24,6 +24,7 @@ public class Components {
         base = new Base(0, 2, 4, 1, 3, 5, 0, 1, 0);
         lift = new Lift(0, 1);
         arm = new Arm(7, 9);
+
         intake = new Intake(6, 2, 3);
     }
 
