@@ -66,13 +66,13 @@ public class PathGenerator {
             double waypointY = waypoints[i].y;
 
             waypoints[i].angle.ifPresentOrElse(ang -> {
-                hermiteInterpolatorX.addSamplePoint(parameterDist, new double[] {waypointX},
-                    new double[] {Math.cos(Math.toRadians(ang))});
-                hermiteInterpolatorY.addSamplePoint(parameterDist, new double[] {waypointY},
-                    new double[] {Math.sin(Math.toRadians(ang))});
+                hermiteInterpolatorX.addSamplePoint(parameterDist, new double[] { waypointX },
+                    new double[] { Math.cos(Math.toRadians(ang)) });
+                hermiteInterpolatorY.addSamplePoint(parameterDist, new double[] { waypointY },
+                    new double[] { Math.sin(Math.toRadians(ang)) });
             }, () -> {
-                hermiteInterpolatorX.addSamplePoint(parameterDist, new double[] {waypointX});
-                hermiteInterpolatorY.addSamplePoint(parameterDist, new double[] {waypointY});
+                hermiteInterpolatorX.addSamplePoint(parameterDist, new double[] { waypointX });
+                hermiteInterpolatorY.addSamplePoint(parameterDist, new double[] { waypointY });
             });
         }
         var dxSpline = hermiteInterpolatorX.getPolynomials()[0].derivative();
@@ -83,6 +83,7 @@ public class PathGenerator {
         // matter what. This may result in the spacing between the second-to-last waypoint and the
         // last waypoint to be different than the standard query interval.
         var queryCount = (int) Math.ceil(totalWaypointDistance / QUERY_INTERVAL) + 1;
+        var lastQueryInterval = totalWaypointDistance % QUERY_INTERVAL;
         var dxQueries = new double[queryCount];
         var dyQueries = new double[queryCount];
 
@@ -91,7 +92,7 @@ public class PathGenerator {
             dyQueries[i] = dySpline.value(i * QUERY_INTERVAL);
         }
         dxQueries[queryCount - 1] = dxSpline.value(totalWaypointDistance);
-        dxQueries[queryCount - 1] = dxSpline.value(totalWaypointDistance);
+        dyQueries[queryCount - 1] = dySpline.value(totalWaypointDistance);        
 
         var path = new PathPoint[queryCount];
         for (var i = 0; i < path.length; i++) {
@@ -116,14 +117,16 @@ public class PathGenerator {
             }
         }
 
-        // Position is calculated with a running total of arc lengths with Riemann sum.
-        // Arclength formula integrate(hypot(dy/dt, dx/dt)*dt) where dt is QUERY_INTERVAL.
-        // Rectangles are centered at each querypoint, so the cumulative area under curve
-        // is half a rectangle each from the last point and the current point.
+        // Position is calculated with a running total of arc lengths with Riemann sum. Arclength
+        // formula integrate(hypot(dy/dt, dx/dt)*dt) where dt is QUERY_INTERVAL. Rectangles are
+        // centered at each querypoint, so the cumulative area under curve is half a rectangle each
+        // from the last point and the current point. The interval for the last pathpoint is shorter
+        // as it is the last waypoint, and QUERY_INTERVAL does not divide into the full path length.
         for (var i = 1; i < path.length; i++) {
-            path[i].position = 0.5 * QUERY_INTERVAL * (Math.hypot(dxQueries[i], dyQueries[i])
+            double interval = i == path.length - 1 ? lastQueryInterval : QUERY_INTERVAL;
+            path[i].position = 0.5 * interval * (Math.hypot(dxQueries[i], dyQueries[i])
                 + Math.hypot(dxQueries[i - 1], dyQueries[i - 1])) + path[i - 1].position;
-        }
+        }        
         var totalDistance = path[path.length - 1].position;
 
         // Calculations for velocity and time are in three separate stages for the acceleration,
