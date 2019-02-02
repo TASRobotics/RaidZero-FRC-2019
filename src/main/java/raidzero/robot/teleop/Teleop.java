@@ -63,7 +63,7 @@ public class Teleop {
         if (rightTriggerAxis1 > 0.1) {
             Components.getLift().movePercent(rightTriggerAxis1);
         } else if (leftTriggerAxis1 > 0.1) {
-            Components.getLift().movePercent((-leftTriggerAxis1 * 0.5));
+            Components.getLift().movePercent(-leftTriggerAxis1 * 0.5);
         } else {
             Components.getLift().movePercent(0);
         }
