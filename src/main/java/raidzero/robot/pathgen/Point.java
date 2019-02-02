@@ -44,6 +44,6 @@ public class Point {
     public Point(double x, double y, double a) {
         this.x = x;
         this.y = y;
-        this.angle = OptionalDouble.of(Math.toRadians(a));
+        this.angle = OptionalDouble.of(a);
     }
 }

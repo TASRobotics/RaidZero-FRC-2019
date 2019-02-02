@@ -68,9 +68,9 @@ public class PathGenerator {
 
             DoubleConsumer angPresent = ((ang) -> {
                 hermiteInterpolatorX.addSamplePoint(parameterDist, new double[] {waypointX},
-                    new double[] {Math.cos(ang)});
+                    new double[] {Math.cos(Math.toRadians(ang))});
                 hermiteInterpolatorY.addSamplePoint(parameterDist, new double[] {waypointY},
-                    new double[] {Math.sin(ang)});
+                    new double[] {Math.sin(Math.toRadians(ang))});
             });
             
             Runnable angAbsent = (() -> {
