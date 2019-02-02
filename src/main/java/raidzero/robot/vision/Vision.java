@@ -5,6 +5,8 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
+import java.util.Optional;
+
 import raidzero.robot.pathgen.*;
 
 /**
@@ -24,7 +26,7 @@ public class Vision {
 	/**
      * Width of tape target
      */
-	public static final double ballWidth = 12;//9.2;
+	public static final double ballWidth = 12;
 	
 	/**
      * Initializes limelight network table entries.
@@ -32,11 +34,13 @@ public class Vision {
 	public static void setup() {
 		NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-kaluza");
 
+		// Initialize the NetworkTable entries from the Limelight
 		tx = table.getEntry("tx");
 		tv = table.getEntry("tv");
 		thor = table.getEntry("thor");
 		pipeline = table.getEntry("pipeline");
 
+		// Set the pipeline index to whatever the limelight is currently at
 		pipedex = pipeline.getDouble(0.0);
 	}
 	
@@ -46,22 +50,31 @@ public class Vision {
 	public static void postToSmartDashBoard() {
 		SmartDashboard.putBoolean("Target Presence", targPres);
 		SmartDashboard.putNumber("XTarget", xpos);
-		SmartDashboard.putNumber("YTarget", ypos);
-		SmartDashboard.putNumber("AbsAng", absoluteAng);
-		SmartDashboard.putNumber("AngTarget", ang);
+		SmartDashboard.putNumber("YTarget", ypos);		
+		SmartDashboard.putNumber("RelAngTarget", ang);
 		SmartDashboard.putNumber("Pipeline", pipedex);
+
+		// Gyro angle is not strictly vision, but also post to SmartDashboard
+		SmartDashboard.putNumber("AbsAng", absoluteAng);
 	}
 
 	/**
      * Generates waypoints for splining to vision target.
+	 * 
+	 * <p>If called without seeing target, will return empty optional.
      */
-	public static Point[] pathToTarg() {
-		if(targPres) {
-			if(pipedex == 0) return new Point[] {new Point(0, 0, absoluteAng), new Point(xpos + 4, ypos + 10, 90)};
-			else return new Point[] {new Point(0, 0, absoluteAng), new Point(xpos, ypos, ang + absoluteAng)};
-		} else {
-			return null;
+	public static Optional<Point[]> pathToTarg() {
+		if (targPres) {
+			Point startPoint = new Point(0, 0, absoluteAng);
+			if (pipedex == 0) {
+				return Optional.of(new Point[] {startPoint,
+					new Point(xpos + 4, ypos + 10, 90)});
+			} else {
+				return Optional.of(new Point[] {startPoint,
+					new Point(xpos, ypos, ang + absoluteAng)});
+			}
 		}
+		return Optional.empty();
 	}
 	
 	/**
@@ -78,11 +91,12 @@ public class Vision {
 		
 		absoluteAng = absAng;
 
-		if(tv.getDouble(0) == 1.0) {
+		// Calculate position of respective target, or none
+		if (tv.getDouble(0) == 1.0) {
 			targPres = true;            
-			if(pipedex == 0) {
+			if (pipedex == 0) {
 				calculateTapePos();
-			} else {
+			} else if (pipedex == 1) {
 				calculateBallPos();
 			}
 		} else {
@@ -96,15 +110,16 @@ public class Vision {
 		double pwidth = thor.getDouble(0);
 
 		// Convert angle of box center to pixel
-		double px = 160*Math.tan(Math.toRadians(ax))/Math.tan(Math.toRadians(27)) + 160;
+		double px = 160*Math.tan(Math.toRadians(ax)) / Math.tan(Math.toRadians(27)) + 160;
 
 		// Get angle for left and right bounds of box
-		double ax1 = Math.atan2(Math.tan(Math.toRadians(27))/160*(px + pwidth/2.0 - 160), 1);
-		double ax2 = Math.atan2(Math.tan(Math.toRadians(27))/160*(px - pwidth/2.0 - 160), 1);
+		double ax1 = Math.atan2(Math.tan(Math.toRadians(27)) / 160 * (px + pwidth / 2.0 - 160), 1);
+		double ax2 = Math.atan2(Math.tan(Math.toRadians(27)) / 160 * (px - pwidth / 2.0 - 160), 1);
 
 		// Calculate position to ball using trigonometry with gyroscope angle
-		xpos = tapeWidth*Math.tan(Math.toRadians(absoluteAng) - ax1)/(Math.tan(Math.toRadians(absoluteAng) - ax2) - Math.tan(Math.toRadians(absoluteAng) - ax1));
-		ypos = xpos*Math.tan(Math.toRadians(absoluteAng) - ax2);
+		xpos = tapeWidth * Math.tan(Math.toRadians(absoluteAng) - ax1) / (Math.tan(Math.toRadians(
+			absoluteAng) - ax2) - Math.tan(Math.toRadians(absoluteAng) - ax1));
+		ypos = xpos * Math.tan(Math.toRadians(absoluteAng) - ax2);
 		xpos += tapeWidth/2;
 		ang = ax;
 	}
@@ -115,17 +130,17 @@ public class Vision {
 		double pwidth = thor.getDouble(0);
 
 		// Convert angle of box center to pixel
-		double px = 160*Math.tan(Math.toRadians(ax))/Math.tan(Math.toRadians(27)) + 160;
+		double px = 160*Math.tan(Math.toRadians(ax)) / Math.tan(Math.toRadians(27)) + 160;
 
 		// Get angle for left and right bounds of box
-		double ax1 = -Math.atan2(Math.tan(Math.toRadians(27))/160*(px + pwidth/2.0 - 160), 1);
-		double ax2 = -Math.atan2(Math.tan(Math.toRadians(27))/160*(px - pwidth/2.0 - 160), 1);
+		double ax1 = Math.atan2(Math.tan(Math.toRadians(27)) / 160 * (px + pwidth / 2.0 - 160), 1);
+		double ax2 = Math.atan2(Math.tan(Math.toRadians(27)) / 160 * (px - pwidth / 2.0 - 160), 1);
 
 		// Calculate distance to ball using left and right bounding angles and use
 		// polar to Cartesian formula to get position.
-		double ballDist = ballWidth/2/Math.sin((ax2 - ax1)/2) - 44;
-		xpos = ballDist*Math.cos((ax1 + ax2)/2 + Math.toRadians(absoluteAng));
-		ypos = ballDist*Math.sin((ax1 + ax2)/2 + Math.toRadians(absoluteAng));
-		ang = Math.toDegrees((ax1 + ax2)/2);
+		double ballDist = ballWidth/2/Math.sin(-(ax2 - ax1)/2) - 44;
+		xpos = ballDist*Math.cos(-(ax1 + ax2) / 2 + Math.toRadians(absoluteAng));
+		ypos = ballDist*Math.sin(-(ax1 + ax2) / 2 + Math.toRadians(absoluteAng));
+		ang = -ax;
 	}
 }
