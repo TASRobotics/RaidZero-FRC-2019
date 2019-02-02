@@ -1,5 +1,7 @@
 package raidzero.robot.components;
 
+import com.revrobotics.CANDigitalInput;
+import com.revrobotics.CANDigitalInput.LimitSwitch;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
@@ -18,6 +20,7 @@ public class Lift {
 
     private SparkMaxPrime leader;
     private CANSparkMax follower;
+  //  private CANDigitalInput LS;
 
     /**
      * Constucts the Lift object and sets up the motors.
@@ -34,6 +37,9 @@ public class Lift {
         leader.setIdleMode(IdleMode.kBrake);
         follower.setIdleMode(IdleMode.kBrake);
         
+        //Set limit switch
+      // LS = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
+
         // Set Inverted
         leader.setInverted(false);
         follower.setInverted(false);
@@ -52,7 +58,7 @@ public class Lift {
      * <p> Should be periodically called.
      */
     public void limitReset() {
-        if (leader.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyClosed).get()) {
+        if (leader.getReverseLimitSwitch(LimitSwitchPolarity.kNormallyClosed).get()) {
             leader.setPosition(0);
         }
     }
