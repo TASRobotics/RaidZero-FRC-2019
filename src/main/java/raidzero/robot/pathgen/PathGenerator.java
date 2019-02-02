@@ -1,7 +1,6 @@
 package raidzero.robot.pathgen;
 
 import org.apache.commons.math3.analysis.interpolation.HermiteInterpolator;
-import java.util.function.DoubleConsumer;
 
 /**
  * Calculations for generating path from waypoints.
@@ -66,19 +65,15 @@ public class PathGenerator {
             double waypointX = waypoints[i].x;
             double waypointY = waypoints[i].y;
 
-            DoubleConsumer angPresent = ((ang) -> {
+            waypoints[i].angle.ifPresentOrElse(ang -> {
                 hermiteInterpolatorX.addSamplePoint(parameterDist, new double[] {waypointX},
                     new double[] {Math.cos(Math.toRadians(ang))});
                 hermiteInterpolatorY.addSamplePoint(parameterDist, new double[] {waypointY},
                     new double[] {Math.sin(Math.toRadians(ang))});
-            });
-            
-            Runnable angAbsent = (() -> {
+            }, () -> {
                 hermiteInterpolatorX.addSamplePoint(parameterDist, new double[] {waypointX});
                 hermiteInterpolatorY.addSamplePoint(parameterDist, new double[] {waypointY});
             });
-
-            waypoints[i].angle.ifPresentOrElse(angPresent, angAbsent);
         }
         var dxSpline = hermiteInterpolatorX.getPolynomials()[0].derivative();
         var dySpline = hermiteInterpolatorY.getPolynomials()[0].derivative();
@@ -91,10 +86,12 @@ public class PathGenerator {
         var dxQueries = new double[queryCount];
         var dyQueries = new double[queryCount];
 
-        for (var i = 0; i < queryCount; i++) {
+        for (var i = 0; i < queryCount - 1; i++) {
             dxQueries[i] = dxSpline.value(i * QUERY_INTERVAL);
             dyQueries[i] = dySpline.value(i * QUERY_INTERVAL);
         }
+        dxQueries[queryCount - 1] = dxSpline.value(totalWaypointDistance);
+        dxQueries[queryCount - 1] = dxSpline.value(totalWaypointDistance);
 
         var path = new PathPoint[queryCount];
         for (var i = 0; i < path.length; i++) {
@@ -108,8 +105,8 @@ public class PathGenerator {
         // is fine because the robot can't turn more than 180 degrees in between two data points on
         // the path. The angle for the first point should be given.
         for (var i = 0; i < path.length; i++) {
-            path[i].angle = Math.toDegrees(Math.atan2(dyQueries[i], dxQueries[i]));            
-            if (i > 1) {
+            path[i].angle = Math.toDegrees(Math.atan2(dyQueries[i], dxQueries[i]));
+            if (i > 0) {
                 while (path[i].angle - path[i - 1].angle > 180) {
                     path[i].angle -= 360;
                 }
@@ -123,11 +120,9 @@ public class PathGenerator {
         // Arclength formula integrate(hypot(dy/dt, dx/dt)*dt) where dt is QUERY_INTERVAL.
         // Rectangles are centered at each querypoint, so the cumulative area under curve
         // is half a rectangle each from the last point and the current point.
-        var cumPos = 0;
         for (var i = 1; i < path.length; i++) {
-            cumPos += 0.5 * Math.hypot(dxQueries[i - 1], dyQueries[i - 1]) * QUERY_INTERVAL
-                + 0.5 * Math.hypot(dxQueries[i], dyQueries[i]) * QUERY_INTERVAL;
-            path[i].position = cumPos;
+            path[i].position = 0.5 * QUERY_INTERVAL * (Math.hypot(dxQueries[i], dyQueries[i])
+                + Math.hypot(dxQueries[i - 1], dyQueries[i - 1])) + path[i - 1].position;
         }
         var totalDistance = path[path.length - 1].position;
 
