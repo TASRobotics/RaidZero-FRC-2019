@@ -1,6 +1,7 @@
 package raidzero.robot.teleop;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kLeft;
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
@@ -8,6 +9,7 @@ import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import raidzero.robot.components.Components;
+import raidzero.robot.components.Arm.Position;
 
 public class Teleop {
 
@@ -71,8 +73,14 @@ public class Teleop {
         // Player 2
 
         // Arm
-        Components.getArm().movePercentOutput(controller2.getY(kRight) * 0.5);
-
+        // if (controller2.getYButton())
+        //     Components.getArm().move(Position.Hatch);
+        // else if (controller2.getBButton())
+        //     Components.getArm().move(Position.Floor);
+        // else
+            Components.getArm().move((int) (Components.getArm().getEncoderPos() - 
+            controller2.getY(kRight) * 100));
+        
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
         double leftTriggerAxis2 = controller2.getTriggerAxis(kLeft);
@@ -90,7 +98,11 @@ public class Teleop {
         } else if (controller2.getBumperPressed(kLeft)) {
             Components.getIntake().release();
         }
-        
+        if (controller2.getAButton())
+            Components.getArm().setEncoder(0);
+        System.out.println("Pos" + Components.getArm().getEncoderPos());
+        SmartDashboard.putNumber("Vel", Components.getArm().getEncoderVel());
+
     }
 
 }

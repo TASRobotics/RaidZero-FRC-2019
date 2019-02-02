@@ -13,20 +13,20 @@ public class Arm {
     private TalonSRX arm;
     private TalonSRX armFollower;
 
-    private static final int FORWARD = 0;
-    private static final int MIDDLE = 1;
+    private static final int FLOOR = 0;
+    private static final int HATCH_LEVEL = 1250;
     private static final int BACKWARD = 1;
 
     private static final int PID_X = 0;
 
-    private static final int TARGET_VEL = 1;
-    private static final int TARGET_ACCEL = 1;
+    private static final int TARGET_VEL = 400;
+    private static final int TARGET_ACCEL = 600;
 
-    private static final double P_VALUE = 1.0;
-    private static final double I_VALUE = 0.0;
-    private static final double D_VALUE = 0.0;
-    private static final double F_VALUE = 0.0;
-    private static final int IZ_VALUE = 0;
+    private static final double P_VALUE = 7.0;
+    private static final double I_VALUE = 0.01;
+    private static final double D_VALUE = 50.0;
+    private static final double F_VALUE = 2.048;
+    private static final int IZ_VALUE = 50;
 
     private static final int VEL_TOLERANCE = 1;
     private static final int POS_TOLERANCE = 1;
@@ -35,7 +35,7 @@ public class Arm {
      * This enum contains the possible positions to go to
      */
     public enum Position {
-        Front, Middle, Back
+        Floor, Hatch, Back
     }
 
     /**
@@ -65,9 +65,10 @@ public class Arm {
         arm.configMotionCruiseVelocity(TARGET_VEL);
         arm.configMotionAcceleration(TARGET_ACCEL);
 
+        arm.setSensorPhase(true);
         arm.setSelectedSensorPosition(0);
-        arm.setInverted(false);
-        armFollower.setInverted(true);
+        arm.setInverted(true);
+        armFollower.setInverted(false);
 
         arm.config_kP(PID_X, P_VALUE);
         arm.config_kI(PID_X, I_VALUE);
@@ -91,8 +92,17 @@ public class Arm {
      * 
      * @return encoder position
      */
-    public int getEncoder() {
+    public int getEncoderPos() {
         return arm.getSelectedSensorPosition(PID_X);
+    }
+
+     /**
+     * Gets the encoder position
+     * 
+     * @return encoder velocity
+     */
+    public int getEncoderVel() {
+        return arm.getSelectedSensorVelocity(PID_X);
     }
 
     /** 
@@ -119,7 +129,7 @@ public class Arm {
      */
     public void checkAndResetAtHardLimit() {
         if (getForwardLimit()) {
-            setEncoder(FORWARD);
+            setEncoder(FLOOR);
         } else if (getReverseLimit()) {
             setEncoder(BACKWARD);
         }
@@ -146,6 +156,10 @@ public class Arm {
         arm.set(ControlMode.PercentOutput, speed);
     }
 
+    public void move(int position) {
+        arm.set(ControlMode.MotionMagic, position);
+    }
+
     /**
      * Moves the arm to one of three positions
      * 
@@ -153,11 +167,11 @@ public class Arm {
      */
     public void move(Position destination) {
         switch (destination) {
-            case Front:
-                arm.set(ControlMode.MotionMagic, FORWARD);
+            case Floor:
+                arm.set(ControlMode.MotionMagic, FLOOR);
                 break;
-            case Middle:
-                arm.set(ControlMode.MotionMagic, MIDDLE);
+            case Hatch:
+                arm.set(ControlMode.MotionMagic, HATCH_LEVEL);
                 break;
             case Back:
                 arm.set(ControlMode.MotionMagic, BACKWARD);
