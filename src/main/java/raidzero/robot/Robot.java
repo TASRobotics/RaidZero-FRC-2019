@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import raidzero.robot.auto.Auto;
 import raidzero.robot.components.Components;
 import raidzero.robot.teleop.Teleop;
+import edu.wpi.first.wpilibj.Compressor;
 
 /**
  * The main robot class.
@@ -18,6 +19,8 @@ public class Robot extends TimedRobot {
         Components.initialize();
         Auto.initialize();
         Teleop.initialize();
+        Compressor c = new Compressor();
+        c.setClosedLoopControl(false);
     }
 
     /**
