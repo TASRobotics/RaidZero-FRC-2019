@@ -27,7 +27,7 @@ public class Vision {
      * Width of tape target
      */
 	public static final double ballWidth = 12;
-	
+
 	/**
      * Initializes limelight network table entries.
      */
@@ -43,14 +43,14 @@ public class Vision {
 		// Set the pipeline index to whatever the limelight is currently at
 		pipedex = pipeline.getDouble(0.0);
 	}
-	
+
 	/**
      * Posts target information to SmartDashboard.
      */
 	public static void postToSmartDashBoard() {
 		SmartDashboard.putBoolean("Target Presence", targPres);
 		SmartDashboard.putNumber("XTarget", xpos);
-		SmartDashboard.putNumber("YTarget", ypos);		
+		SmartDashboard.putNumber("YTarget", ypos);
 		SmartDashboard.putNumber("RelAngTarget", ang);
 		SmartDashboard.putNumber("Pipeline", pipedex);
 
@@ -60,7 +60,7 @@ public class Vision {
 
 	/**
      * Generates waypoints for splining to vision target.
-	 * 
+	 *
 	 * <p>If called without seeing target, will return empty optional.
      */
 	public static Optional<Point[]> pathToTarg() {
@@ -79,10 +79,10 @@ public class Vision {
 		}
 		return Optional.empty();
 	}
-	
+
 	/**
      * Calculates and stores target position.
-	 * 
+	 *
 	 * <p>Call periodically when using vision.
      *
      * @param pipelineIndex the pipeline to use (0=tape, 1=ball)
@@ -91,12 +91,12 @@ public class Vision {
 	public static void calculateTargPos(int pipelineIndex, double absAng) {
 		pipedex = pipelineIndex;
 		pipeline.setNumber(pipedex);
-		
+
 		absoluteAng = absAng;
 
 		// Calculate position of respective target, or none
 		if (tv.getDouble(0) == 1.0) {
-			targPres = true;            
+			targPres = true;
 			if (pipedex == 0) {
 				calculateTapePos();
 			} else if (pipedex == 1) {
