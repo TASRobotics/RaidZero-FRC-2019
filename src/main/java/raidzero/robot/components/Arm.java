@@ -88,7 +88,7 @@ public class Arm {
     }
 
     /**
-     * Gets the encoder position
+     * Returns the encoder position
      * 
      * @return encoder position
      */
@@ -96,8 +96,8 @@ public class Arm {
         return arm.getSelectedSensorPosition(PID_X);
     }
 
-     /**
-     * Gets the encoder velocity
+    /**
+     * Returns the encoder velocity
      * 
      * @return encoder velocity
      */
