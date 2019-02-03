@@ -157,7 +157,7 @@ public class Arm {
     }
 
     /**
-     * Move the arm to a specific position
+     * Move the arm to a specific encoder position
      * 
      * @param position the position in encoder ticks
      */
