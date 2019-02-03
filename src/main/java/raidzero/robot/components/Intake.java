@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
  */
 public class Intake {
 
-    private static DoubleSolenoid.Value OPEN_POSITION = DoubleSolenoid.Value.kReverse;
-    private static DoubleSolenoid.Value CLOSED_POSITION = DoubleSolenoid.Value.kForward;
+    private static DoubleSolenoid.Value OPEN_POSITION = DoubleSolenoid.Value.kForward;
+    private static DoubleSolenoid.Value CLOSED_POSITION = DoubleSolenoid.Value.kReverse;
 
     private TalonSRX intakeMotor;
     private DoubleSolenoid hook;
