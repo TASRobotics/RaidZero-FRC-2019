@@ -97,7 +97,7 @@ public class Arm {
     }
 
      /**
-     * Gets the encoder position
+     * Gets the encoder velocity
      * 
      * @return encoder velocity
      */
@@ -142,8 +142,8 @@ public class Arm {
      * @return whether the target has been reached or not
      */
     public boolean isFinished(double targetPos) {
-        int currentVel = arm.getSelectedSensorVelocity(PID_X);
-        int currentPos = arm.getSelectedSensorPosition(PID_X);
+        int currentVel = getEncoderVel();
+        int currentPos = getEncoderPos();
         return Math.abs(currentVel) <= VEL_TOLERANCE 
             && Math.abs(targetPos - currentPos) <= POS_TOLERANCE;
     }
@@ -156,6 +156,11 @@ public class Arm {
         arm.set(ControlMode.PercentOutput, speed);
     }
 
+    /**
+     * Move the arm to a specific position
+     * 
+     * @param position the position in encoder ticks
+     */
     public void move(int position) {
         arm.set(ControlMode.MotionMagic, position);
     }
