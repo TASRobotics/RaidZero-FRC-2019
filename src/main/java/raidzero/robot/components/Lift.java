@@ -46,14 +46,19 @@ public class Lift {
         leader.setPID(KF, KP, KI, KD, I_ZONE, PID_SLOT);
     }
 
-    public double getEncoder(){
+    /**
+     * Returns the position of the encoder.
+     * 
+     * @return the encoder position
+     */
+    public double getEncoderPos(){
         return leader.getPosition();
     }
     
     /**
      * Resets the encoder if the limit switch detects the lift.
      * 
-     * <p> Should be periodically called.
+     * <p>Should be periodically called.
      */
     public void limitReset() {
         if (leader.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyClosed).get()) {
@@ -71,7 +76,7 @@ public class Lift {
     }
 
     /**
-     * Runs the lift to a certain encoder position.(PID)
+     * Runs the lift to a certain encoder position (PID).
      * 
      * @param pos the encoder position to move to
      */
