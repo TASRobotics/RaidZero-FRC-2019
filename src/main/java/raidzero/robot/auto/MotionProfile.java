@@ -51,10 +51,10 @@ public class MotionProfile {
     private PigeonIMU pidgey;
 
     class PeriodicRunnable implements java.lang.Runnable {
-	    public void run() {
+	public void run() {
             rightTal.processMotionProfileBuffer();    
-        }
 	}
+    }
     Notifier notifer = new Notifier(new PeriodicRunnable());
 
     /**
