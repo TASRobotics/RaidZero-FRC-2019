@@ -90,7 +90,7 @@ public class Arm {
     /**
      * Returns the encoder position
      * 
-     * @return encoder position
+     * @return the encoder position of the arm
      */
     public int getEncoderPos() {
         return arm.getSelectedSensorPosition(PID_X);
@@ -99,32 +99,32 @@ public class Arm {
     /**
      * Returns the encoder velocity
      * 
-     * @return encoder velocity
+     * @return the encoder velocity
      */
     public int getEncoderVel() {
         return arm.getSelectedSensorVelocity(PID_X);
     }
 
     /** 
-     * Returns the value of the reverse limit switch
+     * Returns whether the reverse limit switch has been reached
      * 
-     * @return Whether the reverse limit switch has been reached
+     * @return whether the reverse limit switch has been reached
      */
     private boolean getReverseLimit() {
         return arm.getSensorCollection().isRevLimitSwitchClosed();
     }
 
     /** 
-     * Returns value of the forward limit switch
+     * Returns whether the forward limit switch has been reached
      * 
-     * @return Whether the forward limit switch has been reached
+     * @return whether the forward limit switch has been reached
      */
     private boolean getForwardLimit() {
         return arm.getSensorCollection().isRevLimitSwitchClosed();
     }
 
     /**
-     * Check if the hard limit has been reached, 
+     * Check if the hard limit has been reached
      * and reset the encoder if so
      */
     public void checkAndResetAtHardLimit() {
@@ -142,18 +142,17 @@ public class Arm {
      * @return whether the target has been reached or not
      */
     public boolean isFinished(double targetPos) {
-        int currentVel = getEncoderVel();
-        int currentPos = getEncoderPos();
-        return Math.abs(currentVel) <= VEL_TOLERANCE 
-            && Math.abs(targetPos - currentPos) <= POS_TOLERANCE;
+        return Math.abs(getEncoderVel()) <= VEL_TOLERANCE 
+            && Math.abs(targetPos - getEncoderPos()) <= POS_TOLERANCE;
     }
 
     /**
-     * Moves the arm by percent output
-     * @param speed the speed
+     * Moves the arm by percent output (motor power)
+     * 
+     * @param power the motor power (between -1 and 1)
      */
-    public void movePercentOutput(double speed) {
-        arm.set(ControlMode.PercentOutput, speed);
+    public void movePercentOutput(double power) {
+        arm.set(ControlMode.PercentOutput, power);
     }
 
     /**
