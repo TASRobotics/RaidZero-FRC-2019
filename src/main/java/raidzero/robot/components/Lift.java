@@ -7,6 +7,8 @@ import com.revrobotics.ControlType;
 import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANDigitalInput;
+import com.revrobotics.CANDigitalInput.LimitSwitch;
 
 public class Lift {
 
@@ -20,7 +22,8 @@ public class Lift {
 
     private SparkMaxPrime leader;
     private CANSparkMax follower;
-  //  private CANDigitalInput LS;
+    private CANDigitalInput LS;
+
 
     /**
      * Constucts the Lift object and sets up the motors.
@@ -32,13 +35,14 @@ public class Lift {
     public Lift(int leaderID, int followerID) {
         leader = new SparkMaxPrime(leaderID, MotorType.kBrushless);
         follower = new CANSparkMax(followerID, MotorType.kBrushless);
+        lowLimitSwitch = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
 
         // Set Brake Mode
         leader.setIdleMode(IdleMode.kBrake);
         follower.setIdleMode(IdleMode.kBrake);
         
         //Set limit switch
-      // LS = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
+        LS = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
 
         // Set Inverted
         leader.setInverted(false);

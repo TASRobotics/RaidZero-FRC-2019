@@ -1,6 +1,6 @@
 package raidzero.robot.pathgen;
 
-import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
+import org.apache.commons.math3.analysis.interpolation.HermiteInterpolator;
 
 /**
  * Calculations for generating path from waypoints.
@@ -9,22 +9,20 @@ public class PathGenerator {
 
     /**
      * Number of query points per inch of approximate distance.
-     * 
+     *
      * <p>Increasing this number results in more query points and greater
      * accuracy for path generation.
      */
     private static final double QUERY_INTERVAL = 1;
 
-    private static SplineInterpolator splineInterpolator = new SplineInterpolator();
-
     /**
      * Generates a path that passes through the given waypoints on the field.
-     * 
+     *
      * <p>The returned path contains data which can be passed to motion profile to execute the path.
      * The robot will accelerate at a constant rate, then reach a constant cruise velocity, then
      * decelerate at the same rate. In other words, the velocity vs time graph shows an isosceles
      * trapezoid.
-     * 
+     *
      * @param waypoints points that the path should pass through
      * @param cruiseVelocity the target constant cruise velocity of the robot in in/100ms
      * @param targetAcceleration the target constant acceleration (and deceleration) of the robot in
@@ -57,42 +55,59 @@ public class PathGenerator {
 
         // Use the straight-line distance between waypoints as a monotonically increasing
         // approximation for the time/distance parameter (since we don't know the time or distance
-        // yet) to calculate spline interpolations for the x values and y values separately.
+        // yet) to calculate hermite spline interpolations for the x values and y values separately.
         // This means that the resulting query points for the spline will NOT be evenly spaced with
         // respect to time or distance.
-        var xSpline = splineInterpolator.interpolate(cumulativeWaypointDistances, waypointXValues);
-        var ySpline = splineInterpolator.interpolate(cumulativeWaypointDistances, waypointYValues);
+        HermiteInterpolator hermiteInterpolatorX = new HermiteInterpolator();
+        HermiteInterpolator hermiteInterpolatorY = new HermiteInterpolator();
+        for (var i = 0; i < waypoints.length; i++) {
+            double parameterDist = cumulativeWaypointDistances[i];
+            double waypointX = waypoints[i].x;
+            double waypointY = waypoints[i].y;
+
+            waypoints[i].angle.ifPresentOrElse(ang -> {
+                hermiteInterpolatorX.addSamplePoint(parameterDist, new double[] { waypointX },
+                    new double[] { Math.cos(Math.toRadians(ang)) });
+                hermiteInterpolatorY.addSamplePoint(parameterDist, new double[] { waypointY },
+                    new double[] { Math.sin(Math.toRadians(ang)) });
+            }, () -> {
+                hermiteInterpolatorX.addSamplePoint(parameterDist, new double[] { waypointX });
+                hermiteInterpolatorY.addSamplePoint(parameterDist, new double[] { waypointY });
+            });
+        }
+        var dxSpline = hermiteInterpolatorX.getPolynomials()[0].derivative();
+        var dySpline = hermiteInterpolatorY.getPolynomials()[0].derivative();
 
         // We want queries to be evenly spaced (with respect to straight-line distance between
         // waypoints) starting from the first waypoint, then have a query at the last waypoint no
         // matter what. This may result in the spacing between the second-to-last waypoint and the
         // last waypoint to be different than the standard query interval.
         var queryCount = (int) Math.ceil(totalWaypointDistance / QUERY_INTERVAL) + 1;
-        var xQueries = new double[queryCount];
-        var yQueries = new double[queryCount];
+        var lastQueryInterval = totalWaypointDistance % QUERY_INTERVAL;
+        var dxQueries = new double[queryCount];
+        var dyQueries = new double[queryCount];
 
         for (var i = 0; i < queryCount - 1; i++) {
-            xQueries[i] = xSpline.value(i * QUERY_INTERVAL);
-            yQueries[i] = ySpline.value(i * QUERY_INTERVAL);
+            dxQueries[i] = dxSpline.value(i * QUERY_INTERVAL);
+            dyQueries[i] = dySpline.value(i * QUERY_INTERVAL);
         }
-        xQueries[queryCount - 1] = waypointXValues[waypointXValues.length - 1];
-        yQueries[queryCount - 1] = waypointYValues[waypointYValues.length - 1];
+        dxQueries[queryCount - 1] = dxSpline.value(totalWaypointDistance);
+        dyQueries[queryCount - 1] = dySpline.value(totalWaypointDistance);
 
         var path = new PathPoint[queryCount];
         for (var i = 0; i < path.length; i++) {
             path[i] = new PathPoint();
         }
 
-        // The angle for each point is calculated relative to the previous point.
+        // The angle for each point is calculated using arctan of the ratio between dy and dx.
         // Since atan2 wraps the angle to be within -180 to 180 (because it has no way of knowing
         // the actual angle of the robot), we estimate the real unwrapped angle by looking at if the
         // current angle would be closer to the previous angle after adding or subtracting 360. This
         // is fine because the robot can't turn more than 180 degrees in between two data points on
-        // the path. The angle for the first point is the same as that of the second point.
-        for (var i = 1; i < path.length; i++) {
-            path[i].angle = Math.toDegrees(Math.atan2(
-                yQueries[i] - yQueries[i - 1], xQueries[i] - xQueries[i - 1]));
-            if (i > 1) {
+        // the path. The angle for the first point should be given.
+        for (var i = 0; i < path.length; i++) {
+            path[i].angle = Math.toDegrees(Math.atan2(dyQueries[i], dxQueries[i]));
+            if (i > 0) {
                 while (path[i].angle - path[i - 1].angle > 180) {
                     path[i].angle -= 360;
                 }
@@ -101,12 +116,16 @@ public class PathGenerator {
                 }
             }
         }
-        path[0].angle = path[1].angle;
 
-        // Position is calculated with a running total of linear chordal arc length approximations.
+        // Position is calculated with a running total of arc lengths with Riemann sum. Arclength
+        // formula integrate(hypot(dy/dt, dx/dt)*dt) where dt is QUERY_INTERVAL. Rectangles are
+        // centered at each querypoint, so the cumulative area under curve is half a rectangle each
+        // from the last point and the current point. The interval for the last pathpoint is shorter
+        // as it is the last waypoint, and QUERY_INTERVAL does not divide into the full path length.
         for (var i = 1; i < path.length; i++) {
-            path[i].position = path[i - 1].position
-                + Math.hypot(xQueries[i] - xQueries[i - 1], yQueries[i] - yQueries[i - 1]);
+            double interval = i == path.length - 1 ? lastQueryInterval : QUERY_INTERVAL;
+            path[i].position = 0.5 * interval * (Math.hypot(dxQueries[i], dyQueries[i])
+                + Math.hypot(dxQueries[i - 1], dyQueries[i - 1])) + path[i - 1].position;
         }
         var totalDistance = path[path.length - 1].position;
 
