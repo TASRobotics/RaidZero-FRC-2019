@@ -45,11 +45,12 @@ public class Climb{
         leader.set(0);
     }
 
-    private double resetEncoder(CANSparkMax neo){
+    private void resetEncoder(CANSparkMax neo){
+        CANSparkMax temp;
+        temp = neo;
         neo = new CANSparkMax(neo.getDeviceId(), MotorType.kBrushless);
-        double position = neo.getEncoder().getPosition();
         neo.close();
-        return position;
+        neo = temp;
     }
 
     public void climb(boolean button){
