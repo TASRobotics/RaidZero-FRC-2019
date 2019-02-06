@@ -58,7 +58,8 @@ public class Climb{
             //  WITH THE LEADER MOTOR DIRECTION IN CODE
             //      (motors spinning in a positive direction will move
             //      clockwise when looking at the rotor side of the motor)
-            //REMEMBER THAT THE GEARBOX MAY REVERSE THE MOTOR DIRECTION
+            //REMEMBER THAT THE PLANETARY GEARBOX WILL NOT REVERSE THE
+            //  DIRECTION, BUT THE SINGLE 72:18 WILL REVERSE THE DIRECTION ONCE
 
             //base PID
 
