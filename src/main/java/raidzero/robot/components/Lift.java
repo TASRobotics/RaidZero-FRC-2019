@@ -12,7 +12,7 @@ public class Lift {
     private static final double KP = 0.18;
     private static final double KI = 0.00;
     private static final double KD = 15.2;
-    private static final double I_ZONE = 0.4;
+    private static final double I_ZONE = 0.0;
     private static final double RAMP_RATE = 0.5;
     private static final int PID_SLOT = 0;
 
