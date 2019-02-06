@@ -16,7 +16,7 @@ public class Teleop {
 
     /**
      * Initializes the teleop-specific components.
-     * 
+     *
      * <p>This should be called when the robot starts up.
      */
     public static void initialize() {
@@ -26,7 +26,7 @@ public class Teleop {
 
     /**
      * Configures the components for use in teleop mode.
-     * 
+     *
      * <p>This should be called once every time the robot is switched to teleop mode, before calling
      * {@link #run()}.
      */
@@ -36,19 +36,19 @@ public class Teleop {
 
     /**
      * Runs the teleop code.
-     * 
+     *
      * <p>This should be called repeatedly during teleop mode.
      */
     public static void run() {
-        
+
         // Player 1
 
         // Drive
-        Components.getBase().getRightMotor().set(ControlMode.PercentOutput, 
+        Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
             controller1.getY(kRight));
-        Components.getBase().getLeftMotor().set(ControlMode.PercentOutput, 
+        Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
             controller1.getY(kLeft));
-        
+
         // Gear Shift
         if (controller1.getBumperPressed(kRight)) {
             Components.getBase().setHighGear();
@@ -67,7 +67,7 @@ public class Teleop {
         } else {
             Components.getLift().movePercent(0);
         }
-        
+
         // Player 2
 
         // Arm
@@ -90,7 +90,10 @@ public class Teleop {
         } else if (controller2.getBumperPressed(kLeft)) {
             Components.getIntake().release();
         }
-        
+
+        //climb
+        Components.getClimb().climb(controller2.getStartButton());
+
     }
 
 }
