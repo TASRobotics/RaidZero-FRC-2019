@@ -15,10 +15,11 @@ public class Teleop {
 
     private static XboxController controller1;
     private static XboxController controller2;
+    private static int armPos;
 
     /**
      * Initializes the teleop-specific components.
-     * 
+     *
      * <p>This should be called when the robot starts up.
      */
     public static void initialize() {
@@ -28,29 +29,30 @@ public class Teleop {
 
     /**
      * Configures the components for use in teleop mode.
-     * 
+     *
      * <p>This should be called once every time the robot is switched to teleop mode, before calling
      * {@link #run()}.
      */
     public static void setup() {
         Components.getBase().setHighGear();
+        armPos = Components.getArm().getEncoderPos();
     }
 
     /**
      * Runs the teleop code.
-     * 
+     *
      * <p>This should be called repeatedly during teleop mode.
      */
     public static void run() {
-        
+
         // Player 1
 
         // Drive
-        Components.getBase().getRightMotor().set(ControlMode.PercentOutput, 
+        Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
             controller1.getY(kRight));
-        Components.getBase().getLeftMotor().set(ControlMode.PercentOutput, 
+        Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
             controller1.getY(kLeft));
-        
+
         // Gear Shift
         if (controller1.getBumperPressed(kRight)) {
             Components.getBase().setHighGear();
@@ -69,18 +71,26 @@ public class Teleop {
         } else {
             Components.getLift().movePercent(0);
         }
-        
+
         // Player 2
 
         // Arm
-        // if (controller2.getYButton())
+        // if (controller2.getYButton()){
         //     Components.getArm().move(Position.Hatch);
-        // else if (controller2.getBButton())
+        // } else if (controller2.getBButton()){
         //     Components.getArm().move(Position.Floor);
-        // else
-            Components.getArm().move((int) (Components.getArm().getEncoderPos() - 
-            controller2.getY(kRight) * 100));
-        
+        // } else{
+            Components.getArm().move(armPos);
+            armPos = (armPos - controller2.getY(kRight) * 100));
+        // }
+
+        //prevent overrotation
+        if (armPos >= 2150){
+            armPos = 2150;
+        } else if (armPos <= 0){
+            armPos = 0;
+        }
+
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
         double leftTriggerAxis2 = controller2.getTriggerAxis(kLeft);
