@@ -17,6 +17,14 @@ public class Climb{
     //do not change the maxRotations for safety
     private final double MAX_ROTATIONS = 160/360;
 
+    /**
+     * Constructs a climb object, intializes the motors
+     *
+     * @param leaderID ID of the leader motor
+     * @param follower1ID ID of the first follower motor
+     * @param follower2ID ID of the second follower motor
+     * @param follower3ID ID of the third follower motor
+     */
     public Climb(int leaderID, int follower1ID, int follower2ID, int follower3ID){
 
         leader = new CANSparkMax(leaderID, MotorType.kBrushless);
@@ -45,14 +53,24 @@ public class Climb{
         leader.set(0);
     }
 
-    private void resetEncoder(CANSparkMax neo){
+    /**
+     * Resets the encoder value by calling the constructor
+     *
+     * @param sparkMax The sparkMax object that needs to reset its encoder value
+     */
+    private void resetEncoder(CANSparkMax sparkMax){
         CANSparkMax temp;
-        temp = neo;
-        neo = new CANSparkMax(neo.getDeviceId(), MotorType.kBrushless);
-        neo.close();
-        neo = temp;
+        temp = sparkMax;
+        sparkMax = new CANSparkMax(sparkMax.getDeviceId(), MotorType.kBrushless);
+        sparkMax.close();
+        sparkMax = temp;
     }
 
+    /**
+     * Climbs while the button is held down
+     *
+     * @param button the button that controls the climb(must be held down during climb)
+     */
     public void climb(boolean button){
 /*
         //first PID base backwards a bit
@@ -77,10 +95,16 @@ public class Climb{
 */
     }
 
+    /**
+     * Moves the climb
+     */
     private void moveLeapFrog(){
         leader.set(1);
     }
 
+    /**
+     * stops the climb
+     */
     private void stopLeapFrog(){
         leader.set(0);
     }
