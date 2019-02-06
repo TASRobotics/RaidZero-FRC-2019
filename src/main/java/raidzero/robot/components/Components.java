@@ -2,9 +2,9 @@ package raidzero.robot.components;
 
 /**
  * The components of the robot.
- * 
+ *
  * <p>Do not construct an instance of this class.
- * 
+ *
  * <p>Make sure the {@link #initialize()} method has been called before accessing any components.
  */
 public class Components {
@@ -13,10 +13,11 @@ public class Components {
     private static Lift lift;
     private static Arm arm;
     private static Intake intake;
+    private static Climb climb;
 
     /**
      * Initializes each component by calling its constructor.
-     * 
+     *
      * <p>Make sure this method has been called before accessing any components, as they will be
      * null before this method is called.
      */
@@ -25,11 +26,12 @@ public class Components {
         lift = new Lift(0, 1);
         arm = new Arm(7, 9);
         intake = new Intake(6, 2, 3);
+        climb = new Climb(5,6,7,8);
     }
 
     /**
      * Returns the intake component.
-     * 
+     *
      * @return the intake component
      */
     public static Intake getIntake() {
@@ -38,7 +40,7 @@ public class Components {
 
     /**
      * Returns the lift component.
-     * 
+     *
      * @return the lift component
      */
     public static Lift getLift() {
@@ -47,16 +49,20 @@ public class Components {
 
     /**
      * Returns the arm component.
-     * 
+     *
      * @return the arm component
      */
     public static Arm getArm() {
         return arm;
     }
 
+    public static Climb getClimb(){
+        return climb;
+    }
+
     /**
      * Returns the base component.
-     * 
+     *
      * @return the base component
      */
     public static Base getBase() {
