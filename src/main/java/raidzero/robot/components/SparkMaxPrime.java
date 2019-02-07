@@ -44,6 +44,7 @@ public class SparkMaxPrime extends CANSparkMax {
         controller.setI(kI, pidSlot);
         controller.setD(kD, pidSlot);
         controller.setIZone(iZone, pidSlot);
+        controller.setOutputRange(-1, 1);
     }
     
     /**
