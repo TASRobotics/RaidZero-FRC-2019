@@ -81,7 +81,7 @@ public class Teleop {
         //     Components.getArm().move(Position.Floor);
         // } else{
             Components.getArm().move(armPos);
-            armPos = (armPos - controller2.getY(kRight) * 80));
+            armPos = (int) (armPos - (controller2.getY(kRight) * 80));
         // }
 
         //prevent overrotation

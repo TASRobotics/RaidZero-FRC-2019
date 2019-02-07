@@ -34,7 +34,7 @@ public class Lift {
     public Lift(int leaderID, int followerID) {
         leader = new SparkMaxPrime(leaderID, MotorType.kBrushless);
         follower = new CANSparkMax(followerID, MotorType.kBrushless);
-        lowLimitSwitch = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
+        LS = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
 
         // Set Brake Mode
         leader.setIdleMode(IdleMode.kBrake);

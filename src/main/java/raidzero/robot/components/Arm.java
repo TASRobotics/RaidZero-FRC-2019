@@ -40,8 +40,8 @@ public class Arm {
 
     /**
     * Constructs the Arm object and configures the arm motor
-    * 
-    * @param armId the ID of the talon controlling the arm 
+    *
+    * @param armId the ID of the talon controlling the arm
     * @param followerId the ID of the talon controlling the second arm motor
     */
     public Arm(int armId, int followerId) {
@@ -55,13 +55,13 @@ public class Arm {
 
         //the tachs are daisy chained together
         //which solder pad is soldered will decide which one is forward and reverse
-        arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, 
+        arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
             LimitSwitchNormal.NormallyOpen);
         arm.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
             LimitSwitchNormal.NormallyOpen);
 
         arm.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-        
+
         arm.configMotionCruiseVelocity(TARGET_VEL);
         arm.configMotionAcceleration(TARGET_ACCEL);
 
@@ -79,7 +79,7 @@ public class Arm {
 
     /**
      * Resets encoder to a certain position
-     * 
+     *
      * @param resetPos the position to reset to
      * resetPos may be changed into an enum, but for now a variable is fine
      */
@@ -89,7 +89,7 @@ public class Arm {
 
     /**
      * Returns the encoder position
-     * 
+     *
      * @return the encoder position of the arm
      */
     public int getEncoderPos() {
@@ -98,25 +98,25 @@ public class Arm {
 
     /**
      * Returns the encoder velocity
-     * 
+     *
      * @return the encoder velocity
      */
     public int getEncoderVel() {
         return arm.getSelectedSensorVelocity(PID_X);
     }
 
-    /** 
+    /**
      * Returns whether the reverse limit switch has been reached
-     * 
+     *
      * @return whether the reverse limit switch has been reached
      */
     private boolean getReverseLimit() {
         return arm.getSensorCollection().isRevLimitSwitchClosed();
     }
 
-    /** 
+    /**
      * Returns whether the forward limit switch has been reached
-     * 
+     *
      * @return whether the forward limit switch has been reached
      */
     private boolean getForwardLimit() {
@@ -137,18 +137,18 @@ public class Arm {
 
     /**
      * Checks if the arm has reached its target.
-     * 
+     *
      * @param targetPos the target position
      * @return whether the target has been reached or not
      */
     public boolean isFinished(double targetPos) {
-        return Math.abs(getEncoderVel()) <= VEL_TOLERANCE 
+        return Math.abs(getEncoderVel()) <= VEL_TOLERANCE
             && Math.abs(targetPos - getEncoderPos()) <= POS_TOLERANCE;
     }
 
     /**
      * Moves the arm by percent output (motor power)
-     * 
+     *
      * @param power the motor power (between -1 and 1)
      */
     public void movePercentOutput(double power) {
@@ -157,7 +157,7 @@ public class Arm {
 
     /**
      * Move the arm to a specific encoder position
-     * 
+     *
      * @param position the position in encoder ticks
      */
     public void move(int position) {
@@ -166,7 +166,7 @@ public class Arm {
 
     /**
      * Moves the arm to one of three positions
-     * 
+     *
      * @param destination the position to move to
      */
     public void move(Position destination) {
