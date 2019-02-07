@@ -20,7 +20,7 @@ public class Lift {
 
     private SparkMaxPrime leader;
     private CANSparkMax follower;
-    private CANDigitalInput LS;
+    private CANDigitalInput limitSwitch;
 
     /**
      * Constucts the Lift object and sets up the motors.
@@ -32,14 +32,13 @@ public class Lift {
     public Lift(int leaderID, int followerID) {
         leader = new SparkMaxPrime(leaderID, MotorType.kBrushless);
         follower = new CANSparkMax(followerID, MotorType.kBrushless);
-        LS = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
 
         // Set Brake Mode
         leader.setIdleMode(IdleMode.kBrake);
         follower.setIdleMode(IdleMode.kBrake);
 
         //Set limit switch
-        LS = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
+        limitSwitch = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
 
         // Set Inverted
         leader.setInverted(false);
