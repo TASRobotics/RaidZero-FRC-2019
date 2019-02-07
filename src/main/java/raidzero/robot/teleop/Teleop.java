@@ -1,7 +1,6 @@
 package raidzero.robot.teleop;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kLeft;
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
@@ -75,16 +74,10 @@ public class Teleop {
         // Player 2
 
         // Arm
-        // if (controller2.getYButton()){
-        //     Components.getArm().move(Position.Hatch);
-        // } else if (controller2.getBButton()){
-        //     Components.getArm().move(Position.Floor);
-        // } else{
             Components.getArm().move(armPos);
             armPos = (int) (armPos - (controller2.getY(kRight) * 80));
-        // }
 
-        //prevent overrotation
+        // Prevent overrotation
         if (armPos >= 2150){
             armPos = 2150;
         } else if (armPos <= 0){
@@ -108,11 +101,7 @@ public class Teleop {
         } else if (controller2.getBumperPressed(kLeft)) {
             Components.getIntake().release();
         }
-        if (controller2.getAButton())
-            Components.getArm().setEncoder(0);
         System.out.println("Pos" + Components.getArm().getEncoderPos());
-        SmartDashboard.putNumber("Vel", Components.getArm().getEncoderVel());
-
     }
 
 }

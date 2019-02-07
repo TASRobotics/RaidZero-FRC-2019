@@ -124,8 +124,7 @@ public class Arm {
     }
 
     /**
-     * Check if the hard limit has been reached
-     * and reset the encoder if so
+     * Check if the hard limit has been reached and reset the encoder if so
      */
     public void checkAndResetAtHardLimit() {
         if (getForwardLimit()) {
