@@ -26,21 +26,21 @@ public class MotionProfile {
     private static final int TIMEOUT_MS = 10;
     private static final double PIGEON_SCALE = 360.0/8192.0;
     
-    private static final double PRIMARY_F = 0;
-    private static final double PRIMARY_P = 0;
+    private static final double PRIMARY_F = 0.8896;
+    private static final double PRIMARY_P = 1;
     private static final double PRIMARY_I = 0;
     private static final double PRIMARY_D = 0;
     private static final int PRIMARY_INT_ZONE = 0;
 
-    private static final double AUX_F = 0;
-    private static final double AUX_P = 0;
+    private static final double AUX_F = 0.2842;
+    private static final double AUX_P = 1;
     private static final double AUX_I = 0;
     private static final double AUX_D = 0;
     private static final int AUX_INT_ZONE = 0;
 
     private static final int BASE_TRAJ_PERIOD_MS = 0;
     private static final double SENSOR_UNITS_PER_INCH = 81.9;
-    private static final int MIN_POINTS_IN_TALON = 20;
+    private static final int MIN_POINTS_IN_TALON = 10;
 
     private boolean start;
     private int state;
@@ -67,9 +67,11 @@ public class MotionProfile {
     public MotionProfile(TalonSRX rightMaster, TalonSRX leftMaster, PigeonIMU pidgey) {
         rightTal = rightMaster;
         leftTal = leftMaster;
+        leftTal.setSensorPhase(true);
         this.pidgey = pidgey;
         setValue = SetValueMotionProfile.Disable;
         status = new MotionProfileStatus();
+        rightTal.changeMotionControlFramePeriod(5);
         notifer.startPeriodic(0.005);
         state = 0;
         setup();
@@ -79,6 +81,9 @@ public class MotionProfile {
      * Sets up the sensors and configurations for MP
      */
     private void setup() {
+        leftTal.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
+        rightTal.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
+
         // Configure the left side encoder as a remote sensor for the right Talon
         rightTal.configRemoteFeedbackFilter(leftTal.getDeviceID(), 
             RemoteSensorSource.TalonSRX_SelectedSensor,	REMOTE_0);
@@ -92,13 +97,15 @@ public class MotionProfile {
         rightTal.configSensorTerm(SensorTerm.Sum1, FeedbackDevice.QuadEncoder);
 
         // Configure Sum [Sum of both QuadEncoders] to be used for Primary PID Index
-        rightTal.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_PRIMARY_SLOT, TIMEOUT_MS);
+        rightTal.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_PRIMARY_SLOT, 
+            TIMEOUT_MS);
 
         // Scale Feedback by 0.5 to half the sum of Distance
         rightTal.configSelectedFeedbackCoefficient(0.5, PID_PRIMARY_SLOT, TIMEOUT_MS);
 
         // Configure Pigeon's Yaw to be used for Auxiliary PID Index
-        rightTal.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor1, PID_AUX_SLOT, TIMEOUT_MS);
+        rightTal.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor1, PID_AUX_SLOT, 
+            TIMEOUT_MS);
 
         // Scale the Feedback Sensor using a coefficient (Configured for 360 units of resolution)
         rightTal.configSelectedFeedbackCoefficient(PIGEON_SCALE, PID_AUX_SLOT, TIMEOUT_MS);
@@ -125,8 +132,8 @@ public class MotionProfile {
         rightTal.config_IntegralZone(PID_AUX_SLOT, AUX_INT_ZONE);
 
         int closedLoopTimeMs = 1;
-        rightTal.configClosedLoopPeriod(0, closedLoopTimeMs);
-        rightTal.configClosedLoopPeriod(1, closedLoopTimeMs);
+        rightTal.configClosedLoopPeriod(PID_PRIMARY_SLOT, closedLoopTimeMs);
+        rightTal.configClosedLoopPeriod(PID_AUX_SLOT, closedLoopTimeMs);
         rightTal.configAuxPIDPolarity(false);
     }
 
@@ -160,17 +167,17 @@ public class MotionProfile {
                 }
 				break;
 			case 1: 
-				rightTal.getMotionProfileStatus(status);
+                rightTal.getMotionProfileStatus(status);
                 if (status.btmBufferCnt > MIN_POINTS_IN_TALON) {
                     setValue = SetValueMotionProfile.Enable;    
                     state = 2;
 				}
 				break;
-			case 2:
+            case 2:
 				rightTal.getMotionProfileStatus(status);
 				if (status.activePointValid && status.isLast) {
                     setValue = SetValueMotionProfile.Hold;
-					state = 0;
+                    state = 0;
 				}
                 break;
             }
@@ -214,13 +221,13 @@ public class MotionProfile {
         rightTal.clearMotionProfileTrajectories();
         // Set the base period of the trajectory points
         rightTal.configMotionProfileTrajectoryPeriod(BASE_TRAJ_PERIOD_MS);
-
         for (int i = 0; i < waypoints.length; i++) {
             TrajectoryPoint tp = new TrajectoryPoint();
             tp.position = waypoints[i].position * SENSOR_UNITS_PER_INCH;
             tp.velocity = waypoints[i].velocity * SENSOR_UNITS_PER_INCH;
             tp.timeDur = (int) waypoints[i].time;
-            tp.auxiliaryPos = waypoints[i].angle;          
+            tp.auxiliaryPos = waypoints[i].angle;
+            tp.useAuxPID = true;
             tp.profileSlotSelect0 = PID_PRIMARY_SLOT;
             tp.profileSlotSelect1 = PID_AUX_SLOT;
             tp.zeroPos = false;
