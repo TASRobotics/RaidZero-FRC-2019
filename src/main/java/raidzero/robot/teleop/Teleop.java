@@ -74,8 +74,8 @@ public class Teleop {
         // Player 2
 
         // Arm
-            Components.getArm().move(armPos);
-            armPos = (int) (armPos - (controller2.getY(kRight) * 80));
+        Components.getArm().move(armPos);
+        armPos = (int) (armPos - (controller2.getY(kRight) * 80));
 
         // Prevent overrotation
         if (armPos >= 2150){
@@ -101,7 +101,6 @@ public class Teleop {
         } else if (controller2.getBumperPressed(kLeft)) {
             Components.getIntake().release();
         }
-        System.out.println("Pos" + Components.getArm().getEncoderPos());
     }
 
 }
