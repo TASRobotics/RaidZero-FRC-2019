@@ -51,7 +51,7 @@ public class Lift {
      * 
      * @return the encoder position
      */
-    public double getEncoderPos(){
+    public double getEncoderPos() {
         return leader.getPosition();
     }
     
