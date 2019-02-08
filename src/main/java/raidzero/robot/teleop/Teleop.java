@@ -15,6 +15,8 @@ public class Teleop {
     private static XboxController controller1;
     private static XboxController controller2;
     private static int armPos;
+    private static final int ARM_MAX = 2140;
+    private static final int ARM_MIN = 0;
 
     /**
      * Initializes the teleop-specific components.
@@ -78,10 +80,10 @@ public class Teleop {
         armPos = (int) (armPos - (controller2.getY(kRight) * 80));
 
         // Prevent overrotation
-        if (armPos >= 2150){
-            armPos = 2150;
-        } else if (armPos <= 0){
-            armPos = 0;
+        if (armPos >= ARM_MAX){
+            armPos = ARM_MAX;
+        } else if (armPos <= ARM_MIN){
+            armPos = ARM_MIN;
         }
 
         // Intake Wheels
