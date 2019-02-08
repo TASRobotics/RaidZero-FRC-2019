@@ -24,18 +24,18 @@ public class MotionProfile {
     private static final int PID_PRIMARY_SLOT = 0;
     private static final int PID_AUX_SLOT = 1;
     private static final int TIMEOUT_MS = 10;
-    private static final double PIGEON_SCALE = 360.0/8192.0;
+    private static final double PIGEON_SCALE = 3600.0/8192.0;
     
     private static final double PRIMARY_F = 0.8896;
-    private static final double PRIMARY_P = 1;
-    private static final double PRIMARY_I = 0;
-    private static final double PRIMARY_D = 0;
-    private static final int PRIMARY_INT_ZONE = 0;
+    private static final double PRIMARY_P = 2;
+    private static final double PRIMARY_I = 0.0005;
+    private static final double PRIMARY_D = 30;
+    private static final int PRIMARY_INT_ZONE = 50;
 
-    private static final double AUX_F = 0.2842;
-    private static final double AUX_P = 1;
+    private static final double AUX_F = 0.2623;
+    private static final double AUX_P = 10;
     private static final double AUX_I = 0;
-    private static final double AUX_D = 0;
+    private static final double AUX_D = 150;
     private static final int AUX_INT_ZONE = 0;
 
     private static final int BASE_TRAJ_PERIOD_MS = 0;
@@ -67,7 +67,8 @@ public class MotionProfile {
     public MotionProfile(TalonSRX rightMaster, TalonSRX leftMaster, PigeonIMU pidgey) {
         rightTal = rightMaster;
         leftTal = leftMaster;
-        leftTal.setSensorPhase(true);
+        leftTal.setSensorPhase(false);
+        rightTal.setSensorPhase(true);
         this.pidgey = pidgey;
         setValue = SetValueMotionProfile.Disable;
         status = new MotionProfileStatus();
@@ -226,7 +227,7 @@ public class MotionProfile {
             tp.position = waypoints[i].position * SENSOR_UNITS_PER_INCH;
             tp.velocity = waypoints[i].velocity * SENSOR_UNITS_PER_INCH;
             tp.timeDur = (int) waypoints[i].time;
-            tp.auxiliaryPos = waypoints[i].angle;
+            tp.auxiliaryPos = waypoints[i].angle*10;
             tp.useAuxPID = true;
             tp.profileSlotSelect0 = PID_PRIMARY_SLOT;
             tp.profileSlotSelect1 = PID_AUX_SLOT;
