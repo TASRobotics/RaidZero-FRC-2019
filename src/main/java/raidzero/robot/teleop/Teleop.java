@@ -80,9 +80,9 @@ public class Teleop {
         armPos = (int) (armPos - (controller2.getY(kRight) * 80));
 
         // Prevent overrotation
-        if (armPos >= ARM_MAX){
+        if (armPos >= ARM_MAX) {
             armPos = ARM_MAX;
-        } else if (armPos <= ARM_MIN){
+        } else if (armPos <= ARM_MIN) {
             armPos = ARM_MIN;
         }
 
