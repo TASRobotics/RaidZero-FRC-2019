@@ -11,7 +11,7 @@ public class Climb{
     private CANSparkMax follower2;
     private CANSparkMax follower3;
 
-    private final double GEAR_RATIO = 256;
+    private final double GEAR_RATIO = 192;
     //rotations = angle/360
     private final double ROTATIONS = 150/360;
     //do not change the maxRotations for safety
@@ -84,9 +84,9 @@ public class Climb{
 
             //base PID
 
-            //overall gearing: 256:1
+            //overall gearing: 192:1
                 //banebots gearbox: 64:1
-                //physical outside gearbox: 72:18\
+                //physical outside gearbox: 54:18
         if((ROTATIONS * GEAR_RATIO) > Math.abs(leader.getEncoder().getPosition()) && button == true){
             moveLeapFrog();
         }
