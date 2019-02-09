@@ -27,13 +27,13 @@ public class MotionProfile {
     private static final double PIGEON_SCALE = 3600.0/8192.0;
     
     private static final double PRIMARY_F = 0.8896;
-    private static final double PRIMARY_P = 2;
-    private static final double PRIMARY_I = 0.0005;
-    private static final double PRIMARY_D = 30;
+    private static final double PRIMARY_P = 2.5;
+    private static final double PRIMARY_I = 0.0;
+    private static final double PRIMARY_D = 35;
     private static final int PRIMARY_INT_ZONE = 50;
 
     private static final double AUX_F = 0.2623;
-    private static final double AUX_P = 10;
+    private static final double AUX_P = 12;
     private static final double AUX_I = 0;
     private static final double AUX_D = 150;
     private static final int AUX_INT_ZONE = 0;
@@ -67,9 +67,8 @@ public class MotionProfile {
     public MotionProfile(TalonSRX rightMaster, TalonSRX leftMaster, PigeonIMU pidgey) {
         rightTal = rightMaster;
         leftTal = leftMaster;
-        leftTal.setSensorPhase(false);
-        rightTal.setSensorPhase(true);
         this.pidgey = pidgey;
+
         setValue = SetValueMotionProfile.Disable;
         status = new MotionProfileStatus();
         rightTal.changeMotionControlFramePeriod(5);
@@ -84,6 +83,9 @@ public class MotionProfile {
     private void setup() {
         leftTal.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
         rightTal.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
+
+        leftTal.setSensorPhase(false);
+        rightTal.setSensorPhase(true);
 
         // Configure the left side encoder as a remote sensor for the right Talon
         rightTal.configRemoteFeedbackFilter(leftTal.getDeviceID(), 
@@ -188,7 +190,7 @@ public class MotionProfile {
     /**
      * Moves the base in motion profile arc mode.
      * 
-     * <p> This should be periodically called.
+     * <p>This should be periodically called.
      */
     public void move() {
         rightTal.set(ControlMode.MotionProfileArc, setValue.value);
@@ -209,10 +211,8 @@ public class MotionProfile {
      * Starts filling the buffer with trajectory points.
      * 
      * @param waypoints the array of points created by the path generator
-     * @param rightTal the talon to push the trajectory points
      */
     private void startFilling(PathPoint[] waypoints) {
-
 	    // Clear under run error
         if (status.hasUnderrun) {
 			rightTal.clearMotionProfileHasUnderrun();
@@ -222,6 +222,7 @@ public class MotionProfile {
         rightTal.clearMotionProfileTrajectories();
         // Set the base period of the trajectory points
         rightTal.configMotionProfileTrajectoryPeriod(BASE_TRAJ_PERIOD_MS);
+
         for (int i = 0; i < waypoints.length; i++) {
             TrajectoryPoint tp = new TrajectoryPoint();
             tp.position = waypoints[i].position * SENSOR_UNITS_PER_INCH;

@@ -90,7 +90,6 @@ public class Teleop {
         } else if (controller2.getBumperPressed(kLeft)) {
             Components.getIntake().release();
         }
-
     }
 
 }

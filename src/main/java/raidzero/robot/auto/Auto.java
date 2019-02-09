@@ -6,7 +6,7 @@ import raidzero.robot.pathgen.Point;
 public class Auto {
     
     private static MotionProfile profile;
-    private static Point[] points = new Point[]{
+    private static Point[] points = new Point[] {
         // new Point(0, 0),
         // new Point(0, 10),
         // new Point(0, 20),
@@ -37,7 +37,7 @@ public class Auto {
         Components.getBase().getRightMotor().getSensorCollection().setQuadraturePosition(0, 10);
         Components.getBase().getPigeon().setYaw(0);
         profile.reset();
-        profile.start(points, 10, 10);
+        // profile.start(points, 10, 10);
     }
 
     /**
@@ -46,7 +46,7 @@ public class Auto {
      * <p>This should be called repeatedly during autonomous mode.
      */
     public static void run() {
-        profile.move();
-        profile.controlMP();
+        // profile.move();
+        // profile.controlMP();
     }
 }
