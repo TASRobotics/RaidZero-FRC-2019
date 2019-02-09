@@ -18,7 +18,7 @@ public class Intake {
 
     /**
      * Constructs an intake object.
-     * 
+     *
      * @param intakeId the ID for the intake motor
      * @param forwardChannel the pneumatic channel for grabbing hook
      * @param backwardChannel the pneumatic channel for releasing hook

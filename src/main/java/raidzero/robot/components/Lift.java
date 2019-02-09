@@ -1,12 +1,12 @@
 package raidzero.robot.components;
 
+import com.revrobotics.CANDigitalInput;
+import com.revrobotics.CANDigitalInput.LimitSwitch;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.CANDigitalInput;
-import com.revrobotics.CANDigitalInput.LimitSwitch;
 
 public class Lift {
 
@@ -20,11 +20,11 @@ public class Lift {
 
     private SparkMaxPrime leader;
     private CANSparkMax follower;
-    private CANDigitalInput lowLimitSwitch;
+    private CANDigitalInput limitSwitch;
 
     /**
      * Constucts the Lift object and sets up the motors.
-     * 
+     *
      * @param leaderID the leader ID
      * @param followerID the follower ID
      * @param inverted the boolean to invert
@@ -32,16 +32,18 @@ public class Lift {
     public Lift(int leaderID, int followerID) {
         leader = new SparkMaxPrime(leaderID, MotorType.kBrushless);
         follower = new CANSparkMax(followerID, MotorType.kBrushless);
-        lowLimitSwitch = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
 
         // Set Brake Mode
         leader.setIdleMode(IdleMode.kBrake);
         follower.setIdleMode(IdleMode.kBrake);
 
+        //Set limit switch
+        limitSwitch = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
+
         // Set Inverted
         leader.setInverted(false);
         follower.setInverted(false);
-        
+
         // Set Ramp Rate
         leader.setRampRate(RAMP_RATE);
         follower.setRampRate(RAMP_RATE);
@@ -65,14 +67,14 @@ public class Lift {
      * <p>Should be periodically called.
      */
     public void limitReset() {
-        if (leader.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyClosed).get()) {
+        if (leader.getReverseLimitSwitch(LimitSwitchPolarity.kNormallyClosed).get()) {
             leader.setPosition(0);
         }
     }
 
     /**
      * Moves the lift by percent output.
-     * 
+     *
      * @param percentV The percentage voltage from -1.0 to 1.0 to run the motors
      */
     public void movePercent(double percentV) {
