@@ -15,6 +15,7 @@ public class Teleop {
     private static XboxController controller1;
     private static XboxController controller2;
     private static int armPos;
+    private static double liftPos;
     private static final int ARM_MAX = 2140;
     private static final int ARM_MIN = 0;
 
@@ -37,6 +38,7 @@ public class Teleop {
     public static void setup() {
         Components.getBase().setHighGear();
         armPos = Components.getArm().getEncoderPos();
+        liftPos = Components.getLift().getEncoderPos();
     }
 
     /**
@@ -66,12 +68,16 @@ public class Teleop {
         double leftTriggerAxis1 = controller1.getTriggerAxis(kLeft);
 
         if (rightTriggerAxis1 > 0.1) {
-            Components.getLift().movePercent(rightTriggerAxis1);
+            //Components.getLift().movePercent(rightTriggerAxis1);
+            liftPos += rightTriggerAxis1;
         } else if (leftTriggerAxis1 > 0.1) {
-            Components.getLift().movePercent(-leftTriggerAxis1 * 0.5);
+            //Components.getLift().movePercent(-leftTriggerAxis1 * 0.5);
+            liftPos -= leftTriggerAxis1;
         } else {
-            Components.getLift().movePercent(0);
+            //Components.getLift().movePercent(0);
         }
+        Components.getLift().movePosition(liftPos);
+        System.out.println(liftPos);
 
         // Player 2
 

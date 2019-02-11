@@ -7,18 +7,15 @@ import com.revrobotics.ControlType;
 
 public class SparkMaxPrime extends CANSparkMax {
 
+    private static final double MAX_OUTPUT = 1.0;
+    private static final double MIN_OUTPUT = -1.0;
+
     private CANPIDController controller;
     private CANEncoder encoder;
 
     /**
-     * zeroPos exists to deal with the inability to reset encoders
-     * It basically gets the current position and becomes the relative position you want 
-     */
-    private double zeroPos = 0;
-
-    /**
      * Creates the SparkMaxPrime object.
-     * 
+     *
      * @param deviceID the ID of the motor controller
      * @param MotorType the type of the motor, Brushless or Brushed
      */
@@ -30,7 +27,7 @@ public class SparkMaxPrime extends CANSparkMax {
 
     /**
      * Sets up the FPID and IZone.
-     * 
+     *
      * @param kF the feed forward value to set
      * @param kP the P gain value to set
      * @param kI the I gain value to set
@@ -44,45 +41,50 @@ public class SparkMaxPrime extends CANSparkMax {
         controller.setI(kI, pidSlot);
         controller.setD(kD, pidSlot);
         controller.setIZone(iZone, pidSlot);
-        controller.setOutputRange(-1, 1);
+        controller.setOutputRange(MIN_OUTPUT, MAX_OUTPUT);
     }
-    
+
+    public void configureSmartMotion(double minVel, double maxVel, double maxAccel,
+    double allowedErr, int smSlot) {
+        controller.setSmartMotionMinOutputVelocity(minVel, smSlot);
+        controller.setSmartMotionMaxVelocity(maxVel, smSlot);
+        controller.setSmartMotionMaxAccel(maxAccel, smSlot);
+        controller.setSmartMotionAllowedClosedLoopError(allowedErr, smSlot);
+    }
+
     /**
      * Sets the motor to run. Changes behavior based off ControlType.
-     * 
+     *
      * <p> For DutyCycle, args is from -1 to 1 (the percent output of the motor).
      * <p> For Position, args is the position you want.
+     * <p> For SmartMotion, args is the position you want.
      * <p> For Velocity, args is the velocity you want.
      * <p> For Voltage, args is the voltage you want.
-     * 
+     *
      * @param args the argument
      * @param type the control type
      * @param pidSlot the PID Slot
      */
     public void set(double args, ControlType type, int pidSlot) {
-        if (type == ControlType.kPosition) {
-            controller.setReference(args + zeroPos, type, pidSlot);
-        } else {
-            controller.setReference(args, type, pidSlot);
-        }
+        controller.setReference(args, type, pidSlot);
     }
 
     /**
      * Sets the encoder to the desired position.
-     * 
+     *
      * @param pos the position desired
      */
     public void setPosition(double pos) {
-        zeroPos = encoder.getPosition() - pos;
+        encoder.setPosition(pos);
     }
 
     /**
      * Gets the position of the encoder.
-     * 
+     *
      * @return the encoder position
      */
     public double getPosition() {
-        return encoder.getPosition() - zeroPos;
+        return encoder.getPosition();
     }
 
 }
