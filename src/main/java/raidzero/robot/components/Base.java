@@ -11,8 +11,6 @@ public class Base {
     private TalonSRX leftMotor;
     private TalonSRX rightMotor;
 
-    private DoubleSolenoid gearShift;
-
     private PigeonIMU pigeon;
 
     /**
@@ -24,15 +22,12 @@ public class Base {
      * @param rLeaderId the ID of the right leader motor
      * @param rFollower1Id the ID of the first right follower motor
      * @param rFollower2Id the ID of the second right follower motor
-     * @param forwardChannel the forward channel for the gear shift
-     * @param reverseChannel the reverse channel for the gear shift
      * @param pigeonId the ID of the pigeon
      */
     public Base(int rLeaderId, int rFollower1Id, int rFollower2Id, int lLeaderId, int lFollower1Id,
-    int lFollower2Id, int forwardChannel, int reverseChannel, int pigeonId) {
+    int lFollower2Id, int pigeonId) {
         rightMotor = initSide(rLeaderId, rFollower1Id, rFollower2Id, true);
         leftMotor = initSide(lLeaderId, lFollower1Id, lFollower2Id, false);
-        gearShift = new DoubleSolenoid(forwardChannel, reverseChannel);
         pigeon = new PigeonIMU(pigeonId);
     }
 
@@ -88,20 +83,6 @@ public class Base {
      */
     public TalonSRX getLeftMotor() {
         return leftMotor;
-    }
-
-    /**
-     * Sets the gear shift to low gear.
-     */
-    public void setLowGear() {
-        gearShift.set(DoubleSolenoid.Value.kReverse);
-    }
-
-    /**
-     * Sets the gear shift to high gear.
-     */
-    public void setHighGear() {
-        gearShift.set(DoubleSolenoid.Value.kForward);
     }
 
     /**
