@@ -21,6 +21,11 @@ public class Climb{
     private final double MAX_ROTATIONS = 160/360;
     private static boolean rotationsSafe = true;
 
+    /**
+     * Gets the encoder position
+     *
+     * @return the encoder position
+     */
     private double getEncoderPos(CANSparkMax sparkMax) {
         return sparkMax.getEncoder().getPosition();
     }
