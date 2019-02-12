@@ -22,7 +22,7 @@ public class MotionProfile {
     /**
      * The states of controlling the motion profile arc
      */
-    private enum States {
+    private enum State {
         FillPoints, WaitPoints, Run;
     };
 
@@ -31,7 +31,7 @@ public class MotionProfile {
     private static final int PID_PRIMARY_SLOT = 0;
     private static final int PID_AUX_SLOT = 1;
     private static final int TIMEOUT_MS = 10;
-    private static final double PIGEON_SCALE = 3600.0/8192.0;
+    private static final double PIGEON_SCALE = 3600.0 / 8192.0;
     
     private static final double PRIMARY_F = 0.8896;
     private static final double PRIMARY_P = 2.5;
@@ -51,7 +51,7 @@ public class MotionProfile {
     private static final int CLOSED_LOOP_TIME_MS = 1;
 
     private boolean initRun;
-    private States state;
+    private State state;
     private MotionProfileStatus status;
     private SetValueMotionProfile setValue;
     private TalonSRX rightTal;
@@ -78,7 +78,7 @@ public class MotionProfile {
         status = new MotionProfileStatus();
         rightTal.changeMotionControlFramePeriod(5);
         notifer.startPeriodic(0.005);
-        state = States.FillPoints;
+        state = State.FillPoints;
         setup();
     }
 
@@ -166,24 +166,24 @@ public class MotionProfile {
                 if (initRun) {
                     initRun = false;
                     setValue = SetValueMotionProfile.Disable;
-                    state = States.WaitPoints;
+                    state = State.WaitPoints;
                 }
                 break;
             case WaitPoints: 
                 rightTal.getMotionProfileStatus(status);
                 if (status.btmBufferCnt > MIN_POINTS_IN_TALON) {
                     setValue = SetValueMotionProfile.Enable;    
-                    state = States.Run;
+                    state = State.Run;
                 }
                 break;
             case Run:
                 rightTal.getMotionProfileStatus(status);
                 if (status.activePointValid && status.isLast) {
                     setValue = SetValueMotionProfile.Hold;
-                    state = States.FillPoints;
+                    state = State.FillPoints;
                 }
                 break;
-            }
+        }
     }
 
         
@@ -203,7 +203,7 @@ public class MotionProfile {
     public void reset() {
         rightTal.clearMotionProfileTrajectories();
         setValue = SetValueMotionProfile.Disable;
-        state = States.FillPoints;
+        state = State.FillPoints;
         initRun = false;
     }
  
