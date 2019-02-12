@@ -8,11 +8,17 @@ import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import raidzero.robot.components.Components;
+import raidzero.robot.components.Arm.Position;
 
 public class Teleop {
 
     private static XboxController controller1;
     private static XboxController controller2;
+
+    private static int armPos;
+    private static final int ARM_MAX = 2140;
+    private static final int ARM_MIN = 0;
+  
     private static boolean climbing = false;
 
     /**
@@ -33,7 +39,10 @@ public class Teleop {
      */
     public static void setup() {
         Components.getBase().setHighGear();
+
         climbing = false;
+
+        armPos = Components.getArm().getEncoderPos();
     }
 
     /**
@@ -78,7 +87,15 @@ public class Teleop {
         // Player 2
 
         // Arm
-        Components.getArm().movePercentOutput(controller2.getY(kRight) * 0.5);
+        Components.getArm().move(armPos);
+        armPos = (int) (armPos - (controller2.getY(kRight) * 80));
+
+        // Prevent overrotation
+        if (armPos >= ARM_MAX) {
+            armPos = ARM_MAX;
+        } else if (armPos <= ARM_MIN) {
+            armPos = ARM_MIN;
+        }
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
@@ -100,7 +117,7 @@ public class Teleop {
 
         //climb
         Components.getClimb().climb(climbing);
-
+      
     }
 
 }
