@@ -60,13 +60,9 @@ public class Teleop {
         double leftTriggerAxis1 = controller1.getTriggerAxis(kLeft);
 
         if (rightTriggerAxis1 > 0.1) {
-            //Components.getLift().movePercent(rightTriggerAxis1);
             liftPos += rightTriggerAxis1;
         } else if (leftTriggerAxis1 > 0.1) {
-            //Components.getLift().movePercent(-leftTriggerAxis1 * 0.5);
             liftPos -= leftTriggerAxis1;
-        } else {
-            //Components.getLift().movePercent(0);
         }
         Components.getLift().movePosition(liftPos);
         System.out.println(liftPos);

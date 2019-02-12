@@ -10,6 +10,13 @@ public class SparkMaxPrime extends CANSparkMax {
     private static final double MAX_OUTPUT = 1.0;
     private static final double MIN_OUTPUT = -1.0;
 
+    /*
+     * These objects are stored as instance variables so that
+     * there is no overhead when calling PID controller and
+     * encoder methods.
+     *
+     * @see com.revrobotics.CANSparkMax#getEncoder()
+     */
     private CANPIDController controller;
     private CANEncoder encoder;
 
@@ -44,6 +51,15 @@ public class SparkMaxPrime extends CANSparkMax {
         controller.setOutputRange(MIN_OUTPUT, MAX_OUTPUT);
     }
 
+    /**
+     * Configure the parameters for SmartMotion
+     *
+     * @param minVel the mimimum velocity in RPM
+     * @param maxVel the maxiumum velocity in RPM
+     * @param maxAccel the maximum acceleration in RPM per second
+     * @param allowedErr the allowed deviation for the setpoint vs. current rotations
+     * @param smSlot the gain slot, ranging from 0 to 3
+     */
     public void configureSmartMotion(double minVel, double maxVel, double maxAccel,
     double allowedErr, int smSlot) {
         controller.setSmartMotionMinOutputVelocity(minVel, smSlot);

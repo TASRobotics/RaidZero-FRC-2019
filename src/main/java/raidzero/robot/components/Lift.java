@@ -11,15 +11,13 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 public class Lift {
 
     private static final double KF = 0.0;
-    private static final double KP = 0.00018;
+    private static final double KP = 0.18;
     private static final double KI = 0.00;
-    private static final double KD = 0.0;
+    private static final double KD = 15.2;
     private static final double I_ZONE = 0.0;
     private static final double RAMP_RATE = 0.5;
 
-    private static final int MAX_RPM = 5700;
-
-    private static final double MAX_VELOCITY = 2000.0; // rpm
+    private static final double MAX_VELOCITY = 2000.0;
     private static final double MIN_VELOCITY = 0.0;
     private static final double MAX_ACCELERATION = 1500.0;
 
@@ -41,33 +39,32 @@ public class Lift {
      */
     public Lift(int leaderID, int followerID) {
         leader = new SparkMaxPrime(leaderID, MotorType.kBrushless);
-        System.out.println(leader.getFirmwareString());
         follower = new CANSparkMax(followerID, MotorType.kBrushless);
-        System.out.println(follower.getFirmwareString());
 
         // Reset to factory defaults
         leader.restoreFactoryDefaults();
 
-        // Set Brake Mode
+        // Set brake mode
         leader.setIdleMode(IdleMode.kBrake);
         follower.setIdleMode(IdleMode.kBrake);
 
-        //Set limit switch
-        limitSwitch = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
+        // Set limit switch
+        limitSwitch = leader.getReverseLimitSwitch(LimitSwitchPolarity.kNormallyClosed);
 
-        // Set Inverted
+        // Set motor inversion
         leader.setInverted(false);
         follower.setInverted(false);
 
-        // Set Ramp Rate
+        // Set ramp rate
         leader.setOpenLoopRampRate(RAMP_RATE);
         leader.setClosedLoopRampRate(RAMP_RATE);
         follower.setOpenLoopRampRate(RAMP_RATE);
         follower.setClosedLoopRampRate(RAMP_RATE);
 
+        // Make follower follow the leader motor
         follower.follow(leader);
 
-        // Configure Smart Motion
+        // Configure PID values + SmartMotion
         leader.setPID(KF, KP, KI, KD, I_ZONE, PID_SLOT);
         leader.configureSmartMotion(MIN_VELOCITY, MAX_VELOCITY, MAX_ACCELERATION,
             ALLOWED_ERROR, SMART_MOTION_SLOT);
@@ -88,7 +85,7 @@ public class Lift {
      * <p>Should be periodically called.
      */
     public void limitReset() {
-        if (leader.getReverseLimitSwitch(LimitSwitchPolarity.kNormallyClosed).get()) {
+        if (limitSwitch.get()) {
             leader.setPosition(0);
         }
     }
