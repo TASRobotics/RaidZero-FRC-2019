@@ -11,35 +11,30 @@ public class Base {
     private TalonSRX leftMotor;
     private TalonSRX rightMotor;
 
-    private DoubleSolenoid gearShift;
-
     private PigeonIMU pigeon;
 
     /**
      * Constructs a Drive object and sets up the motors and gear shift.
-     * 
+     *
      * @param lLeaderId the ID of the left leader motor
      * @param lFollower1Id the ID of the first left follower motor
      * @param lFollower2Id the ID of the second left follower motor
      * @param rLeaderId the ID of the right leader motor
      * @param rFollower1Id the ID of the first right follower motor
      * @param rFollower2Id the ID of the second right follower motor
-     * @param forwardChannel the forward channel for the gear shift
-     * @param reverseChannel the reverse channel for the gear shift
      * @param pigeonId the ID of the pigeon
      */
-    public Base(int rLeaderId, int rFollower1Id, int rFollower2Id, int lLeaderId, int lFollower1Id, 
-    int lFollower2Id, int forwardChannel, int reverseChannel, int pigeonId) {
+    public Base(int rLeaderId, int rFollower1Id, int rFollower2Id, int lLeaderId, int lFollower1Id,
+    int lFollower2Id, int pigeonId) {
         rightMotor = initSide(rLeaderId, rFollower1Id, rFollower2Id, true);
         leftMotor = initSide(lLeaderId, lFollower1Id, lFollower2Id, false);
-        gearShift = new DoubleSolenoid(forwardChannel, reverseChannel);
         pigeon = new PigeonIMU(pigeonId);
     }
 
     /**
      * Constructs and configures the motors for one side of the robot (i.e. one leader and two
      * followers), and returns the leader motor object.
-     * 
+     *
      * @param leaderID the ID of the leader motor
      * @param invert whether to invert the leader or not
      * @return the newly constructed leader motor object
@@ -70,9 +65,9 @@ public class Base {
 
     /**
      * Returns the right leader motor.
-     * 
+     *
      * <p>Anything done to this motor will also be followed by the other right motor.
-     * 
+     *
      * @return the right leader motor
      */
     public TalonSRX getRightMotor() {
@@ -81,32 +76,18 @@ public class Base {
 
     /**
      * Returns the left leader motor.
-     * 
+     *
      * <p>Anything done to this motor will also be followed by the other left motor.
-     * 
+     *
      * @return the left leader motor
      */
     public TalonSRX getLeftMotor() {
         return leftMotor;
     }
-    
-    /**
-     * Sets the gear shift to low gear.
-     */
-    public void setLowGear() {
-        gearShift.set(DoubleSolenoid.Value.kReverse);
-    }
-
-    /**
-     * Sets the gear shift to high gear.
-     */
-    public void setHighGear() {
-        gearShift.set(DoubleSolenoid.Value.kForward);
-    }
 
     /**
      * Returns the pigeon.
-     * 
+     *
      * @return the pigeon
      */
     public PigeonIMU getPigeon() {

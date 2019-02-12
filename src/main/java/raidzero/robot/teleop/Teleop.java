@@ -35,7 +35,6 @@ public class Teleop {
      * {@link #run()}.
      */
     public static void setup() {
-        Components.getBase().setHighGear();
         armPos = Components.getArm().getEncoderPos();
     }
 
@@ -53,13 +52,6 @@ public class Teleop {
             controller1.getY(kRight));
         Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
             controller1.getY(kLeft));
-
-        // Gear Shift
-        if (controller1.getBumperPressed(kRight)) {
-            Components.getBase().setHighGear();
-        } else if (controller1.getBumperPressed(kLeft)) {
-            Components.getBase().setLowGear();
-        }
 
         // Lift
         double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);
