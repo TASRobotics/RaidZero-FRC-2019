@@ -11,11 +11,19 @@ public class Climb{
     private CANSparkMax follower2;
     private CANSparkMax follower3;
 
+    //overall gearing: 192:1
+            //banebots gearbox: 64:1
+            //physical outside gearbox: 54:18
     private final double GEAR_RATIO = 192;
     //rotations = angle/360
     private final double ROTATIONS = 150/360;
     //do not change the maxRotations for safety
     private final double MAX_ROTATIONS = 160/360;
+    private static boolean rotationsSafe = true;
+
+    private double getEncoderPos(CANSparkMax sparkMax) {
+        return sparkMax.getEncoder().getPosition();
+    }
 
     /**
      * Constructs a climb object, intializes the motors
@@ -25,7 +33,7 @@ public class Climb{
      * @param follower2ID ID of the second follower motor
      * @param follower3ID ID of the third follower motor
      */
-    public Climb(int leaderID, int follower1ID, int follower2ID, int follower3ID){
+    public Climb(int leaderID, int follower1ID, int follower2ID, int follower3ID) {
 
         leader = new CANSparkMax(leaderID, MotorType.kBrushless);
         follower1 = new CANSparkMax(follower1ID, MotorType.kBrushless);
@@ -51,6 +59,9 @@ public class Climb{
 
         resetEncoder(leader);
         leader.set(0);
+
+        //makes sure the climb won't overrotate
+        rotationsSafe = (ROTATIONS <= MAX_ROTATIONS);
     }
 
     /**
@@ -58,7 +69,7 @@ public class Climb{
      *
      * @param sparkMax The sparkMax object that needs to reset its encoder value
      */
-    private void resetEncoder(CANSparkMax sparkMax){
+    private void resetEncoder(CANSparkMax sparkMax) {
         CANSparkMax temp;
         temp = sparkMax;
         sparkMax = new CANSparkMax(sparkMax.getDeviceId(), MotorType.kBrushless);
@@ -67,46 +78,42 @@ public class Climb{
     }
 
     /**
-     * Climbs while the button is held down
+     * Climbs while the input is true
      *
-     * @param button the button that controls the climb(must be held down during climb)
+     * @param input the variable that controls the climb(must be held true during climb)
      */
-    public void climb(boolean button){
-/*
-        //first PID base backwards a bit
-            //DO NOT UNCOMMENT CODE until base PID is added
-            //PLEASE ENSURE THAT THE MECHANICAL LEADER MOTOR DIRECTION MATCHES
-            //  WITH THE LEADER MOTOR DIRECTION IN CODE
-            //      (motors spinning in a positive direction will move
-            //      clockwise when looking at the rotor side of the motor)
-            //REMEMBER THAT THE PLANETARY GEARBOX WILL NOT REVERSE THE
-            //  DIRECTION, BUT THE SINGLE 72:18 WILL REVERSE THE DIRECTION ONCE
+    public void climb(boolean input) {
+        //PLEASE ENSURE THAT THE MECHANICAL LEADER MOTOR DIRECTION MATCHES
+        //  WITH THE LEADER MOTOR DIRECTION IN CODE
+        //      (motors spinning in a positive direction will move
+        //      clockwise when looking at the ROTOR side of the motor)
+        //the planetary gearbox will NOT reverse the motor direction,
+        //  but every additional gear after the first one will reverse the direction
 
-            //base PID
-
-            //overall gearing: 192:1
-                //banebots gearbox: 64:1
-                //physical outside gearbox: 54:18
-        if((ROTATIONS * GEAR_RATIO) > Math.abs(leader.getEncoder().getPosition()) && button == true){
+        if ((ROTATIONS * GEAR_RATIO) > Math.abs(getEncoderPos(leader)) && input == true) {
             moveLeapFrog();
-        }
-        else{
+        } else {
             stopLeapFrog();
         }
-*/
     }
 
     /**
-     * Moves the climb
+     * Moves the climb, while also checking that the number of
+     * rotations set is not too high
      */
-    private void moveLeapFrog(){
-        leader.set(1);
+    private void moveLeapFrog() {
+        if (rotationsSafe) {
+            leader.set(1);
+        } else {
+            stopLeapFrog();
+        }
     }
 
     /**
      * stops the climb
      */
-    private void stopLeapFrog(){
+    private void stopLeapFrog() {
         leader.set(0);
     }
+
 }
