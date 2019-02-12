@@ -19,6 +19,13 @@ import raidzero.robot.pathgen.Point;
 
 public class MotionProfile {
 
+    /**
+     * The states of controlling the motion profile arc
+     */
+    private enum States {
+        FillPoints, WaitPoints, Run;
+    };
+
     private static final int REMOTE_0 = 0;
     private static final int REMOTE_1 = 1;
     private static final int PID_PRIMARY_SLOT = 0;
@@ -41,21 +48,19 @@ public class MotionProfile {
     private static final int BASE_TRAJ_PERIOD_MS = 0;
     private static final double SENSOR_UNITS_PER_INCH = 81.9;
     private static final int MIN_POINTS_IN_TALON = 10;
+    private static final int CLOSED_LOOP_TIME_MS = 1;
 
-    private boolean start;
-    private int state;
+    private boolean initRun;
+    private States state;
     private MotionProfileStatus status;
     private SetValueMotionProfile setValue;
     private TalonSRX rightTal;
     private TalonSRX leftTal;
     private PigeonIMU pidgey;
 
-    class PeriodicRunnable implements java.lang.Runnable {
-	    public void run() {
-            rightTal.processMotionProfileBuffer();    
-        }
-	}
-    Notifier notifer = new Notifier(new PeriodicRunnable());
+    Notifier notifer = new Notifier(() -> {
+        rightTal.processMotionProfileBuffer();
+    });
 
     /**
      * Creates the motion profile object and sets up the motors
@@ -73,7 +78,7 @@ public class MotionProfile {
         status = new MotionProfileStatus();
         rightTal.changeMotionControlFramePeriod(5);
         notifer.startPeriodic(0.005);
-        state = 0;
+        state = States.FillPoints;
         setup();
     }
 
@@ -134,9 +139,9 @@ public class MotionProfile {
         rightTal.config_kF(PID_AUX_SLOT, AUX_F);
         rightTal.config_IntegralZone(PID_AUX_SLOT, AUX_INT_ZONE);
 
-        int closedLoopTimeMs = 1;
-        rightTal.configClosedLoopPeriod(PID_PRIMARY_SLOT, closedLoopTimeMs);
-        rightTal.configClosedLoopPeriod(PID_AUX_SLOT, closedLoopTimeMs);
+        // Set the period of the closed loops to be 1 ms
+        rightTal.configClosedLoopPeriod(PID_PRIMARY_SLOT, CLOSED_LOOP_TIME_MS);
+        rightTal.configClosedLoopPeriod(PID_AUX_SLOT, CLOSED_LOOP_TIME_MS);
         rightTal.configAuxPIDPolarity(false);
     }
 
@@ -149,39 +154,34 @@ public class MotionProfile {
      */
     public void start(Point[] points, double tarVel, double tarAccel) {
         startFilling(PathGenerator.generatePath(points, tarVel, tarAccel));
-        start = true;
+        initRun = true;
     }
 
     /**
      * Call periodically to control states of the motion profile.
      */
     public void controlMP() {
-        /*
-		 * 0 state is fill the points
-         * 1 state is wait for enough points
-         * 2 state is run the points
-		 */
-		switch (state) {
-            case 0:
-                if (start) {
-                    start = false;
+        switch (state) {
+            case FillPoints:
+                if (initRun) {
+                    initRun = false;
                     setValue = SetValueMotionProfile.Disable;
-                    state = 1;
+                    state = States.WaitPoints;
                 }
-				break;
-			case 1: 
+                break;
+            case WaitPoints: 
                 rightTal.getMotionProfileStatus(status);
                 if (status.btmBufferCnt > MIN_POINTS_IN_TALON) {
                     setValue = SetValueMotionProfile.Enable;    
-                    state = 2;
-				}
-				break;
-            case 2:
-				rightTal.getMotionProfileStatus(status);
-				if (status.activePointValid && status.isLast) {
+                    state = States.Run;
+                }
+                break;
+            case Run:
+                rightTal.getMotionProfileStatus(status);
+                if (status.activePointValid && status.isLast) {
                     setValue = SetValueMotionProfile.Hold;
-                    state = 0;
-				}
+                    state = States.FillPoints;
+                }
                 break;
             }
     }
@@ -194,17 +194,17 @@ public class MotionProfile {
      */
     public void move() {
         rightTal.set(ControlMode.MotionProfileArc, setValue.value);
-	    leftTal.follow(rightTal, FollowerType.AuxOutput1);
+        leftTal.follow(rightTal, FollowerType.AuxOutput1);
     }
     
     /**
-	 * Clears the Motion profile buffer and resets state info
-	 */
-	public void reset() {
-		rightTal.clearMotionProfileTrajectories();
-		setValue = SetValueMotionProfile.Disable;
-		state = 0;
-		start = false;
+     * Clears the Motion profile buffer and resets state info
+     */
+    public void reset() {
+        rightTal.clearMotionProfileTrajectories();
+        setValue = SetValueMotionProfile.Disable;
+        state = States.FillPoints;
+        initRun = false;
     }
  
     /**
@@ -213,9 +213,9 @@ public class MotionProfile {
      * @param waypoints the array of points created by the path generator
      */
     private void startFilling(PathPoint[] waypoints) {
-	    // Clear under run error
+        // Clear under run error
         if (status.hasUnderrun) {
-			rightTal.clearMotionProfileHasUnderrun();
+            rightTal.clearMotionProfileHasUnderrun();
         }
         
         // Clear the buffer just in case the robot is still running some points
@@ -228,7 +228,7 @@ public class MotionProfile {
             tp.position = waypoints[i].position * SENSOR_UNITS_PER_INCH;
             tp.velocity = waypoints[i].velocity * SENSOR_UNITS_PER_INCH;
             tp.timeDur = (int) waypoints[i].time;
-            tp.auxiliaryPos = waypoints[i].angle*10;
+            tp.auxiliaryPos = waypoints[i].angle * 10;
             tp.useAuxPID = true;
             tp.profileSlotSelect0 = PID_PRIMARY_SLOT;
             tp.profileSlotSelect1 = PID_AUX_SLOT;

@@ -6,7 +6,7 @@ import raidzero.robot.pathgen.Point;
 public class Auto {
     
     private static MotionProfile profile;
-    private static Point[] points = new Point[] {
+    private static Point[] points = {
         // new Point(0, 0),
         // new Point(0, 10),
         // new Point(0, 20),
@@ -23,7 +23,8 @@ public class Auto {
      * <p>Should be called when the robot starts up.
      */
     public static void initialize() {
-        profile = new MotionProfile(Components.getBase().getRightMotor(), Components.getBase().getLeftMotor(), Components.getBase().getPigeon());
+        profile = new MotionProfile(Components.getBase().getRightMotor(), 
+            Components.getBase().getLeftMotor(), Components.getBase().getPigeon());
     }
 
     /**
