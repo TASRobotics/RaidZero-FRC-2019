@@ -16,7 +16,7 @@ public class Climb{
             //physical outside gearbox: 54:18
     private final double GEAR_RATIO = 192;
     //rotations = angle/360
-    private final double ROTATIONS = 150/360;
+    private static final double ROTATIONS = 150 / 360;
     //do not change the maxRotations for safety
     private final double MAX_ROTATIONS = 160/360;
     private static boolean rotationsSafe = true;
