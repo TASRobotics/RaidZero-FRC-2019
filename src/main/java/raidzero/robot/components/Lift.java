@@ -38,7 +38,7 @@ public class Lift {
         follower.setIdleMode(IdleMode.kBrake);
 
         //Set limit switch
-        limitSwitch = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
+        limitSwitch = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyOpen);
 
         // Set Inverted
         leader.setInverted(false);
@@ -54,16 +54,16 @@ public class Lift {
 
     /**
      * Returns the position of the encoder.
-     * 
+     *
      * @return the encoder position
      */
     public double getEncoderPos() {
         return leader.getPosition();
     }
-    
+
     /**
      * Resets the encoder if the limit switch detects the lift.
-     * 
+     *
      * <p>Should be periodically called.
      */
     public void limitReset() {
@@ -83,7 +83,7 @@ public class Lift {
 
     /**
      * Runs the lift to a certain encoder position (PID).
-     * 
+     *
      * @param pos the encoder position to move to
      */
     public void movePosition(double pos) {

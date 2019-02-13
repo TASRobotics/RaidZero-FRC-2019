@@ -77,15 +77,17 @@ public class Teleop {
         // Player 2
 
         // Arm
-        Components.getArm().move(armPos);
-        armPos = (int) (armPos - (controller2.getY(kRight) * 80));
+        Components.getArm().movePercentOutput(-controller2.getY(kRight));
 
-        // Prevent overrotation
-        if (armPos >= ARM_MAX) {
-            armPos = ARM_MAX;
-        } else if (armPos <= ARM_MIN) {
-            armPos = ARM_MIN;
-        }
+        // Components.getArm().move(armPos);
+        // armPos = (int) (armPos - (controller2.getY(kRight) * 80));
+
+        // // Prevent overrotation
+        // if (armPos >= ARM_MAX) {
+        //     armPos = ARM_MAX;
+        // } else if (armPos <= ARM_MIN) {
+        //     armPos = ARM_MIN;
+        // }
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
@@ -99,14 +101,25 @@ public class Teleop {
         }
 
         // Hook
-        if (controller2.getBumperPressed(kRight)) {
+        if (controller2.getBumper(kRight)) {
             Components.getIntake().grab();
-        } else if (controller2.getBumperPressed(kLeft)) {
+        } else if (controller2.getBumper(kLeft)) {
             Components.getIntake().release();
+        } else {
+            Components.getIntake().stopHook();
         }
 
         // Climb
-        Components.getClimb().climb(climbing);
+        if (climbing) {
+            if (controller1.getBackButton()) {
+                Components.getClimb().climbPWM(0.5);
+            } else if (controller2.getBackButton()) {
+                Components.getClimb().climbPWM(-0.5);
+            } else {
+                Components.getClimb().climbPWM(0);
+            }
+        }
+        //Components.getClimb().climb(climbing && controller2.getBackButton());
 
     }
 

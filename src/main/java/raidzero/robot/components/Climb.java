@@ -44,10 +44,10 @@ public class Climb {
 
 
         // Set to brakemode
-        leader.setIdleMode(IdleMode.kBrake);
-        follower1.setIdleMode(IdleMode.kBrake);
-        follower2.setIdleMode(IdleMode.kBrake);
-        follower3.setIdleMode(IdleMode.kBrake);
+        leader.setIdleMode(IdleMode.kCoast);
+        follower1.setIdleMode(IdleMode.kCoast);
+        follower2.setIdleMode(IdleMode.kCoast);
+        follower3.setIdleMode(IdleMode.kCoast);
 
         // Set follow(with inverts)
         follower1.follow(leader, true);
@@ -85,6 +85,10 @@ public class Climb {
         } else {
             stopLeapFrog();
         }
+    }
+
+    public void climbPWM(double speed) {
+        leader.set(speed);
     }
 
     /**

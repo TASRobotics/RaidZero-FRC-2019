@@ -4,7 +4,6 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 public class Base {
 
@@ -26,8 +25,8 @@ public class Base {
      */
     public Base(int rLeaderId, int rFollower1Id, int rFollower2Id, int lLeaderId, int lFollower1Id,
     int lFollower2Id, int pigeonId) {
-        rightMotor = initSide(rLeaderId, rFollower1Id, rFollower2Id, true);
-        leftMotor = initSide(lLeaderId, lFollower1Id, lFollower2Id, false);
+        rightMotor = initSide(rLeaderId, rFollower1Id, rFollower2Id, false);
+        leftMotor = initSide(lLeaderId, lFollower1Id, lFollower2Id, true);
         pigeon = new PigeonIMU(pigeonId);
     }
 
@@ -57,8 +56,8 @@ public class Base {
         follower2.follow(leader);
 
         leader.setInverted(invert);
-        follower1.setInverted(!invert);
-        follower2.setInverted(!invert);
+        follower1.setInverted(invert);
+        follower2.setInverted(invert);
 
         return leader;
     }
