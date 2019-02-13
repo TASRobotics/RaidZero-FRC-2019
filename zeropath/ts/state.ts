@@ -12,7 +12,7 @@ export const enum StateEvent {
     WaypointsUpdated = 'waypointsUpdated'
 }
 
-export const waypoints = [{
+export const waypoints: Point[] = [{
     x: 0,
     y: 0
 }, {

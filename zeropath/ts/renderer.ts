@@ -1,67 +1,74 @@
-import { axisBottom as d3AxisBottom, axisRight as d3AxisRight } from 'd3-axis';
-import { D3DragEvent, drag as d3drag } from 'd3-drag';
-import { scaleLinear as d3scaleLinear } from 'd3-scale';
-import { BaseType, event as d3event, select as d3select, Selection }
-    from 'd3-selection';
-import { D3ZoomEvent, zoom as d3zoom } from 'd3-zoom';
+import * as d3axis from 'd3-axis';
+import * as d3drag from 'd3-drag';
+import * as d3scale from 'd3-scale';
+import * as d3selection from 'd3-selection';
+import * as d3zoom from 'd3-zoom';
 
 import * as fieldMeasurements from './field';
 import { Point, stateEmitter, StateEvent, waypoints } from './state';
 
-type FieldZoomEvent = D3ZoomEvent<Element, {}>;
-type CircleDragEvent = D3DragEvent<Element, Point, Point>;
+type FieldZoomEvent = d3zoom.D3ZoomEvent<Element, {}>;
+type CircleDragEvent = d3drag.D3DragEvent<SVGCircleElement, Point, CircleDragSubject>;
 
-const svg = d3select('svg')
-    .call(d3zoom()
+interface CircleDragSubject extends d3drag.SubjectPosition {
+    point: Point
+}
+
+const svg = d3selection.select('svg')
+    .call(d3zoom.zoom()
         .on('zoom', () => {
-            const zoomEvent = d3event as FieldZoomEvent;
-            field.attr('transform', d3event.transform);
+            const zoomEvent = d3selection.event as FieldZoomEvent;
+            field.attr('transform', d3selection.event.transform);
             xAxisGroup.call(xAxis.scale(zoomEvent.transform.rescaleX(xScale)));
             yAxisGroup.call(yAxis.scale(zoomEvent.transform.rescaleY(yScale)));
+            const circles = field.selectAll('circle') as
+                d3selection.Selection<SVGCircleElement, Point, d3selection.BaseType, {}>;
+            circles
+                .attr('r', () => 10 / zoomEvent.transform.k)
         }));
+const svgNode = svg.node() as SVGSVGElement;
 // const { width: svgWidth, height: svgHeight } =
 //     (svg.node() as SVGSVGElement).getBBox();
 const svgWidth = parseInt(svg.attr('width'));
 const svgHeight = parseInt(svg.attr('height'));
 
-const xScale = d3scaleLinear()
-    // .domain([0, fieldMeasurements.length])
-    .domain([-1, svgWidth + 1])
-    .range([-1, svgWidth + 1]);
-const xAxis = d3AxisBottom(xScale);
+const xScale = d3scale.scaleLinear()
+    .domain([0, fieldMeasurements.length])
+    .range([0, svgWidth]);
+const xAxis = d3axis.axisBottom(xScale);
 const xAxisGroup = svg.append('g').call(xAxis);
 
-const yScale = d3scaleLinear()
-    // .domain([0, fieldMeasurements.width])
-    .domain([-1, svgHeight + 1])
-    .range([-1, svgHeight + 1]);
-const yAxis = d3AxisRight(yScale);
+const yScale = d3scale.scaleLinear()
+    .domain([0, fieldMeasurements.length])
+    .range([0, svgHeight]);
+const yAxis = d3axis.axisRight(yScale);
 const yAxisGroup = svg.append('g').call(yAxis);
 
 const field = svg.append('g');
 
 function updateCircles() {
+    const transform = d3zoom.zoomTransform(svgNode);
     const circles = field.selectAll('circle') as
-        Selection<SVGCircleElement, Point, BaseType, {}>;
+        d3selection.Selection<SVGCircleElement, Point, d3selection.BaseType, {}>;
     circles
         .data(waypoints)
         .enter().append('circle')
-            .attr('r', 20)
-            .call(d3drag()
-                .on('start', () => {
-                    console.log('dragStart');
-                }).on('end', () => {
-                    console.log('dragEnd');
-                }).on('drag', () => {
-                    const dragEvent = d3event as CircleDragEvent;
-                    dragEvent.subject.x = dragEvent.x;
-                    dragEvent.subject.y = dragEvent.y;
-                    console.log(dragEvent.subject);
+            .attr('r', () => 10 / transform.k)
+            .call((d3drag.drag() as d3drag.DragBehavior<SVGCircleElement, Point, CircleDragSubject>)
+                .subject(point => ({
+                    x: transform.rescaleX(xScale)(point.x),
+                    y: transform.rescaleY(yScale)(point.y),
+                    point
+                }))
+                .on('drag', () => {
+                    const dragEvent = d3selection.event as CircleDragEvent;
+                    dragEvent.subject.point.x = transform.rescaleX(xScale).invert(dragEvent.x);
+                    dragEvent.subject.point.y = transform.rescaleY(yScale).invert(dragEvent.y);
                     stateEmitter.emit(StateEvent.WaypointsUpdated);
                 }))
         .merge(circles)
-            .attr('cx', d => d.x)
-            .attr('cy', d => d.y);
+            .attr('cx', d => xScale(d.x))
+            .attr('cy', d => yScale(d.y));
 }
 
 stateEmitter.on(StateEvent.WaypointsUpdated, updateCircles);
