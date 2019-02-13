@@ -81,7 +81,7 @@ public class Climb {
         // the planetary gearbox will NOT reverse the motor direction,
         //  but every additional gear after the first one will reverse the direction
 
-        if (ROTATIONS * GEAR_RATIO > Math.abs(getEncoderPos(leader)) && input == true) {
+        if (ROTATIONS * GEAR_RATIO > Math.abs(getEncoderPos(leader)) && input) {
             moveLeapFrog();
         } else {
             stopLeapFrog();
