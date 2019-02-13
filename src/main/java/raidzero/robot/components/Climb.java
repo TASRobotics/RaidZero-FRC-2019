@@ -11,20 +11,21 @@ public class Climb {
     private CANSparkMax follower2;
     private CANSparkMax follower3;
 
-    // overall gearing: 192:1
-    // banebots gearbox: 64:1
-    // physical outside gearbox: 54:18
+    // Overall gearing: 192:1
+    // Banebots gearbox: 64:1
+    // Physical outside gearbox: 54:18
     private static final double GEAR_RATIO = 192;
-    // rotations = angle/360
+    // Rotations = angle/360
     private static final double ROTATIONS = 150/360;
-    // do not change the maxRotations for safety
+    // Do not change the maxRotations for safety
     private static final double MAX_ROTATIONS = 160/360;
-    private static boolean rotationsSafe = true;
+    private static boolean rotationsSafe = ROTATIONS < MAX_ROTATIONS;
 
     /**
-     * Gets the encoder position
+     * Gets the encoder position of any CANSparkMax
      *
-     * @return the encoder position
+     * @param sparkMax The Spark Max to find the position of
+     * @return The encoder position
      */
     private double getEncoderPos(CANSparkMax sparkMax) {
         return sparkMax.getEncoder().getPosition();
@@ -45,11 +46,12 @@ public class Climb {
         follower2 = new CANSparkMax(follower2ID, MotorType.kBrushless);
         follower3 = new CANSparkMax(follower3ID, MotorType.kBrushless);
 
-        // disable direct inverts, motors are inverted in the follow section
-        follower1.setInverted(false);
-        follower3.setInverted(false);
+        // Disable direct inverts, motors are inverted in the follow section
         leader.setInverted(false);
+        follower1.setInverted(false);
         follower2.setInverted(false);
+        follower3.setInverted(false);
+
 
         // Set to brakemode
         leader.setIdleMode(IdleMode.kBrake);
@@ -57,35 +59,18 @@ public class Climb {
         follower2.setIdleMode(IdleMode.kBrake);
         follower3.setIdleMode(IdleMode.kBrake);
 
-        // set follow(with inverts)
+        // Set follow(with inverts)
         follower1.follow(leader, true);
         follower3.follow(leader, true);
         follower2.follow(leader, false);
 
-        resetEncoder(leader);
         leader.set(0);
-
-        // makes sure the climb won't overrotate
-        rotationsSafe = (ROTATIONS <= MAX_ROTATIONS);
-    }
-
-    /**
-     * Resets the encoder value by calling the constructor
-     *
-     * @param sparkMax The sparkMax object that needs to reset its encoder value
-     */
-    private void resetEncoder(CANSparkMax sparkMax) {
-        CANSparkMax temp;
-        temp = sparkMax;
-        sparkMax = new CANSparkMax(sparkMax.getDeviceId(), MotorType.kBrushless);
-        sparkMax.close();
-        sparkMax = temp;
     }
 
     /**
      * Climbs while the input is true
      *
-     * @param input the variable that controls the climb(must be held true during climb)
+     * @param input The variable that controls the climb (must be held true during climb)
      */
     public void climb(boolean input) {
         // PLEASE ENSURE THAT THE MECHANICAL LEADER MOTOR DIRECTION MATCHES
@@ -95,7 +80,7 @@ public class Climb {
         // the planetary gearbox will NOT reverse the motor direction,
         //  but every additional gear after the first one will reverse the direction
 
-        if ((ROTATIONS * GEAR_RATIO) > Math.abs(getEncoderPos(leader)) && input == true) {
+        if (ROTATIONS * GEAR_RATIO > Math.abs(getEncoderPos(leader)) && input == true) {
             moveLeapFrog();
         } else {
             stopLeapFrog();
