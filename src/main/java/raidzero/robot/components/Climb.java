@@ -19,7 +19,7 @@ public class Climb {
     private static final double ROTATIONS = 150 / 360;
     // Do not change the maxRotations for safety
     private static final double MAX_ROTATIONS = 160 / 360;
-    private static boolean rotationsSafe = ROTATIONS < MAX_ROTATIONS;
+    private static final boolean ROTATIONS_SAFE = ROTATIONS < MAX_ROTATIONS;
 
 
     /**
