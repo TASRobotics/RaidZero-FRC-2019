@@ -2,4 +2,4 @@
 Competition code for 2019 season
 
 # Desmos Link
-https://www.desmos.com/calculator/cm6kptpluh
+See the [wiki](https://github.com/TASRobotics/RaidZero-FRC-2019/wiki/Desmos)
