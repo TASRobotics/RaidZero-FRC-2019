@@ -18,7 +18,7 @@ public class Teleop {
     private static int armPos;
     private static final int ARM_MAX = 2140;
     private static final int ARM_MIN = 0;
-  
+
     private static boolean climbing = false;
 
     /**
@@ -53,7 +53,7 @@ public class Teleop {
     public static void run() {
 
         //buttons for the climb
-        if (controller1.getStartButton() && controller2.getStartButton()){
+        if (controller1.getStartButton() && controller2.getStartButton()) {
             climbing = true;
         }
 
@@ -115,9 +115,9 @@ public class Teleop {
             Components.getIntake().release();
         }
 
-        //climb
+        // Climb
         Components.getClimb().climb(climbing);
-      
+
     }
 
 }

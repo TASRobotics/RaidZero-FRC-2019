@@ -4,21 +4,21 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-public class Climb{
+public class Climb {
 
     private CANSparkMax leader;
     private CANSparkMax follower1;
     private CANSparkMax follower2;
     private CANSparkMax follower3;
 
-    //overall gearing: 192:1
-            //banebots gearbox: 64:1
-            //physical outside gearbox: 54:18
-    private final double GEAR_RATIO = 192;
-    //rotations = angle/360
-    private final double ROTATIONS = 150/360;
-    //do not change the maxRotations for safety
-    private final double MAX_ROTATIONS = 160/360;
+    // overall gearing: 192:1
+    // banebots gearbox: 64:1
+    // physical outside gearbox: 54:18
+    private static final double GEAR_RATIO = 192;
+    // rotations = angle/360
+    private static final double ROTATIONS = 150/360;
+    // do not change the maxRotations for safety
+    private static final double MAX_ROTATIONS = 160/360;
     private static boolean rotationsSafe = true;
 
     /**
@@ -45,19 +45,19 @@ public class Climb{
         follower2 = new CANSparkMax(follower2ID, MotorType.kBrushless);
         follower3 = new CANSparkMax(follower3ID, MotorType.kBrushless);
 
-        //disable direct inverts, motors are inverted in the follow section
+        // disable direct inverts, motors are inverted in the follow section
         follower1.setInverted(false);
         follower3.setInverted(false);
         leader.setInverted(false);
         follower2.setInverted(false);
 
-        //Set to brakemode
+        // Set to brakemode
         leader.setIdleMode(IdleMode.kBrake);
         follower1.setIdleMode(IdleMode.kBrake);
         follower2.setIdleMode(IdleMode.kBrake);
         follower3.setIdleMode(IdleMode.kBrake);
 
-        //set follow(with inverts)
+        // set follow(with inverts)
         follower1.follow(leader, true);
         follower3.follow(leader, true);
         follower2.follow(leader, false);
@@ -65,7 +65,7 @@ public class Climb{
         resetEncoder(leader);
         leader.set(0);
 
-        //makes sure the climb won't overrotate
+        // makes sure the climb won't overrotate
         rotationsSafe = (ROTATIONS <= MAX_ROTATIONS);
     }
 
@@ -88,11 +88,11 @@ public class Climb{
      * @param input the variable that controls the climb(must be held true during climb)
      */
     public void climb(boolean input) {
-        //PLEASE ENSURE THAT THE MECHANICAL LEADER MOTOR DIRECTION MATCHES
+        // PLEASE ENSURE THAT THE MECHANICAL LEADER MOTOR DIRECTION MATCHES
         //  WITH THE LEADER MOTOR DIRECTION IN CODE
         //      (motors spinning in a positive direction will move
         //      clockwise when looking at the ROTOR side of the motor)
-        //the planetary gearbox will NOT reverse the motor direction,
+        // the planetary gearbox will NOT reverse the motor direction,
         //  but every additional gear after the first one will reverse the direction
 
         if ((ROTATIONS * GEAR_RATIO) > Math.abs(getEncoderPos(leader)) && input == true) {
@@ -103,8 +103,7 @@ public class Climb{
     }
 
     /**
-     * Moves the climb, while also checking that the number of
-     * rotations set is not too high
+     * Moves the climb, while also checking that the number of rotations set is not too high
      */
     private void moveLeapFrog() {
         if (rotationsSafe) {
@@ -115,7 +114,7 @@ public class Climb{
     }
 
     /**
-     * stops the climb
+     * Stops the climb
      */
     private void stopLeapFrog() {
         leader.set(0);

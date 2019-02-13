@@ -26,7 +26,7 @@ public class Components {
         lift = new Lift(0, 1);
         arm = new Arm(7, 9);
         intake = new Intake(6, 2, 3);
-        climb = new Climb(5,6,7,8);
+        climb = new Climb(5, 6, 7, 8);
     }
 
     /**
@@ -56,7 +56,12 @@ public class Components {
         return arm;
     }
 
-    public static Climb getClimb(){
+    /**
+     * Returns the climb component.
+     *
+     * @return the climb component
+     */
+    public static Climb getClimb() {
         return climb;
     }
 
