@@ -49,7 +49,7 @@ public class Teleop {
      */
     public static void run() {
 
-        //buttons for the climb
+        // Buttons to toggle the climb
         if (controller1.getStartButton() && controller2.getStartButton()) {
             climbing = true;
         }
