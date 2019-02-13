@@ -26,7 +26,7 @@ public class Climb{
      *
      * @return the encoder position
      */
-    private double getEncoderPos(CANSparkMax sparkMax) {
+    private static double getEncoderPos(CANSparkMax sparkMax) {
         return sparkMax.getEncoder().getPosition();
     }
 
