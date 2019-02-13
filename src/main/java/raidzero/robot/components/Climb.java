@@ -16,10 +16,11 @@ public class Climb {
     // Physical outside gearbox: 54:18
     private static final double GEAR_RATIO = 192;
     // Rotations = angle/360
-    private static final double ROTATIONS = 150/360;
+    private static final double ROTATIONS = 150 / 360;
     // Do not change the maxRotations for safety
-    private static final double MAX_ROTATIONS = 160/360;
+    private static final double MAX_ROTATIONS = 160 / 360;
     private static boolean rotationsSafe = ROTATIONS < MAX_ROTATIONS;
+
 
     /**
      * Gets the encoder position of any CANSparkMax
@@ -27,7 +28,7 @@ public class Climb {
      * @param sparkMax The Spark Max to find the position of
      * @return The encoder position
      */
-    private double getEncoderPos(CANSparkMax sparkMax) {
+    private static double getEncoderPos(CANSparkMax sparkMax) {
         return sparkMax.getEncoder().getPosition();
     }
 
