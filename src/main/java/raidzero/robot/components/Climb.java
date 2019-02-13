@@ -21,17 +21,6 @@ public class Climb {
     private static final double MAX_ROTATIONS = 160 / 360;
     private static final boolean ROTATIONS_SAFE = ROTATIONS < MAX_ROTATIONS;
 
-
-    /**
-     * Gets the encoder position of any CANSparkMax
-     *
-     * @param sparkMax The Spark Max to find the position of
-     * @return The encoder position
-     */
-    private static double getEncoderPos(CANSparkMax sparkMax) {
-        return sparkMax.getEncoder().getPosition();
-    }
-
     /**
      * Constructs a climb object, intializes the motors
      *
@@ -69,6 +58,16 @@ public class Climb {
     }
 
     /**
+     * Gets the encoder position of any CANSparkMax
+     *
+     * @param sparkMax The Spark Max to find the position of
+     * @return The encoder position
+     */
+    private static double getEncoderPos(CANSparkMax sparkMax) {
+        return sparkMax.getEncoder().getPosition();
+    }
+
+    /**
      * Climbs while the input is true
      *
      * @param input The variable that controls the climb (must be held true during climb)
@@ -92,7 +91,7 @@ public class Climb {
      * Moves the climb, while also checking that the number of rotations set is not too high
      */
     private void moveLeapFrog() {
-        if (rotationsSafe) {
+        if (ROTATIONS_SAFE) {
             leader.set(1);
         } else {
             stopLeapFrog();
