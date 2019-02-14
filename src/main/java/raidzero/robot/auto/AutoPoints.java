@@ -43,6 +43,6 @@ public class AutoPoints {
 
 
     // Loading station positions
-    public static final Point leftLS = new Point(20, 296, 180));
+    public static final Point leftLS = new Point(20, 296, 180);
     public static final Point rightLS = new Point(20, 26.6, 180);
 }
