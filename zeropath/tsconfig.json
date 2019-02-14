@@ -6,7 +6,6 @@
         "rootDir": "ts",
         "outDir": "js",
         "noEmitOnError": true,
-        "strict": true,
-        "strictFunctionTypes": false
+        "strict": true
     }
 }
