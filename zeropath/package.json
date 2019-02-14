@@ -10,18 +10,21 @@
         "electron": "^4.0.1"
     },
     "dependencies": {
+        "@material/top-app-bar": "^0.44.0",
         "@types/d3-axis": "^1.0.11",
         "@types/d3-drag": "^1.2.2",
         "@types/d3-scale": "^2.1.0",
         "@types/d3-selection": "^1.3.4",
         "@types/d3-zoom": "^1.7.3",
         "@types/electron-debug": "^1.1.0",
+        "@types/material__top-app-bar": "^0.35.1",
         "d3-axis": "^1.0.12",
         "d3-drag": "^1.2.3",
         "d3-scale": "^2.2.0",
         "d3-selection": "^1.3.2",
         "d3-zoom": "^1.7.3",
-        "electron-debug": "^2.0.0"
+        "electron-debug": "^2.0.0",
+        "material-design-icons": "^3.0.1"
     },
     "repository": "TASRobotics/RaidZero-FRC-2019",
     "license": "MIT"

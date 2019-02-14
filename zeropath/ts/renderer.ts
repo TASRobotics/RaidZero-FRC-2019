@@ -37,7 +37,7 @@ interface CircleDragSubject extends d3drag.SubjectPosition {
     point: Point
 }
 
-const svg = d3selection.select('svg') as BasicSelection<SVGSVGElement>;
+const svg = d3selection.select('#view') as BasicSelection<SVGSVGElement>;
 const svgNode = svg.node() as SVGSVGElement;
 const { width: svgWidth, height: svgHeight } = svgNode.getBoundingClientRect();
 

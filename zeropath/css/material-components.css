@@ -1,0 +1,6 @@
+@import '../node_modules/@material/top-app-bar/dist/mdc.top-app-bar.css';
+
+:root {
+    --mdc-theme-primary: #009688;
+    --mdc-theme-secondary: #ff9100;
+}

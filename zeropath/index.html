@@ -3,12 +3,27 @@
     <head>
         <meta charset="utf-8">
         <title>zeropath</title>
-        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="css/material-icons.css">
+        <link rel="stylesheet" href="css/material-components.css">
+        <link rel="stylesheet" href="css/styles.css">
     </head>
     <body>
-        <svg width="500" height="500">
+        <header class="mdc-top-app-bar mdc-top-app-bar--fixed">
+            <div class="mdc-top-app-bar__row">
+                <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+                    <span class="mdc-top-app-bar__title">zeropath</span>
+                </section>
+                <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
+                    <a href="#" class="material-icons mdc-top-app-bar__navigation-icon">send</a>
+                </section>
+            </div>
+        </header>
+        <main class="mdc-top-app-bar--fixed-adjust">
+            <svg id="view">
 
-        </svg>
+            </svg>
+        </main>
+        <script>require('./js/material-components')</script>
         <script>require('./js/renderer')</script>
     </body>
 </html>
