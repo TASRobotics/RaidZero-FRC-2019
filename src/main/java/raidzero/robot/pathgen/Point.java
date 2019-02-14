@@ -18,7 +18,7 @@ public class Point {
     public final double y;
 
     /**
-     * The angle, if provided.
+     * The angle in degrees, if provided.
      */
     public final OptionalDouble angle;
 
@@ -39,7 +39,7 @@ public class Point {
      *
      * @param x the x-coordinate
      * @param y the y-coordinate
-     * @param a the angle
+     * @param a the angle in degrees
      */
     public Point(double x, double y, double a) {
         this.x = x;

@@ -21,28 +21,28 @@ public class AutoPoints {
 
 
     // Cargo positions on upper half of the field
-    public static final Point leftCargo1 = new Point(260.6, 208, Math.PI / 2);
-    public static final Point leftCargo2 = new Point(282.5, 208, Math.PI / 2);
-    public static final Point leftCargo3 = new Point(304, 208, Math.PI / 2);
+    public static final Point leftCargo1 = new Point(260.6, 208, 90);
+    public static final Point leftCargo2 = new Point(282.5, 208, 90);
+    public static final Point leftCargo3 = new Point(304, 208, 90);
 
     // Rocket positions on upper half of the field where 1 is the closer rocket station.
-    public static final Point leftRocket1 = new Point(260.6, 208, 3 * Math.PI / 16);
-    public static final Point leftRocket2 = new Point(282.5, 208, Math.PI / 2);
+    public static final Point leftRocket1 = new Point(260.6, 208, 30);
+    public static final Point leftRocket2 = new Point(282.5, 208, 90);
 
 
 
     // Cargo positions on right bottom half of the field
-    public static final Point rightCargo1 = new Point(260.6, 116, Math.PI / 2);
-    public static final Point rightCargo2 = new Point(282.5, 116, Math.PI / 2);
-    public static final Point rightCargo3 = new Point(304, 116, Math.PI / 2);
+    public static final Point rightCargo1 = new Point(260.6, 116, 90);
+    public static final Point rightCargo2 = new Point(282.5, 116, 90);
+    public static final Point rightCargo3 = new Point(304, 116, 90);
 
     // Rocket positions on right bottom half of the field where 1 is the closer rocket station.
-    public static final Point rightRocket1 = new Point(198, 30, -3 * Math.PI / 16);
-    public static final Point rightRocket2 = new Point(229, 48, -Math.PI / 2);
+    public static final Point rightRocket1 = new Point(198, 28.7, -30);
+    public static final Point rightRocket2 = new Point(229, 48, -90);
 
 
 
     // Loading station positions
-    public static final Point leftLS = new Point(20, 296, Math.PI);
-    public static final Point rightLS = new Point(20, 26.6, Math.PI / 2);
+    public static final Point leftLS = new Point(20, 296, 180));
+    public static final Point rightLS = new Point(20, 26.6, 180);
 }
