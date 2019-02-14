@@ -18,5 +18,5 @@ uploadDialog.escapeKeyAction = '';
 const uploadButton = document.querySelector('#upload-button') as HTMLElement;
 uploadButton.addEventListener('click', () => {
     uploadDialog.open();
-    upload();
+    upload(() => {});
 });

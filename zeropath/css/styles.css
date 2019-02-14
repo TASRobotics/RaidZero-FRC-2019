@@ -15,3 +15,8 @@ main {
 #view {
     flex: 1;
 }
+
+#upload-dialog .mdc-dialog__surface {
+    width: 400px;
+    height: calc(100vh - 32px);
+}

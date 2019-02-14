@@ -29,7 +29,8 @@
         "d3-zoom": "^1.7.3",
         "electron-debug": "^2.0.0",
         "material-design-icons": "^3.0.1",
-        "ssh2": "^0.8.2"
+        "ssh2": "^0.8.2",
+        "ssh2-streams": "^0.4.2"
     },
     "repository": "TASRobotics/RaidZero-FRC-2019",
     "license": "MIT"
