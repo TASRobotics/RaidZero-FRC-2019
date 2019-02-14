@@ -1,3 +1,5 @@
+@import '../node_modules/@material/button/dist/mdc.button.css';
+@import '../node_modules/@material/dialog/dist/mdc.dialog.css';
 @import '../node_modules/@material/top-app-bar/dist/mdc.top-app-bar.css';
 
 :root {

@@ -8,13 +8,13 @@
         <link rel="stylesheet" href="css/styles.css">
     </head>
     <body>
-        <header class="mdc-top-app-bar mdc-top-app-bar--fixed">
+        <header id="app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed">
             <div class="mdc-top-app-bar__row">
                 <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
                     <span class="mdc-top-app-bar__title">zeropath</span>
                 </section>
                 <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
-                    <a href="#" class="material-icons mdc-top-app-bar__navigation-icon">send</a>
+                    <a href="#" id="upload-button" class="material-icons mdc-top-app-bar__navigation-icon">send</a>
                 </section>
             </div>
         </header>
@@ -23,7 +23,25 @@
 
             </svg>
         </main>
-        <script>require('./js/material-components')</script>
-        <script>require('./js/renderer')</script>
+        <div id="upload-dialog" class="mdc-dialog" role="alertdialog" aria-modal="true">
+            <div class="mdc-dialog__container">
+                <div class="mdc-dialog__surface">
+                    <h2 class="mdc-dialog__title">Upload</h2>
+                    <div class="mdc-dialog__content">
+                        <div tabindex="0"></div>
+                    </div>
+                    <footer class="mdc-dialog__actions">
+                        <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="reupload" disabled>
+                            <span class="mdc-button__label">Reupload</span>
+                        </button>
+                        <button type="button" class="mdc-button mdc-dialog__button mdc-dialog__button--default" data-mdc-dialog-action="close" disabled>
+                            <span class="mdc-button__label">Close</span>
+                        </button>
+                    </footer>
+                </div>
+            </div>
+            <div class="mdc-dialog__scrim"></div>
+        </div>
+        <script>require('./js/init')</script>
     </body>
 </html>
