@@ -25,8 +25,8 @@ public class Base {
      */
     public Base(int rLeaderId, int rFollower1Id, int rFollower2Id, int lLeaderId, int lFollower1Id,
     int lFollower2Id, int pigeonId) {
-        rightMotor = initSide(rLeaderId, rFollower1Id, rFollower2Id, false);
-        leftMotor = initSide(lLeaderId, lFollower1Id, lFollower2Id, true);
+        rightMotor = initSide(rLeaderId, rFollower1Id, rFollower2Id, true);
+        leftMotor = initSide(lLeaderId, lFollower1Id, lFollower2Id, false);
         pigeon = new PigeonIMU(pigeonId);
     }
 
@@ -44,6 +44,9 @@ public class Base {
         TalonSRX follower2 = new TalonSRX(follower2Id);
 
         leader.configFactoryDefault();
+        follower1.configFactoryDefault();
+        follower2.configFactoryDefault();
+
         leader.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
         leader.configNeutralDeadband(0.001);
