@@ -48,7 +48,7 @@ const xAxis = d3axis.axisBottom(xScale);
 const xAxisGroup = svg.append('g').call(xAxis);
 
 const yScale = d3scale.scaleLinear()
-    .domain([0, fieldMeasurements.length])
+    .domain([0, fieldMeasurements.length * (svgHeight / svgWidth)])
     .range([0, svgHeight]);
 const yAxis = d3axis.axisRight(yScale);
 const yAxisGroup = svg.append('g').call(yAxis);
