@@ -59,7 +59,6 @@ const field = svg.append('g');
 field.append('svg:image')
     .attr('x', xScale(0))
     .attr('y', yScale(0))
-    .attr('width', xScale(fieldMeasurements.length))
     .attr('height', yScale(fieldMeasurements.width))
     .attr('xlink:href', fieldImagePath);
 
