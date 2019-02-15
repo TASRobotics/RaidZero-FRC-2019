@@ -8,6 +8,7 @@ import * as fieldMeasurements from './field';
 import { Point, stateEmitter, StateEvent, waypoints } from './state';
 
 const circleRadius = 10;
+const fieldImagePath = 'res/2019-field.jpg';
 
 type GetElement<S> = S extends d3selection.Selection<infer E, any, any, any> ?
     E : never;
@@ -54,6 +55,13 @@ const yAxis = d3axis.axisRight(yScale);
 const yAxisGroup = svg.append('g').call(yAxis);
 
 const field = svg.append('g');
+
+field.append('svg:image')
+    .attr('x', xScale(0))
+    .attr('y', yScale(0))
+    .attr('width', xScale(fieldMeasurements.length))
+    .attr('height', yScale(fieldMeasurements.width))
+    .attr('xlink:href', fieldImagePath);
 
 function selectCircles(): BasicSelection<SVGCircleElement> {
     return field.selectAll('circle');
