@@ -46,13 +46,11 @@ const xScale = d3scale.scaleLinear()
     .domain([0, fieldMeasurements.length])
     .range([0, svgWidth]);
 const xAxis = d3axis.axisBottom(xScale);
-const xAxisGroup = svg.append('g').call(xAxis);
 
 const yScale = d3scale.scaleLinear()
     .domain([0, fieldMeasurements.length * (svgHeight / svgWidth)])
     .range([0, svgHeight]);
 const yAxis = d3axis.axisRight(yScale);
-const yAxisGroup = svg.append('g').call(yAxis);
 
 const field = svg.append('g');
 
@@ -61,6 +59,9 @@ field.append('svg:image')
     .attr('y', yScale(0))
     .attr('height', yScale(fieldMeasurements.width))
     .attr('xlink:href', fieldImagePath);
+
+const xAxisGroup = svg.append('g').call(xAxis);
+const yAxisGroup = svg.append('g').call(yAxis);
 
 function selectCircles(): BasicSelection<SVGCircleElement> {
     return field.selectAll('circle');
