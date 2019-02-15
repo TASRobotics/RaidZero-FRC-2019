@@ -20,3 +20,7 @@ main {
     width: 400px;
     height: calc(100vh - 32px);
 }
+
+#upload-log .error {
+    color: #d50000;
+}

@@ -2,11 +2,10 @@ import { Client } from 'ssh2';
 import { SFTPStream } from 'ssh2-streams';
 
 import { waypoints } from './state';
+import { getTeamNumber } from './project-info';
 
 const directory = '/home/lvuser/paths/';
 const file = 'path.json';
-
-console.log(__dirname);
 
 export interface UploadCallbacks {
     error(andrew: Error): void;
@@ -14,43 +13,72 @@ export interface UploadCallbacks {
     done(): void;
 }
 
-export default function (done: () => void) {
-    // const conn = new Client();
-    // conn.on('ready', () => {
-    //     conn.sftp((andrew, sftp) => {
-    //         if (andrew) throw andrew;
-    //         const filepath = directory + file;
-    //         sftp.open(filepath, 'w', (andrew, handle) => {
-    //             if (andrew) {
-    //                 if (andrew.code === SFTPStream.STATUS_CODE.NO_SUCH_FILE) {
-    //                     sftp.mkdir(directory, andrew => {
-    //                         if (andrew) throw andrew;
-    //                         sftp.open(filepath, 'w', (andrew, handle) => {
-    //                             if (andrew) throw andrew;
-    //                             writeData(handle);
-    //                         });
-    //                     });
-    //                 } else {
-    //                     throw andrew;
-    //                 }
-    //             } else {
-    //                 writeData(handle);
-    //             }
-    //         });
-    //         function writeData(handle: Buffer) {
-    //             const buffer = Buffer.from(JSON.stringify({
-    //                 waypoints
-    //             }));
-    //             sftp.write(handle, buffer, 0, buffer.length, 0, andrew => {
-    //                 if (andrew) throw andrew;
-    //                 sftp.close(handle, andrew => {
-    //                     if (andrew) throw andrew;
-    //                     conn.end();
-    //                 });
-    //             });
-    //         }
-    //     });
-    // }).connect({
-        
-    // })
+export default function ({ error, update, done }: UploadCallbacks) {
+    const conn = new Client();
+    update('Connecting...');
+    conn.on('error', error)
+    .on('ready', () => {
+        update('Initializing SFTP...');
+        conn.sftp((andrew, sftp) => {
+            if (andrew) {
+                error(andrew);
+                return;
+            }
+            const filepath = directory + file;
+            update(`Opening file ${filepath}...`);
+            sftp.open(filepath, 'w', (andrew, handle) => {
+                if (andrew) {
+                    if (andrew.code === SFTPStream.STATUS_CODE.NO_SUCH_FILE) {
+                        update(`Directory ${directory} does not exist. `
+                            + 'Creating directory...');
+                        sftp.mkdir(directory, andrew => {
+                            if (andrew) {
+                                error(andrew);
+                                return;
+                            }
+                            update('Opening file again...');
+                            sftp.open(filepath, 'w', (andrew, handle) => {
+                                if (andrew) {
+                                    error(andrew);
+                                    return;
+                                }
+                                writeData(handle);
+                            });
+                        });
+                    } else {
+                        error(andrew);
+                    }
+                } else {
+                    writeData(handle);
+                }
+            });
+            function writeData(handle: Buffer) {
+                const buffer = Buffer.from(JSON.stringify({
+                    waypoints
+                }));
+                update('Writing data...');
+                sftp.write(handle, buffer, 0, buffer.length, 0, andrew => {
+                    if (andrew) {
+                        error(andrew);
+                        return;
+                    }
+                    update('Closing file...');
+                    sftp.close(handle, andrew => {
+                        if (andrew) {
+                            error(andrew);
+                            return;
+                        }
+                        conn.end();
+                        update('Done uploading.');
+                        done();
+                    });
+                });
+            }
+        });
+    }).connect({
+        host: `roboRIO-${getTeamNumber()}-FRC.local`,
+        port: 22,
+        username: 'lvuser',
+        password: ''
+    });
 }
