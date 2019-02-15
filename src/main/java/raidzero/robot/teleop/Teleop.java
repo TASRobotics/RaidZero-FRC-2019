@@ -62,11 +62,6 @@ public class Teleop {
         Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
             controller1.getY(kLeft));
 
-        // Climb
-        if (climbing) {
-            Components.getClimb().climbPWM(controller2.getY(kLeft));
-        }
-
         // Lift
         double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);
         double leftTriggerAxis1 = controller1.getTriggerAxis(kLeft);
@@ -114,7 +109,10 @@ public class Teleop {
             Components.getIntake().stopHook();
         }
 
-        //Components.getClimb().climb(climbing && controller2.getBackButton());
+        // Climb
+        if (climbing) {
+            Components.getClimb().climbPWM(controller2.getY(kLeft));
+        }
 
     }
 
