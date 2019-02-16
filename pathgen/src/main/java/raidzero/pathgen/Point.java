@@ -1,4 +1,4 @@
-package raidzero.robot.pathgen;
+package raidzero.pathgen;
 
 import java.util.OptionalDouble;
 

@@ -1,4 +1,4 @@
-package raidzero.robot.pathgen;
+package raidzero.pathgen;
 
 import org.apache.commons.math3.analysis.interpolation.HermiteInterpolator;
 
