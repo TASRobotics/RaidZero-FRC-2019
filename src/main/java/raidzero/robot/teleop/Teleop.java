@@ -77,7 +77,7 @@ public class Teleop {
         // Player 2
 
         // Arm
-        if (climbing == false) {
+        if (!climbing) {
             Components.getArm().movePercentOutput(-controller2.getY(kRight));
         }
 
