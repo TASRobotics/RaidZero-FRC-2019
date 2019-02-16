@@ -1,6 +1,6 @@
 package raidzero.robot.auto;
 
-import raidzero.robot.pathgen.Point;
+import raidzero.pathgen.Point;
 
 public class AutoPoints {
     // Starting positions for the robot on upper half of the field
