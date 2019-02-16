@@ -53,6 +53,9 @@ public class Teleop {
         if (controller1.getStartButton() && controller2.getStartButton()) {
             climbing = true;
         }
+        if (controller1.getBackButton() || controller2.getBackButton()) {
+            climbing = false;
+        }
 
         // Player 1
 
@@ -111,14 +114,11 @@ public class Teleop {
             Components.getIntake().stopHook();
         }
 
+        Components.getClimb().lockClimb();
         // Climb
         if (climbing) {
+            Components.getClimb().unlockClimb();
             Components.getClimb().climbPWM(controller2.getY(kLeft));
-            if (controller2.getPOV() == 0) {
-                Components.getClimb().lockClimb();
-            } else if (controller2.getPOV() == 180) {
-                Components.getClimb().unlockClimb();
-            }
         }
 
     }
