@@ -4,12 +4,19 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.Servo;
+
 public class Climb {
 
     private CANSparkMax leader;
     private CANSparkMax follower1;
     private CANSparkMax follower2;
     private CANSparkMax follower3;
+
+    private Servo servo1;
+    private Servo servo2;
+    private Servo servo3;
+    private Servo servo4;
 
     // Overall gearing: 192:1
     // Banebots gearbox: 64:1
@@ -29,12 +36,18 @@ public class Climb {
      * @param follower2ID ID of the second follower motor
      * @param follower3ID ID of the third follower motor
      */
-    public Climb(int leaderID, int follower1ID, int follower2ID, int follower3ID) {
+    public Climb(int leaderID, int follower1ID, int follower2ID, int follower3ID, int servoChannel1,
+    int servoChannel2, int servoChannel3, int servoChannel4) {
 
         leader = new CANSparkMax(leaderID, MotorType.kBrushless);
         follower1 = new CANSparkMax(follower1ID, MotorType.kBrushless);
         follower2 = new CANSparkMax(follower2ID, MotorType.kBrushless);
         follower3 = new CANSparkMax(follower3ID, MotorType.kBrushless);
+
+        servo1 = new Servo(servoChannel1);
+        servo2 = new Servo(servoChannel2);
+        servo3 = new Servo(servoChannel3);
+        servo4 = new Servo(servoChannel4);
 
         // Disable direct inverts, motors are inverted in the follow section
         leader.setInverted(false);
@@ -68,6 +81,26 @@ public class Climb {
     }
 
     /**
+     * Locks the climb by moving the servo
+     */
+    public void lockClimb() {
+        servo1.set(1);
+        servo2.set(1);
+        servo3.set(1);
+        servo4.set(1);
+    }
+
+    /**
+     * Unlocks the climb by moving the servo
+     */
+    public void unlockClimb() {
+        servo1.set(0);
+        servo2.set(0);
+        servo3.set(0);
+        servo4.set(0);
+    }
+
+    /**
      * Climbs while the input is true
      *
      * @param input The variable that controls the climb (must be held true during climb)
@@ -87,6 +120,10 @@ public class Climb {
         }
     }
 
+    /**
+     * Moves the climb by PWM
+     * @param speed
+     */
     public void climbPWM(double speed) {
         leader.set(speed);
     }

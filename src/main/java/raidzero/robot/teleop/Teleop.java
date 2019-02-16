@@ -112,6 +112,11 @@ public class Teleop {
         // Climb
         if (climbing) {
             Components.getClimb().climbPWM(controller2.getY(kLeft));
+            if (controller2.getPOV() == 0) {
+                Components.getClimb().lockClimb();
+            } else if (controller2.getPOV() == 180) {
+                Components.getClimb().unlockClimb();
+            }
         }
 
     }
