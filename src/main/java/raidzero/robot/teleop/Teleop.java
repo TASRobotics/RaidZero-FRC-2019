@@ -14,10 +14,13 @@ public class Teleop {
 
     private static XboxController controller1;
     private static XboxController controller2;
+
     private static int armPos;
     private static double liftPos;
     private static final int ARM_MAX = 2140;
     private static final int ARM_MIN = 0;
+
+    private static boolean climbing = false;
 
     /**
      * Initializes the teleop-specific components.
@@ -36,6 +39,7 @@ public class Teleop {
      * {@link #run()}.
      */
     public static void setup() {
+        climbing = false;
         armPos = Components.getArm().getEncoderPos();
         liftPos = Components.getLift().getEncoderPos();
     }
@@ -46,6 +50,11 @@ public class Teleop {
      * <p>This should be called repeatedly during teleop mode.
      */
     public static void run() {
+
+        // Buttons to toggle the climb
+        if (controller1.getStartButton() && controller2.getStartButton()) {
+            climbing = true;
+        }
 
         // Player 1
 
@@ -97,6 +106,10 @@ public class Teleop {
         } else if (controller2.getBumperPressed(kLeft)) {
             Components.getIntake().release();
         }
+
+        // Climb
+        Components.getClimb().climb(climbing);
+
     }
 
 }

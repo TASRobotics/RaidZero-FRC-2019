@@ -13,6 +13,7 @@ public class Components {
     private static Lift lift;
     private static Arm arm;
     private static Intake intake;
+    private static Climb climb;
 
     /**
      * Initializes each component by calling its constructor.
@@ -52,6 +53,15 @@ public class Components {
      */
     public static Arm getArm() {
         return arm;
+    }
+
+    /**
+     * Returns the climb component.
+     *
+     * @return the climb component
+     */
+    public static Climb getClimb() {
+        return climb;
     }
 
     /**

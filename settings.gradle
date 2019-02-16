@@ -23,3 +23,7 @@ pluginManagement {
         }
     }
 }
+
+rootProject.name = 'robot-code'
+
+include 'pathgen'
