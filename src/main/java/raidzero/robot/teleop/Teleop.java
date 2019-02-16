@@ -74,7 +74,6 @@ public class Teleop {
             liftPos -= leftTriggerAxis1;
         }
         Components.getLift().movePosition(liftPos);
-        System.out.println(liftPos);
 
         // Player 2
 
