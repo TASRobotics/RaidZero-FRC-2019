@@ -1,35 +1,53 @@
 package raidzero.robot.components;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
+import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 /**
  * The intake (hook and wheels).
  */
 public class Intake {
 
-    private static DoubleSolenoid.Value OPEN_POSITION = DoubleSolenoid.Value.kForward;
-    private static DoubleSolenoid.Value CLOSED_POSITION = DoubleSolenoid.Value.kReverse;
-
+    private static final double HOOK_POWER = 1.0;
     private TalonSRX intakeMotor;
-    private DoubleSolenoid hook;
+    private TalonSRX hookMotor;
 
     /**
      * Constructs an intake object.
-     * 
-     * @param intakeId the ID for the intake motor
-     * @param forwardChannel the pneumatic channel for grabbing hook
-     * @param backwardChannel the pneumatic channel for releasing hook
+     *
+     * @param wheelId the ID for the intake motor
+     * @param hookID the ID for the hook motor
      */
-    public Intake(int intakeId, int forwardChannel, int backwardChannel) {
-        intakeMotor = new TalonSRX(intakeId);
-        hook = new DoubleSolenoid(forwardChannel, backwardChannel);
+    public Intake(int wheelId, int hookID) {
+        intakeMotor = new TalonSRX(wheelId);
+        hookMotor = new TalonSRX(hookID);
 
+        hookMotor.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+            LimitSwitchNormal.NormallyClosed);
+        hookMotor.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+            LimitSwitchNormal.NormallyClosed);
+
+        hookMotor.setNeutralMode(NeutralMode.Brake);
         intakeMotor.setNeutralMode(NeutralMode.Brake);
     }
 
+    /**
+     * Returns the hook motor object.
+     *
+     * @return the hook motor object
+     */
+    public TalonSRX getHookMotor() {
+        return hookMotor;
+    }
+
+    /**
+     * Returns the intake motor object.
+     *
+     * @return the intake motor object
+     */
     public TalonSRX getIntakeMotor() {
         return intakeMotor;
     }
@@ -38,14 +56,14 @@ public class Intake {
      * Grabs using the hook.
      */
     public void grab() {
-        hook.set(CLOSED_POSITION);
+        hookMotor.set(ControlMode.PercentOutput, HOOK_POWER);
     }
 
     /**
      * Releases the hook.
      */
     public void release() {
-        hook.set(OPEN_POSITION);
+        hookMotor.set(ControlMode.PercentOutput, -HOOK_POWER);
     }
 
     /**

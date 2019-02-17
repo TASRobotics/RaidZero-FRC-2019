@@ -8,15 +8,19 @@ import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import raidzero.robot.components.Components;
+import raidzero.robot.components.Arm.Position;
 
 public class Teleop {
 
     private static XboxController controller1;
     private static XboxController controller2;
+    private static int armPos;
+    private static final int ARM_MAX = 2140;
+    private static final int ARM_MIN = 0;
 
     /**
      * Initializes the teleop-specific components.
-     * 
+     *
      * <p>This should be called when the robot starts up.
      */
     public static void initialize() {
@@ -26,35 +30,28 @@ public class Teleop {
 
     /**
      * Configures the components for use in teleop mode.
-     * 
+     *
      * <p>This should be called once every time the robot is switched to teleop mode, before calling
      * {@link #run()}.
      */
     public static void setup() {
-        Components.getBase().setHighGear();
+        armPos = Components.getArm().getEncoderPos();
     }
 
     /**
      * Runs the teleop code.
-     * 
+     *
      * <p>This should be called repeatedly during teleop mode.
      */
     public static void run() {
-        
+
         // Player 1
 
         // Drive
-        Components.getBase().getRightMotor().set(ControlMode.PercentOutput, 
+        Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
             controller1.getY(kRight));
-        Components.getBase().getLeftMotor().set(ControlMode.PercentOutput, 
+        Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
             controller1.getY(kLeft));
-        
-        // Gear Shift
-        if (controller1.getBumperPressed(kRight)) {
-            Components.getBase().setHighGear();
-        } else if (controller1.getBumperPressed(kLeft)) {
-            Components.getBase().setLowGear();
-        }
 
         // Lift
         double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);
@@ -67,11 +64,19 @@ public class Teleop {
         } else {
             Components.getLift().movePercent(0);
         }
-        
+
         // Player 2
 
         // Arm
-        Components.getArm().movePercentOutput(controller2.getY(kRight) * 0.5);
+        Components.getArm().move(armPos);
+        armPos = (int) (armPos - (controller2.getY(kRight) * 80));
+
+        // Prevent overrotation
+        if (armPos >= ARM_MAX) {
+            armPos = ARM_MAX;
+        } else if (armPos <= ARM_MIN) {
+            armPos = ARM_MIN;
+        }
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
@@ -90,7 +95,6 @@ public class Teleop {
         } else if (controller2.getBumperPressed(kLeft)) {
             Components.getIntake().release();
         }
-        
     }
 
 }
