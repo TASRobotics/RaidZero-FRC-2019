@@ -80,9 +80,7 @@ public class Teleop {
         // Player 2
 
         // Arm
-        if (!climbing) {
-            Components.getArm().movePercentOutput(-controller2.getY(kRight));
-        }
+        Components.getArm().movePercentOutput(-controller2.getY(kRight));
 
         // Components.getArm().move(armPos);
         // armPos = (int) (armPos - (controller2.getY(kRight) * 80));
@@ -114,10 +112,17 @@ public class Teleop {
             Components.getIntake().stopHook();
         }
 
-        Components.getClimb().lockClimb();
+        //Components.getClimb().lockClimb();
         // Climb
-        if (climbing) {
+
+        if (controller2.getPOV() == 0) {
+            Components.getClimb().lockClimb();
+        } else if (controller2.getPOV() == 180) {
             Components.getClimb().unlockClimb();
+        }
+
+        if (climbing) {
+           // Components.getClimb().unlockClimb();
             Components.getClimb().climbPWM(controller2.getY(kLeft));
         }
 

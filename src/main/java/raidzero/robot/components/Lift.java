@@ -15,7 +15,7 @@ public class Lift {
     private static final double KI = 0.00;
     private static final double KD = 15.2;
     private static final double I_ZONE = 0.0;
-    private static final double RAMP_RATE = 0.5;
+    private static final double RAMP_RATE = 0;
     private static final int PID_SLOT = 0;
 
     private SparkMaxPrime leader;
@@ -33,6 +33,9 @@ public class Lift {
         leader = new SparkMaxPrime(leaderID, MotorType.kBrushless);
         follower = new CANSparkMax(followerID, MotorType.kBrushless);
 
+        leader.restoreFactoryDefaults();
+        follower.restoreFactoryDefaults();
+
         // Set Brake Mode
         leader.setIdleMode(IdleMode.kBrake);
         follower.setIdleMode(IdleMode.kBrake);
@@ -41,12 +44,12 @@ public class Lift {
         limitSwitch = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyOpen);
 
         // Set Inverted
-        leader.setInverted(false);
-        follower.setInverted(false);
+        leader.setInverted(true);
+        follower.setInverted(true);
 
         // Set Ramp Rate
-        leader.setRampRate(RAMP_RATE);
-        follower.setRampRate(RAMP_RATE);
+        leader.setOpenLoopRampRate(RAMP_RATE);
+        follower.setOpenLoopRampRate(RAMP_RATE);
 
         follower.follow(leader);
         leader.setPID(KF, KP, KI, KD, I_ZONE, PID_SLOT);
@@ -79,6 +82,8 @@ public class Lift {
      */
     public void movePercent(double percentV) {
         leader.set(percentV, ControlType.kDutyCycle, PID_SLOT);
+        System.out.println(leader.getAppliedOutput());
+        System.out.println("follow" + follower.getAppliedOutput());
     }
 
     /**

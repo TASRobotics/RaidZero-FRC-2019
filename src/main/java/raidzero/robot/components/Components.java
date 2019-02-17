@@ -23,9 +23,9 @@ public class Components {
      */
     public static void initialize() {
         base = new Base(3, 4, 5, 11, 12, 13, 0);
-        lift = new Lift(0, 1);
-        arm = new Arm(14, 2);
-        intake = new Intake(1, 15);
+        lift = new Lift(2, 1);
+        arm = new Arm(14, 15);
+        intake = new Intake(2, 1);
         climb = new Climb(6, 8, 7, 11, 0, 1, 2, 3);
     }
 

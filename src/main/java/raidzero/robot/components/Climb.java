@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.Servo;
 
 public class Climb {
@@ -13,10 +14,10 @@ public class Climb {
     private CANSparkMax follower2;
     private CANSparkMax follower3;
 
-    private Servo servo1;
-    private Servo servo2;
-    private Servo servo3;
-    private Servo servo4;
+    private PWM servo1;
+    private PWM servo2;
+    private PWM servo3;
+    private PWM servo4;
 
     // Overall gearing: 192:1
     // Banebots gearbox: 64:1
@@ -44,10 +45,10 @@ public class Climb {
         follower2 = new CANSparkMax(follower2ID, MotorType.kBrushless);
         follower3 = new CANSparkMax(follower3ID, MotorType.kBrushless);
 
-        servo1 = new Servo(servoChannel1);
-        servo2 = new Servo(servoChannel2);
-        servo3 = new Servo(servoChannel3);
-        servo4 = new Servo(servoChannel4);
+        servo1 = new PWM(servoChannel1);
+        servo2 = new PWM(servoChannel2);
+        servo3 = new PWM(servoChannel3);
+        servo4 = new PWM(servoChannel4);
 
         // Disable direct inverts, motors are inverted in the follow section
         leader.setInverted(false);
@@ -84,20 +85,20 @@ public class Climb {
      * Locks the climb by moving the servo
      */
     public void lockClimb() {
-        servo1.set(1);
-        servo2.set(1);
-        servo3.set(1);
-        servo4.set(1);
+        servo1.setSpeed(1);
+        servo2.setSpeed(1);
+        servo3.setSpeed(1);
+        servo4.setSpeed(1);
     }
 
     /**
      * Unlocks the climb by moving the servo
      */
     public void unlockClimb() {
-        servo1.set(0);
-        servo2.set(0);
-        servo3.set(0);
-        servo4.set(0);
+        servo1.setSpeed(-1);
+        servo2.setSpeed(-1);
+        servo3.setSpeed(-1);
+        servo4.setSpeed(-1);
     }
 
     /**
