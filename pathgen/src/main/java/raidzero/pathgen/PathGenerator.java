@@ -48,9 +48,9 @@ public class PathGenerator {
     }
 
     public static class QueryData {
-        double[] cumulativeWaypointDistances;
-        double totalWaypointDistance;
-        int queryCount;
+        public double[] cumulativeWaypointDistances;
+        public double totalWaypointDistance;
+        public int queryCount;
     }
 
     public static QueryData getQueryData(Point[] waypoints) {
@@ -74,8 +74,8 @@ public class PathGenerator {
     }
 
     public static class SplinePair {
-        HermiteInterpolator x;
-        HermiteInterpolator y;
+        public HermiteInterpolator x;
+        public HermiteInterpolator y;
     }
 
     public static SplinePair calculateSplines(Point[] waypoints, QueryData queryData) {
