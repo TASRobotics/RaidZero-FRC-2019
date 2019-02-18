@@ -12,8 +12,10 @@
     "**/.settings": true,
     "**/.factorypath": true
   },
-  "editor.rulers": [
-    100
-  ],
+  "[java]": {
+    "editor.rulers": [
+      100
+    ]
+  },
   "files.trimTrailingWhitespace": true
 }
