@@ -1,5 +1,6 @@
 package raidzero.pathgen;
 
+import java.util.function.DoubleUnaryOperator;
 import org.apache.commons.math3.analysis.interpolation.HermiteInterpolator;
 
 /**
@@ -32,72 +33,82 @@ public class PathGenerator {
     public static PathPoint[] generatePath(Point[] waypoints,
     double cruiseVelocity, double targetAcceleration) {
 
-        // Convert the target acceleration to in/(100ms)^2 for consistent unit of time
-        targetAcceleration /= 10;
+        var queryData = getQueryData(waypoints);
+        var splines = calculateSplines(waypoints, queryData);
 
-        // Separate the waypoints array into two arrays of x and y values respectively
-        var waypointXValues = new double[waypoints.length];
-        var waypointYValues = new double[waypoints.length];
-        for (var i = 0; i < waypoints.length; i++) {
-            waypointXValues[i] = waypoints[i].x;
-            waypointYValues[i] = waypoints[i].y;
-        }
-
-        // Calculate the running total of straight-line distances between waypoints
-        var cumulativeWaypointDistances = new double[waypoints.length];
-        for (var i = 1; i < waypoints.length; i++) {
-            cumulativeWaypointDistances[i] = cumulativeWaypointDistances[i - 1]
-                + Math.hypot(waypointXValues[i] - waypointXValues[i - 1],
-                    waypointYValues[i] - waypointYValues[i - 1]);
-        }
-        var totalWaypointDistance =
-            cumulativeWaypointDistances[cumulativeWaypointDistances.length - 1];
-
-        // Use the straight-line distance between waypoints as a monotonically increasing
-        // approximation for the time/distance parameter (since we don't know the time or distance
-        // yet) to calculate hermite spline interpolations for the x values and y values separately.
-        // This means that the resulting query points for the spline will NOT be evenly spaced with
-        // respect to time or distance.
-        HermiteInterpolator hermiteInterpolatorX = new HermiteInterpolator();
-        HermiteInterpolator hermiteInterpolatorY = new HermiteInterpolator();
-        for (var i = 0; i < waypoints.length; i++) {
-            double parameterDist = cumulativeWaypointDistances[i];
-            double waypointX = waypoints[i].x;
-            double waypointY = waypoints[i].y;
-
-            waypoints[i].angle.ifPresentOrElse(ang -> {
-                hermiteInterpolatorX.addSamplePoint(parameterDist, new double[] { waypointX },
-                    new double[] { Math.cos(Math.toRadians(ang)) });
-                hermiteInterpolatorY.addSamplePoint(parameterDist, new double[] { waypointY },
-                    new double[] { Math.sin(Math.toRadians(ang)) });
-            }, () -> {
-                hermiteInterpolatorX.addSamplePoint(parameterDist, new double[] { waypointX });
-                hermiteInterpolatorY.addSamplePoint(parameterDist, new double[] { waypointY });
-            });
-        }
-        var dxSpline = hermiteInterpolatorX.getPolynomials()[0].derivative();
-        var dySpline = hermiteInterpolatorY.getPolynomials()[0].derivative();
-
-        // We want queries to be evenly spaced (with respect to straight-line distance between
-        // waypoints) starting from the first waypoint, then have a query at the last waypoint no
-        // matter what. This may result in the spacing between the second-to-last waypoint and the
-        // last waypoint to be different than the standard query interval.
-        var queryCount = (int) Math.ceil(totalWaypointDistance / QUERY_INTERVAL) + 1;
-        var lastQueryInterval = totalWaypointDistance % QUERY_INTERVAL;
-        var dxQueries = new double[queryCount];
-        var dyQueries = new double[queryCount];
-
-        for (var i = 0; i < queryCount - 1; i++) {
-            dxQueries[i] = dxSpline.value(i * QUERY_INTERVAL);
-            dyQueries[i] = dySpline.value(i * QUERY_INTERVAL);
-        }
-        dxQueries[queryCount - 1] = dxSpline.value(totalWaypointDistance);
-        dyQueries[queryCount - 1] = dySpline.value(totalWaypointDistance);
-
-        var path = new PathPoint[queryCount];
+        var path = new PathPoint[queryData.queryCount];
         for (var i = 0; i < path.length; i++) {
             path[i] = new PathPoint();
         }
+
+        calculatePathPoints(path, cruiseVelocity, targetAcceleration, splines, queryData);
+
+        return path;
+
+    }
+
+    public static class QueryData {
+        double[] cumulativeWaypointDistances;
+        double totalWaypointDistance;
+        // HermiteInterpolatorPair splines;
+        int queryCount;
+    }
+
+    public static QueryData getQueryData(Point[] waypoints) {
+        var queryData = new QueryData();
+        queryData.cumulativeWaypointDistances = calculateCumulativeDistances(waypoints);
+        queryData.totalWaypointDistance = queryData.cumulativeWaypointDistances
+            [queryData.cumulativeWaypointDistances.length - 1];
+        // queryData.splines = calculateSplines(waypoints, queryData.cumulativeWaypointDistances);
+        queryData.queryCount =
+            (int) Math.ceil(queryData.totalWaypointDistance / QUERY_INTERVAL) + 1;
+        return queryData;
+    }
+
+    private static double[] calculateCumulativeDistances(Point[] waypoints) {
+        var cumulativeDistances = new double[waypoints.length];
+        for (var i = 1; i < waypoints.length; i++) {
+            cumulativeDistances[i] = cumulativeDistances[i - 1]
+                + Math.hypot(waypoints[i].x - waypoints[i - 1].x,
+                    waypoints[i].y - waypoints[i - 1].y);
+        }
+        return cumulativeDistances;
+    }
+
+    public static class SplinePair {
+        HermiteInterpolator x;
+        HermiteInterpolator y;
+    }
+
+    public static SplinePair calculateSplines(Point[] waypoints, QueryData queryData) {
+        var splinePair = new SplinePair();
+        splinePair.x = new HermiteInterpolator();
+        splinePair.y = new HermiteInterpolator();
+        for (var i = 0; i < waypoints.length; i++) {
+            double waypointDistance = queryData.cumulativeWaypointDistances[i];
+            double waypointX = waypoints[i].x;
+            double waypointY = waypoints[i].y;
+            waypoints[i].angle.ifPresentOrElse(ang -> {
+                splinePair.x.addSamplePoint(waypointDistance, new double[] { waypointX },
+                    new double[] { Math.cos(Math.toRadians(ang)) });
+                splinePair.y.addSamplePoint(waypointDistance, new double[] { waypointY },
+                    new double[] { Math.sin(Math.toRadians(ang)) });
+            }, () -> {
+                splinePair.x.addSamplePoint(waypointDistance, new double[] { waypointX });
+                splinePair.y.addSamplePoint(waypointDistance, new double[] { waypointY });
+            });
+        }
+        return splinePair;
+    }
+
+    public static void calculatePathPoints(PathPoint[] path, double cruiseVelocity,
+    double targetAcceleration, SplinePair splines, QueryData queryData) {
+
+        // Convert the target acceleration to in/(100ms)^2 for consistent unit of time
+        targetAcceleration /= 10;
+
+        var dxQueries = query(splines.x.getPolynomials()[0].derivative()::value, queryData);
+        var dyQueries = query(splines.y.getPolynomials()[0].derivative()::value, queryData);
 
         // The angle for each point is calculated using arctan of the ratio between dy and dx.
         // Since atan2 wraps the angle to be within -180 to 180 (because it has no way of knowing
@@ -123,7 +134,8 @@ public class PathGenerator {
         // from the last point and the current point. The interval for the last pathpoint is shorter
         // as it is the last waypoint, and QUERY_INTERVAL does not divide into the full path length.
         for (var i = 1; i < path.length; i++) {
-            double interval = i == path.length - 1 ? lastQueryInterval : QUERY_INTERVAL;
+            double interval = i == path.length - 1 ?
+                queryData.totalWaypointDistance % QUERY_INTERVAL : QUERY_INTERVAL;
             path[i].position = 0.5 * interval * (Math.hypot(dxQueries[i], dyQueries[i])
                 + Math.hypot(dxQueries[i - 1], dyQueries[i - 1])) + path[i - 1].position;
         }
@@ -217,8 +229,15 @@ public class PathGenerator {
             path[i].time -= path[i - 1].time;
         }
 
-        return path;
+    }
 
+    public static double[] query(DoubleUnaryOperator f, QueryData queryData) {
+        var queries = new double[queryData.queryCount];
+        for (var i = 0; i < queryData.queryCount - 1; i++) {
+            queries[i] = f.applyAsDouble(i * QUERY_INTERVAL);
+        }
+        queries[queryData.queryCount - 1] = f.applyAsDouble(queryData.totalWaypointDistance);
+        return queries;
     }
 
 }
