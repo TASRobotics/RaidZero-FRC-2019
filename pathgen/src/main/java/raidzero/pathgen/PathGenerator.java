@@ -50,7 +50,6 @@ public class PathGenerator {
     public static class QueryData {
         double[] cumulativeWaypointDistances;
         double totalWaypointDistance;
-        // HermiteInterpolatorPair splines;
         int queryCount;
     }
 
@@ -59,7 +58,6 @@ public class PathGenerator {
         queryData.cumulativeWaypointDistances = calculateCumulativeDistances(waypoints);
         queryData.totalWaypointDistance = queryData.cumulativeWaypointDistances
             [queryData.cumulativeWaypointDistances.length - 1];
-        // queryData.splines = calculateSplines(waypoints, queryData.cumulativeWaypointDistances);
         queryData.queryCount =
             (int) Math.ceil(queryData.totalWaypointDistance / QUERY_INTERVAL) + 1;
         return queryData;
