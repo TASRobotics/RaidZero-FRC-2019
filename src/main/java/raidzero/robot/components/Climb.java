@@ -50,6 +50,11 @@ public class Climb {
         servo3 = new PWM(servoChannel3);
         servo4 = new PWM(servoChannel4);
 
+        leader.restoreFactoryDefaults();
+        follower1.restoreFactoryDefaults();
+        follower2.restoreFactoryDefaults();
+        follower3.restoreFactoryDefaults();
+
         // Disable direct inverts, motors are inverted in the follow section
         leader.setInverted(false);
         follower1.setInverted(false);

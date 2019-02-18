@@ -47,10 +47,6 @@ public class Lift {
         leader.setInverted(true);
         follower.setInverted(true);
 
-        // Set Ramp Rate
-        leader.setOpenLoopRampRate(RAMP_RATE);
-        follower.setOpenLoopRampRate(RAMP_RATE);
-
         follower.follow(leader);
         leader.setPID(KF, KP, KI, KD, I_ZONE, PID_SLOT);
     }
@@ -82,8 +78,10 @@ public class Lift {
      */
     public void movePercent(double percentV) {
         leader.set(percentV, ControlType.kDutyCycle, PID_SLOT);
-        System.out.println(leader.getAppliedOutput());
+        System.out.println("leader" + leader.getAppliedOutput());
         System.out.println("follow" + follower.getAppliedOutput());
+        System.out.println("leader current" + leader.getOutputCurrent());
+        System.out.println("follow current" + follower.getOutputCurrent());
     }
 
     /**
