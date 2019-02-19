@@ -67,12 +67,12 @@ field.append('svg:image')
     .attr('height', yScale(fieldMeasurements.width))
     .attr('xlink:href', fieldImagePath);
 
-const xAxisGroup = svg.append('g').call(xAxis);
-const yAxisGroup = svg.append('g').call(yAxis);
+const xAxisGroup = svg.append('g').call(xAxis).style('color', 'white');
+const yAxisGroup = svg.append('g').call(yAxis).style('color', 'white');
 
 const path = field.append('path')
     .style('fill', 'none')
-    .style('stroke', 'black');
+    .style('stroke', 'white');
 
 function scalePathWidth(transform: d3zoom.ZoomTransform) {
     path.style('stroke-width', pathWidth / transform.k + "px")
@@ -114,6 +114,7 @@ function updateCircles() {
     circles
         .enter().append('circle')
             .attr('r', circleRadius / transform.k)
+            .style('fill', 'white')
             .call((d3drag.drag() as CircleDragBehavior)
                 .subject(point => ({
                     x: transform.rescaleX(xScale)(point.x),
