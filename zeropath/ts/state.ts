@@ -34,7 +34,7 @@ export default {
         y: 300
     }, {
         x: 300,
-        y: 400
+        y: 300
     }] as Point[],
     path: [] as ZeroPathPoint[]
 };

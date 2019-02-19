@@ -42,11 +42,7 @@ stateEmitter.on(StateEvent.WaypointsUpdated, () => {
     }, ({ path }) => {
         state.path = path;
         stateEmitter.emit(StateEvent.PathUpdated);
-        console.log('Emitted');
     });
 });
 
-setTimeout(() => {
-    console.log('Emitting');
-    stateEmitter.emit(StateEvent.WaypointsUpdated);
-}, 1000);
+stateEmitter.emit(StateEvent.WaypointsUpdated);

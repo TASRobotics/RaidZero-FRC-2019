@@ -81,7 +81,6 @@ function scalePathWidth(transform: d3zoom.ZoomTransform) {
 scalePathWidth(getZoomTransform());
 
 function updatePath() {
-    console.log(state.path);
     path.datum(state.path).attr('d', d3shape.line<ZeroPathPoint>()
         .x(point => xScale(point.x))
         .y(point => yScale(point.y)));
