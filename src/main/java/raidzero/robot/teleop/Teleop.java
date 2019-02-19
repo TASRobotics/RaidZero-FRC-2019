@@ -64,10 +64,17 @@ public class Teleop {
         // Player 1
 
         // Drive
-        Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-            controller1.getY(kRight));
-        Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-            controller1.getY(kLeft));
+        if(controller1.getBumper(kRight)){
+            Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
+                -1 * controller1.getY(kRight));
+            Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
+                -1 * controller1.getY(kLeft));
+        } else {
+            Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
+                controller1.getY(kRight));
+            Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
+                controller1.getY(kLeft));
+        }
 
         // Lift
         double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);
