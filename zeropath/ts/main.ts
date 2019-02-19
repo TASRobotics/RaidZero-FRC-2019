@@ -1,8 +1,7 @@
 import { app, BrowserWindow } from 'electron';
+import electronDebug = require('electron-debug');
 
-require('electron-debug')({
-    devToolsMode: 'right'
-});
+electronDebug({});
 
 let win: BrowserWindow | null = null;
 
