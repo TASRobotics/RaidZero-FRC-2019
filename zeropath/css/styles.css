@@ -13,6 +13,7 @@ main {
 }
 
 #view {
+    background-color: black;
     flex: 1;
 }
 
