@@ -97,7 +97,6 @@ function selectCircles(): BasicSelection<SVGCircleElement> {
 svg.call((d3zoom.zoom() as ZoomBehaviorOn<typeof svg>)
     .translateExtent([[0, 0],
         [xScale(fieldMeasurements.length), yScale(fieldMeasurements.width)]])
-    .scaleExtent([0.5, 50])
     .on('zoom', () => {
         const zoomEvent = d3selection.event as ZoomEventOn<typeof svg>;
         const transform = zoomEvent.transform;
