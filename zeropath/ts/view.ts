@@ -8,8 +8,10 @@ import * as d3zoom from 'd3-zoom';
 import * as fieldMeasurements from './field';
 import state, { Point, stateEmitter, StateEvent, ZeroPathPoint } from './state';
 
-const circleRadius = 10;
 const fieldImagePath = 'res/2019-field.jpg';
+
+const circleRadius = 10;
+const pathWidth = 2;
 
 type GetElement<S> = S extends d3selection.Selection<infer E, any, any, any> ?
     E : never;
@@ -43,6 +45,10 @@ const svg = d3selection.select('#view') as BasicSelection<SVGSVGElement>;
 const svgNode = svg.node() as SVGSVGElement;
 const { width: svgWidth, height: svgHeight } = svgNode.getBoundingClientRect();
 
+function getZoomTransform() {
+    return d3zoom.zoomTransform(svgNode);
+}
+
 const xScale = d3scale.scaleLinear()
     .domain([0, fieldMeasurements.length])
     .range([0, svgWidth]);
@@ -66,8 +72,13 @@ const yAxisGroup = svg.append('g').call(yAxis);
 
 const path = field.append('path')
     .style('fill', 'none')
-    .style('stroke', 'black')
-    .style('stroke-width', '2px');
+    .style('stroke', 'black');
+
+function scalePathWidth(transform: d3zoom.ZoomTransform) {
+    path.style('stroke-width', pathWidth / transform.k + "px")
+}
+
+scalePathWidth(getZoomTransform());
 
 function updatePath() {
     console.log(state.path);
@@ -84,27 +95,25 @@ function selectCircles(): BasicSelection<SVGCircleElement> {
     return field.selectAll('circle');
 }
 
-function scaleCircleRadius(transform: d3zoom.ZoomTransform) {
-    return circleRadius / transform.k;
-}
-
 svg.call((d3zoom.zoom() as ZoomBehaviorOn<typeof svg>)
     .on('zoom', () => {
         const zoomEvent = d3selection.event as ZoomEventOn<typeof svg>;
-        field.attr('transform', d3selection.event.transform);
-        xAxisGroup.call(xAxis.scale(zoomEvent.transform.rescaleX(xScale)));
-        yAxisGroup.call(yAxis.scale(zoomEvent.transform.rescaleY(yScale)));
-        selectCircles().attr('r', scaleCircleRadius(zoomEvent.transform));
+        const transform = zoomEvent.transform;
+        field.attr('transform', transform.toString());
+        xAxisGroup.call(xAxis.scale(transform.rescaleX(xScale)));
+        yAxisGroup.call(yAxis.scale(transform.rescaleY(yScale)));
+        selectCircles().attr('r', circleRadius / transform.k);
+        scalePathWidth(transform);
     }));
 
 function updateCircles() {
-    const transform = d3zoom.zoomTransform(svgNode);
+    const transform = getZoomTransform();
     const circles = selectCircles().data(state.waypoints);
     type CircleDragBehavior = DragBehaviorOn<typeof circles, CircleDragSubject>;
     type CircleDragEvent = DragEventOn<typeof circles, CircleDragSubject>;
     circles
         .enter().append('circle')
-            .attr('r', scaleCircleRadius(transform))
+            .attr('r', circleRadius / transform.k)
             .call((d3drag.drag() as CircleDragBehavior)
                 .subject(point => ({
                     x: transform.rescaleX(xScale)(point.x),
