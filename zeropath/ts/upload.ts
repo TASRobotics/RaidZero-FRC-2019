@@ -1,7 +1,7 @@
 import { Client } from 'ssh2';
 import { SFTPStream } from 'ssh2-streams';
 
-import { waypoints } from './state';
+import state from './state';
 import { getTeamNumber } from './project-info';
 
 const directory = '/home/lvuser/paths/';
@@ -54,7 +54,7 @@ export default function ({ error, update, done }: UploadCallbacks) {
             });
             function writeData(handle: Buffer) {
                 const buffer = Buffer.from(JSON.stringify({
-                    waypoints
+                    waypoints: state.waypoints
                 }));
                 update('Writing data...');
                 sftp.write(handle, buffer, 0, buffer.length, 0, andrew => {

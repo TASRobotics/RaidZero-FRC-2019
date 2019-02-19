@@ -7,21 +7,34 @@ export interface Point {
     y: number;
 }
 
-export const stateEmitter = new EventEmitter();
-export const enum StateEvent {
-    WaypointsUpdated = 'waypointsUpdated'
+export interface ZeroPathPoint {
+    x: number;
+    y: number;
+    position: number;
+    velocity: number;
+    time: number;
+    angle: number;
 }
 
-export const waypoints: Point[] = [{
-    x: 0,
-    y: 0
-}, {
-    x: field.length,
-    y: 0
-}, {
-    x: 0,
-    y: field.width
-}, {
-    x: field.length,
-    y: field.width
-}];
+export const stateEmitter = new EventEmitter();
+export const enum StateEvent {
+    WaypointsUpdated = 'waypointsUpdated',
+    PathUpdated = 'pathUpdated'
+}
+
+export default {
+    waypoints: [{
+        x: 0,
+        y: 0
+    }, {
+        x: 100,
+        y: 100
+    }, {
+        x: 200,
+        y: 300
+    }, {
+        x: 300,
+        y: 400
+    }] as Point[],
+    path: [] as ZeroPathPoint[]
+};

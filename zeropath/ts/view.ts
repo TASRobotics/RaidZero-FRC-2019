@@ -2,10 +2,11 @@ import * as d3axis from 'd3-axis';
 import * as d3drag from 'd3-drag';
 import * as d3scale from 'd3-scale';
 import * as d3selection from 'd3-selection';
+import * as d3shape from 'd3-shape';
 import * as d3zoom from 'd3-zoom';
 
 import * as fieldMeasurements from './field';
-import { Point, stateEmitter, StateEvent, waypoints } from './state';
+import state, { Point, stateEmitter, StateEvent, ZeroPathPoint } from './state';
 
 const circleRadius = 10;
 const fieldImagePath = 'res/2019-field.jpg';
@@ -63,6 +64,22 @@ field.append('svg:image')
 const xAxisGroup = svg.append('g').call(xAxis);
 const yAxisGroup = svg.append('g').call(yAxis);
 
+const path = field.append('path')
+    .style('fill', 'none')
+    .style('stroke', 'black')
+    .style('stroke-width', '2px');
+
+function updatePath() {
+    console.log(state.path);
+    path.datum(state.path).attr('d', d3shape.line<ZeroPathPoint>()
+        .x(point => xScale(point.x))
+        .y(point => yScale(point.y)));
+}
+
+stateEmitter.on(StateEvent.PathUpdated, updatePath);
+
+updatePath();
+
 function selectCircles(): BasicSelection<SVGCircleElement> {
     return field.selectAll('circle');
 }
@@ -82,7 +99,7 @@ svg.call((d3zoom.zoom() as ZoomBehaviorOn<typeof svg>)
 
 function updateCircles() {
     const transform = d3zoom.zoomTransform(svgNode);
-    const circles = selectCircles().data(waypoints);
+    const circles = selectCircles().data(state.waypoints);
     type CircleDragBehavior = DragBehaviorOn<typeof circles, CircleDragSubject>;
     type CircleDragEvent = DragEventOn<typeof circles, CircleDragSubject>;
     circles
