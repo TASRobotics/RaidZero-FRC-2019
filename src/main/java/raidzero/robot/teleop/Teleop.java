@@ -1,5 +1,6 @@
 package raidzero.robot.teleop;
 
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.XboxController;
 
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kLeft;
@@ -11,6 +12,8 @@ import raidzero.robot.components.Components;
 import raidzero.robot.components.Arm.Position;
 
 public class Teleop {
+
+    private static PowerDistributionPanel pdp;
 
     private static XboxController controller1;
     private static XboxController controller2;
@@ -29,6 +32,7 @@ public class Teleop {
     public static void initialize() {
         controller1 = new XboxController(0);
         controller2 = new XboxController(1);
+        pdp = new PowerDistributionPanel();
     }
 
     /**
@@ -125,6 +129,9 @@ public class Teleop {
            // Components.getClimb().unlockClimb();
             Components.getClimb().climbPWM(controller2.getY(kLeft));
         }
+
+        System.out.println("PDP current leader" + pdp.getCurrent(0));
+        System.out.println("PDP current follow" + pdp.getCurrent(12));
 
     }
 
