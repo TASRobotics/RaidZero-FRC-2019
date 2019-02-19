@@ -94,7 +94,7 @@ function selectCircles(): BasicSelection<SVGCircleElement> {
     return field.selectAll('circle');
 }
 
-svg.call((d3zoom.zoom() as ZoomBehaviorOn<typeof svg>)
+const zoomBehavior = (d3zoom.zoom() as ZoomBehaviorOn<typeof svg>)
     .translateExtent([[0, 0],
         [xScale(fieldMeasurements.length), yScale(fieldMeasurements.width)]])
     .on('zoom', () => {
@@ -105,7 +105,10 @@ svg.call((d3zoom.zoom() as ZoomBehaviorOn<typeof svg>)
         yAxisGroup.call(yAxis.scale(transform.rescaleY(yScale)));
         selectCircles().attr('r', circleRadius / transform.k);
         scalePathWidth(transform);
-    }));
+    });
+
+svg.call(zoomBehavior);
+zoomBehavior.scaleBy(svg, 1); // Enforce initial translate extent
 
 function updateCircles() {
     const transform = getZoomTransform();
