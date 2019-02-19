@@ -50,12 +50,12 @@ function getZoomTransform() {
 }
 
 const xScale = d3scale.scaleLinear()
-    .domain([0, fieldMeasurements.length])
+    .domain([0, fieldMeasurements.width * (svgWidth / svgHeight)])
     .range([0, svgWidth]);
 const xAxis = d3axis.axisBottom(xScale);
 
 const yScale = d3scale.scaleLinear()
-    .domain([0, fieldMeasurements.length * (svgHeight / svgWidth)])
+    .domain([0, fieldMeasurements.width])
     .range([0, svgHeight]);
 const yAxis = d3axis.axisRight(yScale);
 
