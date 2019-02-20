@@ -24,7 +24,6 @@ public class Lift {
     private static final double ALLOWED_ERROR = 0.1;
 
     private static final int PID_SLOT = 0;
-    private static final int SMART_MOTION_SLOT = 0;
 
     private SparkMaxPrime leader;
     private CANSparkMax follower;
@@ -67,7 +66,7 @@ public class Lift {
         // Configure PID values + SmartMotion
         leader.setPID(KF, KP, KI, KD, I_ZONE, PID_SLOT);
         leader.configureSmartMotion(MIN_VELOCITY, MAX_VELOCITY, MAX_ACCELERATION,
-            ALLOWED_ERROR, SMART_MOTION_SLOT);
+            ALLOWED_ERROR, PID_SLOT);
     }
 
     /**
