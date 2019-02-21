@@ -137,9 +137,6 @@ public class Teleop {
             Components.getClimb().climbPWM(controller2.getY(kLeft));
         }
 
-        System.out.println("PDP current leader" + pdp.getCurrent(0));
-        System.out.println("PDP current follow" + pdp.getCurrent(12));
-
     }
 
 }

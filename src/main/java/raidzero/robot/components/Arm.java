@@ -53,8 +53,8 @@ public class Arm {
 
         armFollower.follow(arm);
 
-        //the tachs are daisy chained together
-        //which solder pad is soldered will decide which one is forward and reverse
+        // The tachs are daisy chained together
+        // Which solder pad is soldered will decide which one is forward and reverse
         arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
             LimitSwitchNormal.NormallyOpen);
         arm.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
