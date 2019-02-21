@@ -67,8 +67,8 @@ public class Arm {
 
         arm.setSensorPhase(true);
         arm.setSelectedSensorPosition(0);
-        arm.setInverted(true);
-        armFollower.setInverted(false);
+        arm.setInverted(false);
+        armFollower.setInverted(true);
 
         arm.config_kP(PID_X, P_VALUE);
         arm.config_kI(PID_X, I_VALUE);
