@@ -64,11 +64,11 @@ public class Teleop {
         // Player 1
 
         // Drive
-        if(controller1.getBumper(kRight)){
+        if (controller1.getBumper(kRight)) {
             Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-                -1 * controller1.getY(kRight));
+                -controller1.getY(kRight));
             Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-                -1 * controller1.getY(kLeft));
+                -controller1.getY(kLeft));
         } else {
             Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
                 controller1.getY(kRight));
