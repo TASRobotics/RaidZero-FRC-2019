@@ -5,8 +5,10 @@ import * as d3selection from 'd3-selection';
 import * as d3shape from 'd3-shape';
 import * as d3zoom from 'd3-zoom';
 
+import data from './data';
 import * as fieldMeasurements from './field';
-import state, { Point, stateEmitter, StateEvent, ZeroPathPoint } from './state';
+import * as state from './state';
+import { Point, PathPoint } from './types';
 
 const fieldImagePath = 'res/2019-field.jpg';
 
@@ -81,12 +83,12 @@ function scalePathWidth(transform: d3zoom.ZoomTransform) {
 scalePathWidth(getZoomTransform());
 
 function updatePath() {
-    path.datum(state.path).attr('d', d3shape.line<ZeroPathPoint>()
+    path.datum(data.path).attr('d', d3shape.line<PathPoint>()
         .x(point => xScale(point.x))
         .y(point => yScale(point.y)));
 }
 
-stateEmitter.on(StateEvent.PathUpdated, updatePath);
+state.on('pathUpdated', updatePath);
 
 updatePath();
 
@@ -112,7 +114,7 @@ zoomBehavior.scaleBy(svg, 1); // Enforce initial translate extent
 
 function updateCircles() {
     const transform = getZoomTransform();
-    const circles = selectCircles().data(state.waypoints);
+    const circles = selectCircles().data(data.waypoints);
     type CircleDragBehavior = DragBehaviorOn<typeof circles, CircleDragSubject>;
     type CircleDragEvent = DragEventOn<typeof circles, CircleDragSubject>;
     circles
@@ -131,13 +133,11 @@ function updateCircles() {
                         transform.rescaleX(xScale).invert(dragEvent.x);
                     dragEvent.subject.point.y =
                         transform.rescaleY(yScale).invert(dragEvent.y);
-                    stateEmitter.emit(StateEvent.WaypointsUpdated);
+                    state.emit('waypointsUpdated', 'modified');
                 }))
         .merge(circles)
             .attr('cx', d => xScale(d.x))
             .attr('cy', d => yScale(d.y));
 }
 
-stateEmitter.on(StateEvent.WaypointsUpdated, updateCircles);
-
-updateCircles();
+state.on('waypointsUpdated', updateCircles);

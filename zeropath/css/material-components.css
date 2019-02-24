@@ -1,8 +1,14 @@
 @import '../node_modules/@material/button/dist/mdc.button.css';
 @import '../node_modules/@material/dialog/dist/mdc.dialog.css';
+@import '../node_modules/@material/list/dist/mdc.list.css';
+@import '../node_modules/@material/textfield/dist/mdc.textfield.css';
 @import '../node_modules/@material/top-app-bar/dist/mdc.top-app-bar.css';
 
 :root {
     --mdc-theme-primary: #009688;
     --mdc-theme-secondary: #ff9100;
+}
+
+.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
+    color: var(--mdc-theme-primary);
 }

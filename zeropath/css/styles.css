@@ -17,6 +17,25 @@ main {
     flex: 1;
 }
 
+#info {
+    width: 400px;
+    overflow: auto;
+}
+
+#waypoints-list .mdc-list-item {
+    height: 72px;
+    padding: 0 8px;
+}
+
+#waypoints-list .list-row {
+    display: flex;
+    flex-direction: row;
+}
+
+#waypoints-list .mdc-text-field {
+    margin: 0 8px;
+}
+
 #upload-dialog .mdc-dialog__surface {
     width: 400px;
     height: calc(100vh - 32px);

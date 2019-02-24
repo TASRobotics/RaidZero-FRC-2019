@@ -1,8 +1,9 @@
-import upload from '../upload';
 import uploadButton from './components/upload-button';
 import uploadDialog, { buttons, setButtonsDisabled }
     from './components/upload-dialog';
 import * as uploadLog from './components/upload-log';
+
+import upload from '../upload';
 
 uploadButton.addEventListener('click', runUpload);
 buttons.reupload.addEventListener('click', () => {

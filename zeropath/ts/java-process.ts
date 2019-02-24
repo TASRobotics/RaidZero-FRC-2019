@@ -3,7 +3,9 @@ import { EOL } from 'os';
 import * as path from 'path';
 import * as readline from 'readline';
 
-import state, { Point, ZeroPathPoint, stateEmitter, StateEvent } from './state';
+import data from './data';
+import * as state from './state';
+import { Point, PathPoint } from './types';
 
 interface Request {
     waypoints: Point[];
@@ -12,7 +14,7 @@ interface Request {
 }
 
 interface Response {
-    path: ZeroPathPoint[];
+    path: PathPoint[];
 }
 
 const scriptPath = path.join(__dirname, '..', 'run-java-process.cmd');
@@ -27,22 +29,20 @@ const rl = readline.createInterface({
     crlfDelay: Infinity
 });
 
-export function send(req: Request, cb: (res: Response) => void) {
+function send(req: Request, cb: (res: Response) => void) {
     proc.stdin.write(JSON.stringify(req) + EOL);
     rl.once('line', line => {
         cb(JSON.parse(line));
     });
 }
 
-stateEmitter.on(StateEvent.WaypointsUpdated, () => {
+state.on('waypointsUpdated', () => {
     send({
-        waypoints: state.waypoints,
+        waypoints: data.waypoints,
         cruiseVelocity: 10,
         targetAcceleration: 20
     }, ({ path }) => {
-        state.path = path;
-        stateEmitter.emit(StateEvent.PathUpdated);
+        data.path = path;
+        state.emit('pathUpdated', null);
     });
 });
-
-stateEmitter.emit(StateEvent.WaypointsUpdated);

@@ -1,40 +1,23 @@
 import { EventEmitter } from 'events';
 
-import * as field from './field';
-
-export interface Point {
-    x: number;
-    y: number;
+interface StateEvent {
+    waypointsUpdated: 'added' | 'modified';
+    pathUpdated: null;
 }
 
-export interface ZeroPathPoint {
-    x: number;
-    y: number;
-    position: number;
-    velocity: number;
-    time: number;
-    angle: number;
+const emitter = new EventEmitter();
+
+export function emit<T extends keyof StateEvent>
+(eventType: T, eventInfo: StateEvent[T]) {
+    emitter.emit(eventType, eventInfo);
 }
 
-export const stateEmitter = new EventEmitter();
-export const enum StateEvent {
-    WaypointsUpdated = 'waypointsUpdated',
-    PathUpdated = 'pathUpdated'
+export function on<T extends keyof StateEvent>
+(eventType: T, listener: (eventInfo: StateEvent[T]) => void) {
+    emitter.on(eventType, listener);
 }
 
-export default {
-    waypoints: [{
-        x: 0,
-        y: 0
-    }, {
-        x: 100,
-        y: 100
-    }, {
-        x: 200,
-        y: 300
-    }, {
-        x: 300,
-        y: 300
-    }] as Point[],
-    path: [] as ZeroPathPoint[]
-};
+export function once<T extends keyof StateEvent>
+(eventType: T, listener: (eventInfo: StateEvent[T]) => void) {
+    emitter.once(eventType, listener);
+}

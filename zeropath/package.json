@@ -12,6 +12,8 @@
     "dependencies": {
         "@material/button": "^0.44.0",
         "@material/dialog": "^0.44.0",
+        "@material/list": "^0.44.0",
+        "@material/textfield": "^0.44.0",
         "@material/top-app-bar": "^0.44.0",
         "@types/d3-axis": "^1.0.11",
         "@types/d3-drag": "^1.2.2",
@@ -21,6 +23,8 @@
         "@types/d3-zoom": "^1.7.3",
         "@types/electron-debug": "^1.1.0",
         "@types/material__dialog": "^0.35.1",
+        "@types/material__list": "^0.43.1",
+        "@types/material__textfield": "^0.35.2",
         "@types/material__top-app-bar": "^0.35.1",
         "@types/ssh2": "^0.5.37",
         "d3-axis": "^1.0.12",
