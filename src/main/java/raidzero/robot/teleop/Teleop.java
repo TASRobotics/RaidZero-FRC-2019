@@ -1,5 +1,6 @@
 package raidzero.robot.teleop;
 
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.XboxController;
 
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kLeft;
@@ -11,6 +12,8 @@ import raidzero.robot.components.Components;
 import raidzero.robot.components.Arm.Position;
 
 public class Teleop {
+
+    private static PowerDistributionPanel pdp;
 
     private static XboxController controller1;
     private static XboxController controller2;
@@ -29,6 +32,7 @@ public class Teleop {
     public static void initialize() {
         controller1 = new XboxController(0);
         controller2 = new XboxController(1);
+        pdp = new PowerDistributionPanel();
     }
 
     /**
@@ -53,14 +57,24 @@ public class Teleop {
         if (controller1.getStartButton() && controller2.getStartButton()) {
             climbing = true;
         }
+        if (controller1.getBackButton() || controller2.getBackButton()) {
+            climbing = false;
+        }
 
         // Player 1
 
         // Drive
-        Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-            controller1.getY(kRight));
-        Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-            controller1.getY(kLeft));
+        if (controller1.getBumper(kRight)) {
+            Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
+                -controller1.getY(kRight));
+            Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
+                -controller1.getY(kLeft));
+        } else {
+            Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
+                controller1.getY(kRight));
+            Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
+                controller1.getY(kLeft));
+        }
 
         // Lift
         double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);
@@ -77,15 +91,17 @@ public class Teleop {
         // Player 2
 
         // Arm
-        Components.getArm().move(armPos);
-        armPos = (int) (armPos - (controller2.getY(kRight) * 80));
+        Components.getArm().movePercentOutput(-controller2.getY(kRight));
 
-        // Prevent overrotation
-        if (armPos >= ARM_MAX) {
-            armPos = ARM_MAX;
-        } else if (armPos <= ARM_MIN) {
-            armPos = ARM_MIN;
-        }
+        // Components.getArm().move(armPos);
+        // armPos = (int) (armPos - (controller2.getY(kRight) * 80));
+
+        // // Prevent overrotation
+        // if (armPos >= ARM_MAX) {
+        //     armPos = ARM_MAX;
+        // } else if (armPos <= ARM_MIN) {
+        //     armPos = ARM_MIN;
+        // }
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
@@ -99,14 +115,27 @@ public class Teleop {
         }
 
         // Hook
-        if (controller2.getBumperPressed(kRight)) {
+        if (controller2.getBumper(kRight)) {
             Components.getIntake().grab();
-        } else if (controller2.getBumperPressed(kLeft)) {
+        } else if (controller2.getBumper(kLeft)) {
             Components.getIntake().release();
+        } else {
+            Components.getIntake().stopHook();
         }
 
+        //Components.getClimb().lockClimb();
         // Climb
-        Components.getClimb().climb(climbing);
+
+        if (controller2.getPOV() == 0) {
+            Components.getClimb().lockClimb();
+        } else if (controller2.getPOV() == 180) {
+            Components.getClimb().unlockClimb();
+        }
+
+        if (climbing) {
+           // Components.getClimb().unlockClimb();
+            Components.getClimb().climbPWM(controller2.getY(kLeft));
+        }
 
     }
 

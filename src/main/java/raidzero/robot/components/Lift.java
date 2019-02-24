@@ -15,7 +15,7 @@ public class Lift {
     private static final double KI = 0.00;
     private static final double KD = 15.2;
     private static final double I_ZONE = 0.0;
-    private static final double RAMP_RATE = 0.5;
+    private static final double RAMP_RATE = 0;
     private static final int PID_SLOT = 0;
 
     private SparkMaxPrime leader;
@@ -33,20 +33,19 @@ public class Lift {
         leader = new SparkMaxPrime(leaderID, MotorType.kBrushless);
         follower = new CANSparkMax(followerID, MotorType.kBrushless);
 
+        leader.restoreFactoryDefaults();
+        follower.restoreFactoryDefaults();
+
         // Set Brake Mode
         leader.setIdleMode(IdleMode.kBrake);
         follower.setIdleMode(IdleMode.kBrake);
 
         //Set limit switch
-        limitSwitch = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyClosed);
+        limitSwitch = new CANDigitalInput(leader, LimitSwitch.kReverse, LimitSwitchPolarity.kNormallyOpen);
 
         // Set Inverted
-        leader.setInverted(false);
-        follower.setInverted(false);
-
-        // Set Ramp Rate
-        leader.setRampRate(RAMP_RATE);
-        follower.setRampRate(RAMP_RATE);
+        leader.setInverted(true);
+        follower.setInverted(true);
 
         follower.follow(leader);
         leader.setPID(KF, KP, KI, KD, I_ZONE, PID_SLOT);
@@ -54,16 +53,16 @@ public class Lift {
 
     /**
      * Returns the position of the encoder.
-     * 
+     *
      * @return the encoder position
      */
     public double getEncoderPos() {
         return leader.getPosition();
     }
-    
+
     /**
      * Resets the encoder if the limit switch detects the lift.
-     * 
+     *
      * <p>Should be periodically called.
      */
     public void limitReset() {
@@ -79,11 +78,12 @@ public class Lift {
      */
     public void movePercent(double percentV) {
         leader.set(percentV, ControlType.kDutyCycle, PID_SLOT);
+        follower.set(percentV);
     }
 
     /**
      * Runs the lift to a certain encoder position (PID).
-     * 
+     *
      * @param pos the encoder position to move to
      */
     public void movePosition(double pos) {

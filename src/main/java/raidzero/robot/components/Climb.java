@@ -4,12 +4,19 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.PWM;
+
 public class Climb {
 
     private CANSparkMax leader;
     private CANSparkMax follower1;
     private CANSparkMax follower2;
     private CANSparkMax follower3;
+
+    private PWM servo1;
+    private PWM servo2;
+    private PWM servo3;
+    private PWM servo4;
 
     // Overall gearing: 192:1
     // Banebots gearbox: 64:1
@@ -29,12 +36,23 @@ public class Climb {
      * @param follower2ID ID of the second follower motor
      * @param follower3ID ID of the third follower motor
      */
-    public Climb(int leaderID, int follower1ID, int follower2ID, int follower3ID) {
+    public Climb(int leaderID, int follower1ID, int follower2ID, int follower3ID, int servoChannel1,
+    int servoChannel2, int servoChannel3, int servoChannel4) {
 
         leader = new CANSparkMax(leaderID, MotorType.kBrushless);
         follower1 = new CANSparkMax(follower1ID, MotorType.kBrushless);
         follower2 = new CANSparkMax(follower2ID, MotorType.kBrushless);
         follower3 = new CANSparkMax(follower3ID, MotorType.kBrushless);
+
+        servo1 = new PWM(servoChannel1);
+        servo2 = new PWM(servoChannel2);
+        servo3 = new PWM(servoChannel3);
+        servo4 = new PWM(servoChannel4);
+
+        leader.restoreFactoryDefaults();
+        follower1.restoreFactoryDefaults();
+        follower2.restoreFactoryDefaults();
+        follower3.restoreFactoryDefaults();
 
         // Disable direct inverts, motors are inverted in the follow section
         leader.setInverted(false);
@@ -68,6 +86,26 @@ public class Climb {
     }
 
     /**
+     * Locks the climb by moving the servo
+     */
+    public void lockClimb() {
+        servo1.setSpeed(1);
+        servo2.setSpeed(1);
+        servo3.setSpeed(1);
+        servo4.setSpeed(1);
+    }
+
+    /**
+     * Unlocks the climb by moving the servo
+     */
+    public void unlockClimb() {
+        servo1.setSpeed(-1);
+        servo2.setSpeed(-1);
+        servo3.setSpeed(-1);
+        servo4.setSpeed(-1);
+    }
+
+    /**
      * Climbs while the input is true
      *
      * @param input The variable that controls the climb (must be held true during climb)
@@ -85,6 +123,14 @@ public class Climb {
         } else {
             stopLeapFrog();
         }
+    }
+
+    /**
+     * Moves the climb by PWM
+     * @param speed
+     */
+    public void climbPWM(double speed) {
+        leader.set(speed);
     }
 
     /**
