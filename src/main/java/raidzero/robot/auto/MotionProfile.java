@@ -198,6 +198,15 @@ public class MotionProfile {
     }
 
     /**
+     * Returns the current set value of the motors
+     *
+     * @return the set value of the motors
+     */
+    public SetValueMotionProfile getSetValue() {
+        return setValue;
+    }
+
+    /**
      * Clears the Motion profile buffer and resets state info
      */
     public void reset() {
