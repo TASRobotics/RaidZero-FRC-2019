@@ -3,6 +3,7 @@ package raidzero.robot.auto;
 import raidzero.robot.components.Components;
 import raidzero.robot.teleop.Teleop;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.ctre.phoenix.motion.SetValueMotionProfile;
@@ -45,6 +46,7 @@ public class Auto {
      */
     public static void setup() {
         stage = 0;
+        pathWayPoints = new ArrayList<Point[]>();
 
         // Reset encoders and motion profile
         Components.getBase().getLeftMotor().setSelectedSensorPosition(0);
