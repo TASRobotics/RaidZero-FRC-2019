@@ -36,13 +36,18 @@ function send(req: Request, cb: (res: Response) => void) {
     });
 }
 
-state.on('waypointsUpdated', () => {
-    send({
-        waypoints: data.waypoints,
-        cruiseVelocity: 10,
-        targetAcceleration: 20
-    }, ({ path }) => {
-        data.path = path;
-        state.emit('pathUpdated', null);
-    });
+state.on('waypointsUpdated', info => {
+    switch (info) {
+        case 'added':
+        case 'modified':
+            send({
+                waypoints: data.waypoints,
+                cruiseVelocity: 10,
+                targetAcceleration: 20
+            }, ({ path }) => {
+                data.path = path;
+                state.emit('pathUpdated', null);
+            });
+            break;
+    }
 });
