@@ -16,6 +16,6 @@ const waypoints = [{
 
 export default {
     waypoints,
-    selectedWaypoint: waypoints[2],
+    selectedWaypointIndex: 0,
     path: [] as PathPoint[]
 };

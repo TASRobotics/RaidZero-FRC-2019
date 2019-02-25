@@ -9,3 +9,4 @@ import './java-process';
 
 import * as state from './state';
 state.emit('waypointsUpdated', 'added');
+state.emit('waypointsUpdated', 'selected');

@@ -10,5 +10,13 @@ state.on('waypointsUpdated', info => {
                 waypointsList.add(waypoint);
             }
             break;
+        case 'selected':
+            waypointsList.setSelectedIndex(data.selectedWaypointIndex);
+            break;
     }
+});
+
+waypointsList.list.addEventListener('click', () => {
+    data.selectedWaypointIndex = waypointsList.getSelectedIndex();
+    state.emit('waypointsUpdated', 'selected');
 });

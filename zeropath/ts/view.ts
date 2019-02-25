@@ -8,6 +8,7 @@ import * as d3zoom from 'd3-zoom';
 import data from './data';
 import * as fieldMeasurements from './field';
 import * as state from './state';
+import * as theme from './theme';
 import { Point, PathPoint } from './types';
 
 const fieldImagePath = 'res/2019-field.jpg';
@@ -120,13 +121,16 @@ function updateCircles() {
     circles
         .enter().append('circle')
             .attr('r', circleRadius / transform.k)
-            .style('fill', 'white')
             .call((d3drag.drag() as CircleDragBehavior)
                 .subject(point => ({
                     x: transform.rescaleX(xScale)(point.x),
                     y: transform.rescaleY(yScale)(point.y),
                     point
                 }))
+                .on('start', (_point, i) => {
+                    data.selectedWaypointIndex = i;
+                    state.emit('waypointsUpdated', 'selected');
+                })
                 .on('drag', () => {
                     const dragEvent = d3selection.event as CircleDragEvent;
                     dragEvent.subject.point.x =
@@ -137,7 +141,9 @@ function updateCircles() {
                 }))
         .merge(circles)
             .attr('cx', d => xScale(d.x))
-            .attr('cy', d => yScale(d.y));
+            .attr('cy', d => yScale(d.y))
+            .style('fill', (_point, i) => i === data.selectedWaypointIndex ?
+                theme.primaryColorLight : 'white');
 }
 
 state.on('waypointsUpdated', updateCircles);

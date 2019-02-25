@@ -5,10 +5,19 @@ import { Point } from '../../types';
 
 const rowClass = 'list-row';
 
-const list = document.querySelector('#waypoints-list') as HTMLUListElement;
+export const list =
+    document.querySelector('#waypoints-list') as HTMLUListElement;
 
 const mdcList = new MDCList(list);
 mdcList.singleSelection = true;
+
+export function getSelectedIndex() {
+    return mdcList.selectedIndex as number;
+}
+
+export function setSelectedIndex(index: number) {
+    mdcList.selectedIndex = index;
+}
 
 export function add(point: Point) {
     const item = document.createElement('li');
