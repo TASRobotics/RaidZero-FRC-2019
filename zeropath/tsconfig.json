@@ -8,5 +8,10 @@
         "noEmitOnError": true,
         "strict": true,
         "noFallthroughCasesInSwitch": true
-    }
+    },
+    "exclude": [
+        "node_modules",
+        "js",
+        "zeropath-win32-x64"
+    ]
 }
