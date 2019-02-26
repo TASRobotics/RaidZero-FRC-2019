@@ -1,7 +1,14 @@
 import { EventEmitter } from 'events';
 
 interface StateEvent {
-    waypointsUpdated: 'added' | 'modified' | 'selected';
+    waypointsUpdated: {
+        type: 'added'
+    } | {
+        type: 'modified',
+        index: number
+    } | {
+        type: 'selected'
+    };
     pathUpdated: null;
 }
 

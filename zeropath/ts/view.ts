@@ -129,15 +129,20 @@ function updateCircles() {
                 }))
                 .on('start', (_point, i) => {
                     data.selectedWaypointIndex = i;
-                    state.emit('waypointsUpdated', 'selected');
+                    state.emit('waypointsUpdated', {
+                        type: 'selected'
+                    });
                 })
-                .on('drag', () => {
+                .on('drag', (_point, i) => {
                     const dragEvent = d3selection.event as CircleDragEvent;
                     dragEvent.subject.point.x =
                         transform.rescaleX(xScale).invert(dragEvent.x);
                     dragEvent.subject.point.y =
                         transform.rescaleY(yScale).invert(dragEvent.y);
-                    state.emit('waypointsUpdated', 'modified');
+                    state.emit('waypointsUpdated', {
+                        type: 'modified',
+                        index: i
+                    });
                 }))
         .merge(circles)
             .attr('cx', d => xScale(d.x))

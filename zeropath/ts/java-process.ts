@@ -37,7 +37,7 @@ function send(req: Request, cb: (res: Response) => void) {
 }
 
 state.on('waypointsUpdated', info => {
-    switch (info) {
+    switch (info.type) {
         case 'added':
         case 'modified':
             send({

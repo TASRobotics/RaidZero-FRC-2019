@@ -8,5 +8,9 @@ import './view';
 import './java-process';
 
 import * as state from './state';
-state.emit('waypointsUpdated', 'added');
-state.emit('waypointsUpdated', 'selected');
+state.emit('waypointsUpdated', {
+    type: 'added'
+});
+state.emit('waypointsUpdated', {
+    type: 'selected'
+});

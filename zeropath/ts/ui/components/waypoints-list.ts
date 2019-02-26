@@ -19,7 +19,13 @@ export function setSelectedIndex(index: number) {
     mdcList.selectedIndex = index;
 }
 
-export function add(point: Point) {
+export interface FieldData {
+    name: string;
+    value?: number;
+    onChange: (value: number | undefined) => void;
+}
+
+export function add(...fields: FieldData[]) {
     const item = document.createElement('li');
     item.setAttribute('role', 'option');
     item.classList.add('mdc-list-item');
@@ -27,14 +33,14 @@ export function add(point: Point) {
     row.classList.add(rowClass);
     item.appendChild(row);
     list.appendChild(item);
-    addNumberField(row, 'x', point.x);
-    addNumberField(row, 'y', point.y);
-    addNumberField(row, 'angle', point.angle);
+    for (const field of fields) {
+        addNumberField(row, field);
+    }
 }
 
 let nextInputId = 0;
 
-function addNumberField(parent: Node, name: string, value?: number) {
+function addNumberField(parent: Node, fieldData: FieldData) {
     const inputId = "waypoints-list-" + nextInputId++;
     const textField = document.createElement('div');
     textField.classList.add('mdc-text-field', 'mdc-text-field--outlined');
@@ -43,9 +49,14 @@ function addNumberField(parent: Node, name: string, value?: number) {
     input.step = 'any';
     input.classList.add('mdc-text-field__input');
     input.id = inputId;
-    if (value !== undefined) {
-        input.value = value.toString();
+    input.dataset.name = fieldData.name;
+    if (fieldData.value !== undefined) {
+        input.value = fieldData.value.toString();
     }
+    input.addEventListener('input', () => {
+        const value = parseFloat(input.value);
+        fieldData.onChange(Number.isNaN(value) ? undefined : value);
+    });
     textField.appendChild(input);
     const outline = document.createElement('div');
     outline.classList.add('mdc-notched-outline');
@@ -57,7 +68,7 @@ function addNumberField(parent: Node, name: string, value?: number) {
     const label = document.createElement('label');
     label.classList.add('mdc-floating-label');
     label.htmlFor = inputId;
-    label.textContent = name;
+    label.textContent = fieldData.name;
     outlineNotch.appendChild(label);
     outline.appendChild(outlineNotch);
     const outlineTrailing = document.createElement('div');
@@ -66,4 +77,18 @@ function addNumberField(parent: Node, name: string, value?: number) {
     textField.appendChild(outline);
     parent.appendChild(textField);
     new MDCTextField(textField);
+}
+
+export function modifyIndex(index: number, point: Point) {
+    const item = list.children[index];
+    setInput(item, 'x', point.x);
+    setInput(item, 'y', point.y);
+}
+
+function setInput(item: Element, name: string, value: number) {
+    const input =
+        item.querySelector(`input[data-name='${name}']`) as HTMLInputElement;
+    if (parseFloat(input.value) !== value) {
+        input.value = value.toString();
+    }
 }
