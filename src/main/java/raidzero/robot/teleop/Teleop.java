@@ -66,14 +66,14 @@ public class Teleop {
         // Drive
         if (controller1.getBumper(kRight)) {
             Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-                -controller1.getY(kRight));
-            Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-                -controller1.getY(kLeft));
-        } else {
-            Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
                 controller1.getY(kRight));
             Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
                 controller1.getY(kLeft));
+        } else {
+            Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
+                -controller1.getY(kRight));
+            Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
+                -controller1.getY(kLeft));
         }
 
         // Lift
