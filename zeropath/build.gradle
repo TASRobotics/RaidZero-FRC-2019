@@ -1,0 +1,11 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+dependencies {
+    compile project(':pathgen')
+    compile 'com.google.code.gson:gson:2.8.5'
+}
+
+mainClassName = 'raidzero.zeropath.Main'

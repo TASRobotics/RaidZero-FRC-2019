@@ -1,0 +1,46 @@
+body {
+    margin: 0;
+}
+
+main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    flex-direction: row;
+}
+
+#view {
+    background-color: black;
+    flex: 1;
+}
+
+#info {
+    width: 400px;
+    overflow: auto;
+}
+
+#waypoints-list .mdc-list-item {
+    height: 72px;
+    padding: 0 8px;
+}
+
+#waypoints-list .list-row {
+    display: flex;
+    flex-direction: row;
+}
+
+#waypoints-list .mdc-text-field {
+    margin: 0 8px;
+}
+
+#upload-dialog .mdc-dialog__surface {
+    width: 400px;
+    height: calc(100vh - 32px);
+}
+
+#upload-log .error {
+    color: #d50000;
+}

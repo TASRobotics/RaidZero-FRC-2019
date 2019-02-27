@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es2018",
+        "module": "commonjs",
+        "sourceMap": true,
+        "rootDir": "ts",
+        "outDir": "js",
+        "noEmitOnError": true,
+        "strict": true,
+        "noFallthroughCasesInSwitch": true
+    },
+    "exclude": [
+        "node_modules",
+        "js",
+        "zeropath-win32-x64"
+    ]
+}
