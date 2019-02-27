@@ -7,8 +7,8 @@ public class Auto {
 
     private static MotionProfile profile;
     private static Point[] points = {
-        new Point(0, 0, 0),
-        new Point(0, 100, 0)
+        new Point(119, 61, 0),
+        new Point(212, 118, 0)
         // new Point(123.4, 264.5),
         // new Point(168.5, 262.0),
         // new Point(252.34, 231.5),

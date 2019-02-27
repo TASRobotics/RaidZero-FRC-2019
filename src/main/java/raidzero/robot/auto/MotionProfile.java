@@ -34,13 +34,13 @@ public class MotionProfile {
     private static final double PIGEON_SCALE = 3600.0 / 8192.0;
 
     private static final double PRIMARY_F = 0.51;
-    private static final double PRIMARY_P = 2.5;
+    private static final double PRIMARY_P = 1.7;
     private static final double PRIMARY_I = 0.0;
     private static final double PRIMARY_D = 35;
     private static final int PRIMARY_INT_ZONE = 50;
 
-    private static final double AUX_F = 0.2623;
-    private static final double AUX_P = 12;
+    private static final double AUX_F = 0.269; // Max was 380 dps
+    private static final double AUX_P = 5;
     private static final double AUX_I = 0;
     private static final double AUX_D = 150;
     private static final int AUX_INT_ZONE = 0;

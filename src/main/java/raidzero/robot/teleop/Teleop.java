@@ -13,8 +13,6 @@ import raidzero.robot.components.Arm.Position;
 
 public class Teleop {
 
-    private static PowerDistributionPanel pdp;
-
     private static XboxController controller1;
     private static XboxController controller2;
 
@@ -32,7 +30,6 @@ public class Teleop {
     public static void initialize() {
         controller1 = new XboxController(0);
         controller2 = new XboxController(1);
-        pdp = new PowerDistributionPanel();
     }
 
     /**
