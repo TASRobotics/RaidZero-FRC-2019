@@ -27,10 +27,6 @@ const proc = spawn(`"${scriptPath}"`, {
     }
 });
 
-proc.stderr.on('data', chunk => {
-    console.error(chunk.toString());
-});
-
 const rl = readline.createInterface({
     input: proc.stdout,
     terminal: false,
