@@ -41,9 +41,9 @@ public class MotionProfile {
 
     private static final double AUX_F = 0.269; // Max was 380 dps
     private static final double AUX_P = 2.7;
-    private static final double AUX_I = 0;
+    private static final double AUX_I = 0.0001;
     private static final double AUX_D = 150;
-    private static final int AUX_INT_ZONE = 30;
+    private static final int AUX_INT_ZONE = 20;
 
     private static final int BASE_TRAJ_PERIOD_MS = 0;
     private static final double SENSOR_UNITS_PER_INCH = 110;
