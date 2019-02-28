@@ -34,15 +34,15 @@ public class MotionProfile {
     private static final double PIGEON_SCALE = 3600.0 / 8192.0;
 
     private static final double PRIMARY_F = 0.51;
-    private static final double PRIMARY_P = 1.4;
+    private static final double PRIMARY_P = 1.45;
     private static final double PRIMARY_I = 0.0001;
     private static final double PRIMARY_D = 30;
     private static final int PRIMARY_INT_ZONE = 50;
 
     private static final double AUX_F = 0.269; // Max was 380 dps
-    private static final double AUX_P = 4.6;
-    private static final double AUX_I = 0.01;
-    private static final double AUX_D = 300;
+    private static final double AUX_P = 2.7;
+    private static final double AUX_I = 0;
+    private static final double AUX_D = 150;
     private static final int AUX_INT_ZONE = 30;
 
     private static final int BASE_TRAJ_PERIOD_MS = 0;
@@ -76,8 +76,8 @@ public class MotionProfile {
 
         setValue = SetValueMotionProfile.Disable;
         status = new MotionProfileStatus();
-        rightTal.changeMotionControlFramePeriod(5);
-        notifer.startPeriodic(0.005);
+        rightTal.changeMotionControlFramePeriod(3);
+        notifer.startPeriodic(0.003);
         state = State.FillPoints;
         setup();
     }
