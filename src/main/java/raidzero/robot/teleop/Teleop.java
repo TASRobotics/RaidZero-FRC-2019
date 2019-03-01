@@ -79,14 +79,21 @@ public class Teleop {
         double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);
         double leftTriggerAxis1 = controller1.getTriggerAxis(kLeft);
 
-        if (rightTriggerAxis1 > 0.1) {
-            //liftPos += rightTriggerAxis1;
-            Components.getLift().movePercent(rightTriggerAxis1);
-        } else if (leftTriggerAxis1 > 0.1) {
-            //liftPos -= leftTriggerAxis1;
-            Components.getLift().movePercent(-leftTriggerAxis1 * 0.5);
+        if (controller1.getAButton()) {
+            Components.getLift().movePosition(200);
         } else {
-            Components.getLift().movePercent(0);
+            if (rightTriggerAxis1 > 0.1) {
+            //liftPos += rightTriggerAxis1;
+                Components.getLift().movePercent(rightTriggerAxis1);
+            } else if (leftTriggerAxis1 > 0.1) {
+            //liftPos -= leftTriggerAxis1;
+                Components.getLift().movePercent(-leftTriggerAxis1 * 0.5);
+            } else {
+                Components.getLift().movePercent(0);
+            }
+        }
+        if (controller1.getBButton()) {
+            Components.getLift().resetEncoderPos();
         }
         //Components.getLift().movePosition(liftPos);
 

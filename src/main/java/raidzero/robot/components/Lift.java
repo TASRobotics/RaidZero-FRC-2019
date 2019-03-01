@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.ConfigParameter;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class Lift {
@@ -22,7 +23,8 @@ public class Lift {
 
     private static final double ALLOWED_ERROR = 0.1;
 
-    private static final int PID_SLOT = 0;
+    private static final int MANUAL_SLOT = 0;
+    private static final int SMART_SLOT = 1;
 
     private SparkMaxPrime leader;
     private CANSparkMax follower;
@@ -50,6 +52,12 @@ public class Lift {
         // TODO: Re-enable the limit switch
         limitSwitch = leader.getReverseLimitSwitch(LimitSwitchPolarity.kNormallyOpen);
 
+        // Limit the max output
+        leader.setParameter(ConfigParameter.kOutputMin_0, -0.7);
+        follower.setParameter(ConfigParameter.kOutputMin_0, -0.7);
+        leader.setParameter(ConfigParameter.kOutputMax_0, 0.7);
+        follower.setParameter(ConfigParameter.kOutputMax_0, 0.7);
+
         // Set motor inversion
         leader.setInverted(true);
         follower.setInverted(true);
@@ -64,9 +72,18 @@ public class Lift {
         follower.follow(leader);
 
         // Configure PID values + SmartMotion
-        leader.setPID(KF, KP, KI, KD, I_ZONE, PID_SLOT);
+        leader.setPID(KF, KP, KI, KD, I_ZONE, SMART_SLOT);
         leader.configureSmartMotion(MIN_VELOCITY, MAX_VELOCITY, MAX_ACCELERATION,
-            ALLOWED_ERROR, PID_SLOT);
+            ALLOWED_ERROR, SMART_SLOT);
+    }
+
+    /**
+     * Returns the position of the encoder.
+     *
+     * @return the encoder position
+     */
+    public void resetEncoderPos() {
+        leader.setPosition(0);
     }
 
     /**
@@ -95,7 +112,7 @@ public class Lift {
      * @param percentV The percentage voltage from -1.0 to 1.0 to run the motors
      */
     public void movePercent(double percentV) {
-        leader.set(percentV, ControlType.kDutyCycle, PID_SLOT);
+        leader.set(percentV, ControlType.kDutyCycle, MANUAL_SLOT);
     }
 
     /**
@@ -104,7 +121,7 @@ public class Lift {
      * @param pos the encoder position to move to
      */
     public void movePosition(double pos) {
-        leader.set(pos, ControlType.kSmartMotion, PID_SLOT);
+        leader.set(pos, ControlType.kSmartMotion, SMART_SLOT);
     }
 
 }
