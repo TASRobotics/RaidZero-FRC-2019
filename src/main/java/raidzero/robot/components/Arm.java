@@ -53,8 +53,8 @@ public class Arm {
 
         armFollower.follow(arm);
 
-        //the tachs are daisy chained together
-        //which solder pad is soldered will decide which one is forward and reverse
+        // The tachs are daisy chained together
+        // Which solder pad is soldered will decide which one is forward and reverse
         arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
             LimitSwitchNormal.NormallyOpen);
         arm.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
@@ -67,8 +67,8 @@ public class Arm {
 
         arm.setSensorPhase(true);
         arm.setSelectedSensorPosition(0);
-        arm.setInverted(true);
-        armFollower.setInverted(false);
+        arm.setInverted(false);
+        armFollower.setInverted(true);
 
         arm.config_kP(PID_X, P_VALUE);
         arm.config_kI(PID_X, I_VALUE);

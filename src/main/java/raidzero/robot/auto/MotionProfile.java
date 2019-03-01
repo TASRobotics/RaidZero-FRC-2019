@@ -33,20 +33,20 @@ public class MotionProfile {
     private static final int TIMEOUT_MS = 10;
     private static final double PIGEON_SCALE = 3600.0 / 8192.0;
 
-    private static final double PRIMARY_F = 0.8896;
-    private static final double PRIMARY_P = 2.5;
-    private static final double PRIMARY_I = 0.0;
-    private static final double PRIMARY_D = 35;
+    private static final double PRIMARY_F = 0.51;
+    private static final double PRIMARY_P = 1.45;
+    private static final double PRIMARY_I = 0.0001;
+    private static final double PRIMARY_D = 30;
     private static final int PRIMARY_INT_ZONE = 50;
 
-    private static final double AUX_F = 0.2623;
-    private static final double AUX_P = 12;
-    private static final double AUX_I = 0;
+    private static final double AUX_F = 0.269; // Max was 380 dps
+    private static final double AUX_P = 2.7;
+    private static final double AUX_I = 0.0001;
     private static final double AUX_D = 150;
-    private static final int AUX_INT_ZONE = 0;
+    private static final int AUX_INT_ZONE = 20;
 
     private static final int BASE_TRAJ_PERIOD_MS = 0;
-    private static final double SENSOR_UNITS_PER_INCH = 81.9;
+    private static final double SENSOR_UNITS_PER_INCH = 110;
     private static final int MIN_POINTS_IN_TALON = 10;
     private static final int CLOSED_LOOP_TIME_MS = 1;
 
@@ -76,8 +76,8 @@ public class MotionProfile {
 
         setValue = SetValueMotionProfile.Disable;
         status = new MotionProfileStatus();
-        rightTal.changeMotionControlFramePeriod(5);
-        notifer.startPeriodic(0.005);
+        rightTal.changeMotionControlFramePeriod(3);
+        notifer.startPeriodic(0.003);
         state = State.FillPoints;
         setup();
     }
@@ -90,7 +90,7 @@ public class MotionProfile {
         rightTal.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
         leftTal.setSensorPhase(false);
-        rightTal.setSensorPhase(true);
+        rightTal.setSensorPhase(false);
 
         // Configure the left side encoder as a remote sensor for the right Talon
         rightTal.configRemoteFeedbackFilter(leftTal.getDeviceID(),

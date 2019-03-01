@@ -50,8 +50,8 @@ public class Lift {
         limitSwitch = leader.getReverseLimitSwitch(LimitSwitchPolarity.kNormallyClosed);
 
         // Set motor inversion
-        leader.setInverted(false);
-        follower.setInverted(false);
+        leader.setInverted(true);
+        follower.setInverted(true);
 
         // Set ramp rate
         leader.setOpenLoopRampRate(RAMP_RATE);
@@ -95,6 +95,7 @@ public class Lift {
      */
     public void movePercent(double percentV) {
         leader.set(percentV, ControlType.kDutyCycle, PID_SLOT);
+        follower.set(percentV);
     }
 
     /**
