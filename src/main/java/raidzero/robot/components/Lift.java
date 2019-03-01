@@ -95,7 +95,6 @@ public class Lift {
      */
     public void movePercent(double percentV) {
         leader.set(percentV, ControlType.kDutyCycle, PID_SLOT);
-        follower.set(percentV);
     }
 
     /**
