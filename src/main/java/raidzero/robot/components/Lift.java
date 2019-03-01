@@ -1,7 +1,6 @@
 package raidzero.robot.components;
 
 import com.revrobotics.CANDigitalInput;
-import com.revrobotics.CANDigitalInput.LimitSwitch;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
