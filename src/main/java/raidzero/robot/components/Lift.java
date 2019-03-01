@@ -21,7 +21,7 @@ public class Lift {
     private static final double MIN_VELOCITY = 0.0;
     private static final double MAX_ACCELERATION = 1100.0;
 
-    private static final double ALLOWED_ERROR = 0.1;
+    private static final double ALLOWED_ERROR = 5;
 
     private static final int MANUAL_SLOT = 0;
     private static final int SMART_SLOT = 1;
