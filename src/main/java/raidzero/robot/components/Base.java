@@ -25,8 +25,8 @@ public class Base {
      */
     public Base(int rLeaderId, int rFollower1Id, int rFollower2Id, int lLeaderId, int lFollower1Id,
     int lFollower2Id, int pigeonId) {
-        rightMotor = initSide(rLeaderId, rFollower1Id, rFollower2Id, true);
-        leftMotor = initSide(lLeaderId, lFollower1Id, lFollower2Id, false);
+        rightMotor = initSide(rLeaderId, rFollower1Id, rFollower2Id, false);
+        leftMotor = initSide(lLeaderId, lFollower1Id, lFollower2Id, true);
         pigeon = new PigeonIMU(pigeonId);
     }
 
