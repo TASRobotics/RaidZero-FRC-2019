@@ -9,16 +9,16 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class Lift {
 
-    private static final double KF = 0.0;
+    private static final double KF = 0.4663; // Max speed (up) is 2194 rpm
     private static final double KP = 0.18;
     private static final double KI = 0.00;
     private static final double KD = 15.2;
     private static final double I_ZONE = 0.0;
-    private static final double RAMP_RATE = 0.5;
+    private static final double RAMP_RATE = 0.0;
 
-    private static final double MAX_VELOCITY = 2000.0;
+    private static final double MAX_VELOCITY = 1100.0;
     private static final double MIN_VELOCITY = 0.0;
-    private static final double MAX_ACCELERATION = 1500.0;
+    private static final double MAX_ACCELERATION = 1100.0;
 
     private static final double ALLOWED_ERROR = 0.1;
 
@@ -47,7 +47,8 @@ public class Lift {
         follower.setIdleMode(IdleMode.kBrake);
 
         // Set limit switch
-        limitSwitch = leader.getReverseLimitSwitch(LimitSwitchPolarity.kNormallyClosed);
+        // TODO: Re-enable the limit switch
+        limitSwitch = leader.getReverseLimitSwitch(LimitSwitchPolarity.kNormallyOpen);
 
         // Set motor inversion
         leader.setInverted(true);
