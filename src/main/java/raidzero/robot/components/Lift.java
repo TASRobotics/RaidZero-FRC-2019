@@ -78,7 +78,7 @@ public class Lift {
     }
 
     /**
-     * Returns the position of the encoder.
+     * Resets the position of the encoder to 0.
      *
      * @return the encoder position
      */
@@ -102,7 +102,7 @@ public class Lift {
      */
     public void limitReset() {
         if (limitSwitch.get()) {
-            leader.setPosition(0);
+            resetEncoderPos();
         }
     }
 
