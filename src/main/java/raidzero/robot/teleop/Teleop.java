@@ -1,6 +1,5 @@
 package raidzero.robot.teleop;
 
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.XboxController;
 
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kLeft;
@@ -63,6 +62,7 @@ public class Teleop {
         // Player 1
 
         // Drive
+        // Tank
         if (controller1.getBumper(kRight)) {
             Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
                 controller1.getY(kRight));
@@ -74,6 +74,19 @@ public class Teleop {
             Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
                 -controller1.getY(kLeft));
         }
+
+        // Arcade
+        // if (controller1.getBumper(kRight)) {
+        //     Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
+        //         controller1.getY(kLeft) + controller1.getX(kRight));
+        //     Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
+        //         controller1.getY(kLeft) - controller1.getX(kRight));
+        // } else {
+        //     Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
+        //         -controller1.getY(kLeft) + controller1.getX(kRight));
+        //     Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
+        //         -controller1.getY(kLeft) - controller1.getX(kRight));
+        // }
 
         // Lift
         if (controller1.getAButton()) {
