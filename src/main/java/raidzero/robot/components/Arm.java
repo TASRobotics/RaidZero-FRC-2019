@@ -19,13 +19,13 @@ public class Arm {
 
     private static final int PID_X = 0;
 
-    private static final int TARGET_VEL = 400;
+    private static final int TARGET_VEL = 300;
     private static final int TARGET_ACCEL = 600;
 
     private static final double P_VALUE = 7.0;
-    private static final double I_VALUE = 0.01;
+    private static final double I_VALUE = 0;
     private static final double D_VALUE = 50.0;
-    private static final double F_VALUE = 2.048;
+    private static final double F_VALUE = 1.86;
     private static final int IZ_VALUE = 50;
 
     private static final int VEL_TOLERANCE = 1;
@@ -65,7 +65,7 @@ public class Arm {
         arm.configMotionCruiseVelocity(TARGET_VEL);
         arm.configMotionAcceleration(TARGET_ACCEL);
 
-        arm.setSensorPhase(true);
+        arm.setSensorPhase(false);
         arm.setSelectedSensorPosition(0);
         arm.setInverted(false);
         armFollower.setInverted(true);
