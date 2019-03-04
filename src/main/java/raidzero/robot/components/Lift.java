@@ -58,6 +58,11 @@ public class Lift {
         leader.setParameter(ConfigParameter.kOutputMax_0, 0.7);
         follower.setParameter(ConfigParameter.kOutputMax_0, 0.7);
 
+        leader.setParameter(ConfigParameter.kOutputMin_1, -0.7);
+        follower.setParameter(ConfigParameter.kOutputMin_1, -0.7);
+        leader.setParameter(ConfigParameter.kOutputMax_1, 0.7);
+        follower.setParameter(ConfigParameter.kOutputMax_1, 0.7);
+
         // Set motor inversion
         leader.setInverted(true);
         follower.setInverted(true);
@@ -121,7 +126,7 @@ public class Lift {
      * @param pos the encoder position to move to
      */
     public void movePosition(double pos) {
-        leader.set(pos, ControlType.kSmartMotion, SMART_SLOT);
+        leader.set(pos, ControlType.kPosition, SMART_SLOT);
     }
 
 }

@@ -89,9 +89,9 @@ public class Teleop {
         // }
 
         // Lift
-        if (controller1.getAButton()) {
-            Components.getLift().movePosition(200);
-        } else {
+        // if (controller1.getAButton()) {
+        //     Components.getLift().movePosition(5);
+        // } else {
             double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);
             double leftTriggerAxis1 = controller1.getTriggerAxis(kLeft);
             if (rightTriggerAxis1 > 0.1) {
@@ -103,10 +103,11 @@ public class Teleop {
             } else {
                 Components.getLift().movePercent(0);
             }
-        }
-        if (controller1.getBButton()) {
-            Components.getLift().resetEncoderPos();
-        }
+        // }
+        // if (controller1.getBButton()) {
+        //     Components.getLift().resetEncoderPos();
+        // }
+        System.out.println(Components.getLift().getEncoderPos());
         //Components.getLift().movePosition(liftPos);
 
         // Player 2
