@@ -3,7 +3,6 @@ package raidzero.robot.teleop;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kLeft;
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
@@ -34,7 +33,8 @@ public class Teleop {
         controller1 = new XboxController(0);
         controller2 = new XboxController(1);
         UsbCamera cam = CameraServer.getInstance().startAutomaticCapture(0);
-        cam.setResolution(640, 480);
+        cam.setResolution(480, 320);
+        cam.setFPS(30);
     }
 
     /**
@@ -71,14 +71,14 @@ public class Teleop {
         // Tank
         if (controller1.getBumper(kRight)) {
             Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-                controller1.getY(kRight)/2);
+                controller1.getY(kLeft) * 0.8);
             Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-                controller1.getY(kLeft)/2);
+                controller1.getY(kRight) * 0.8);
         } else {
             Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-                -controller1.getY(kRight));
+                -controller1.getY(kRight) * 0.8);
             Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-                -controller1.getY(kLeft));
+                -controller1.getY(kLeft) * 0.8);
         }
 
         // Arcade
@@ -121,9 +121,9 @@ public class Teleop {
         // Components.getArm().movePercentOutput(-controller2.getY(kRight));
 
         Components.getArm().move(armPos);
-        armPos = (int) (armPos - (controller2.getY(kRight) * 60));
-
-        SmartDashboard.putNumber("speed", Components.getArm().getEncoderVel());
+        if (Math.abs(controller2.getY(kRight)) > 0.1) {
+            armPos = (int) (armPos - (controller2.getY(kRight) * 60));
+        }
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
