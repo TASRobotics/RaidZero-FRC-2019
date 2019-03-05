@@ -58,7 +58,7 @@ public class Arm {
         arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
             LimitSwitchNormal.NormallyOpen);
         arm.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-            LimitSwitchNormal.NormallyOpen);
+            LimitSwitchNormal.NormallyClosed);
 
         arm.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
