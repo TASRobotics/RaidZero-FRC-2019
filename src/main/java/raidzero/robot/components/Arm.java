@@ -19,7 +19,7 @@ public class Arm {
 
     private static final int PID_X = 0;
 
-    private static final int TARGET_VEL = 300;
+    private static final int TARGET_VEL = 400;
     private static final int TARGET_ACCEL = 400;
 
     private static final double P_VALUE = 7.0;
