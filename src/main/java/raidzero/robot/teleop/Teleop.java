@@ -92,17 +92,18 @@ public class Teleop {
         // if (controller1.getAButton()) {
         //     Components.getLift().movePosition(5);
         // } else {
-            double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);
-            double leftTriggerAxis1 = controller1.getTriggerAxis(kLeft);
-            if (rightTriggerAxis1 > 0.1) {
-                //liftPos += rightTriggerAxis1;
-                Components.getLift().movePercent(rightTriggerAxis1 * 0.6);
-            } else if (leftTriggerAxis1 > 0.1) {
-                //liftPos -= leftTriggerAxis1;
-                Components.getLift().movePercent(-leftTriggerAxis1 * 0.2);
-            } else {
-                Components.getLift().movePercent(0);
-            }
+
+        double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);
+        double leftTriggerAxis1 = controller1.getTriggerAxis(kLeft);
+        if (rightTriggerAxis1 > 0.1) {
+            //liftPos += rightTriggerAxis1 * 5;
+            Components.getLift().movePercent(rightTriggerAxis1 * 0.6);
+        } else if (leftTriggerAxis1 > 0.1) {
+            //liftPos -= leftTriggerAxis1 * 5;
+            Components.getLift().movePercent(-leftTriggerAxis1 * 0.2);
+        } else {
+            Components.getLift().movePercent(0);
+        }
         // }
         // if (controller1.getBButton()) {
         //     Components.getLift().resetEncoderPos();
@@ -159,6 +160,13 @@ public class Teleop {
             Components.getClimb().climbPWM(controller2.getY(kLeft));
         }
 
+    }
+
+    public static double deadband(double value) {
+        if (Math.abs(value) < 0.1) {
+            return 0.0;
+        }
+        return value;
     }
 
 }
