@@ -21,7 +21,6 @@ public class Teleop {
     private static PowerDistributionPanel pdp;
 
     private static int armSetpoint;
-    private static double liftPos;
 
     private static boolean climbing = false;
 
@@ -52,7 +51,6 @@ public class Teleop {
 
         // Set starting setpoint as the current position
         armSetpoint = Components.getArm().getEncoderPos();
-        liftPos = Components.getLift().getEncoderPos();
     }
 
     /**
@@ -114,10 +112,10 @@ public class Teleop {
                 Components.getLift().movePercent(0);
             }
         }
-        System.out.println(Components.getLift().getEncoderPos());
         if (controller1.getBButton()) {
             Components.getLift().resetEncoderPos();
         }
+        System.out.println(Components.getLift().getEncoderPos());
         //Components.getLift().movePosition(liftPos);
 
         // Player 2
@@ -125,10 +123,10 @@ public class Teleop {
         // Arm
         //Components.getArm().movePercentOutput(-controller2.getY(kRight));
 
-        System.out.println(armSetpoint);
+        System.out.println("Arm setpoint = " + armSetpoint);
         Components.getArm().move(armSetpoint);
 
-        //Reset setpoint when limit is reached
+        // Reset setpoint when limit is reached
         Components.getArm().checkAndResetAtHardLimit();
         if (Components.getArm().getReverseLimit()) {
             armSetpoint = 0;
