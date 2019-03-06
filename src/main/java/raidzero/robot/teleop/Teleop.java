@@ -35,9 +35,9 @@ public class Teleop {
         controller2 = new XboxController(1);
 
         // TODO: Re-enable camera after *cough* FiXEd *cough*
-        /*UsbCamera cam = CameraServer.getInstance().startAutomaticCapture(0);
+        UsbCamera cam = CameraServer.getInstance().startAutomaticCapture(0);
         cam.setResolution(480, 320);
-        cam.setFPS(30);*/
+        cam.setFPS(30);
 
         pdp = new PowerDistributionPanel(0);
     }
