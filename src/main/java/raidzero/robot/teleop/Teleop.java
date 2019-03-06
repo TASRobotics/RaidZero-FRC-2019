@@ -34,7 +34,6 @@ public class Teleop {
         controller1 = new XboxController(0);
         controller2 = new XboxController(1);
 
-        // TODO: Re-enable camera after *cough* FiXEd *cough*
         UsbCamera cam = CameraServer.getInstance().startAutomaticCapture(0);
         cam.setResolution(480, 320);
         cam.setFPS(30);
@@ -51,6 +50,7 @@ public class Teleop {
     public static void setup() {
         climbing = false;
 
+        // Set starting setpoint as the current position
         armSetpoint = Components.getArm().getEncoderPos();
         liftPos = Components.getLift().getEncoderPos();
     }

@@ -26,7 +26,7 @@ public class Arm {
     private static final double P_VALUE = 7.0;
     private static final double I_VALUE = 0;
     private static final double D_VALUE = 50.0;
-    private static final double F_VALUE = 1.86/2;
+    private static final double F_VALUE = 1.86 / 2;
     private static final int IZ_VALUE = 50;
 
     private static final int VEL_TOLERANCE = 1;
@@ -58,7 +58,8 @@ public class Arm {
         // Which solder pad is soldered will decide which one is forward and reverse
         arm.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
             LimitSwitchNormal.NormallyOpen);
-        arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled);
+        arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+            LimitSwitchNormal.Disabled);
 
         arm.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
@@ -66,9 +67,11 @@ public class Arm {
         arm.configMotionAcceleration(TARGET_ACCEL);
 
         arm.setSensorPhase(false);
-        arm.setSelectedSensorPosition(STARTING_POS);
         arm.setInverted(false);
         armFollower.setInverted(true);
+
+        // Set the starting position as the current one
+        arm.setSelectedSensorPosition(STARTING_POS);
 
         arm.config_kP(PID_X, P_VALUE);
         arm.config_kI(PID_X, I_VALUE);
@@ -78,13 +81,12 @@ public class Arm {
     }
 
     /**
-     * Resets encoder to a certain position
+     * Sets encoder to a certain position
      *
-     * @param resetPos the position to reset to
-     * resetPos may be changed into an enum, but for now a variable is fine
+     * @param pos the position to set the encoder to
      */
-    public void setEncoder(int resetPos) {
-        arm.setSelectedSensorPosition(resetPos);
+    public void setEncoderPos(int pos) {
+        arm.setSelectedSensorPosition(pos, PID_X, 0);
     }
 
     /**
@@ -119,7 +121,7 @@ public class Arm {
      */
     public void checkAndResetAtHardLimit() {
         if (getReverseLimit()) {
-            setEncoder(0);
+            setEncoderPos(0);
         }
     }
 
