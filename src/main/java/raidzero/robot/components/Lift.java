@@ -20,7 +20,7 @@ public class Lift {
     private static final double KI = 0.00;
     private static final double KD = 15.2;
     private static final double I_ZONE = 0.0;
-    private static final double RAMP_RATE = 0.0;
+    private static final double RAMP_RATE = 0.0; // Acceleration
 
     private static final int MANUAL_SLOT = 0;
     private static final int PID_SLOT = 1;
@@ -54,17 +54,6 @@ public class Lift {
         limitSwitch.enableLimitSwitch(false);
         leader.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyOpen).enableLimitSwitch(false);
 
-        // Limit the max output
-        leader.setParameter(ConfigParameter.kOutputMin_0, -0.7);
-        follower.setParameter(ConfigParameter.kOutputMin_0, -0.7);
-        leader.setParameter(ConfigParameter.kOutputMax_0, 0.7);
-        follower.setParameter(ConfigParameter.kOutputMax_0, 0.7);
-
-        leader.setParameter(ConfigParameter.kOutputMin_1, -0.7);
-        follower.setParameter(ConfigParameter.kOutputMin_1, -0.7);
-        leader.setParameter(ConfigParameter.kOutputMax_1, 0.7);
-        follower.setParameter(ConfigParameter.kOutputMax_1, 0.7);
-
         // Set motor inversion
         leader.setInverted(true);
         follower.setInverted(true);
@@ -79,7 +68,7 @@ public class Lift {
         follower.follow(leader);
 
         // Configure PID values
-        leader.setPID(KF, KP, KI, KD, I_ZONE, -1.0, 1.0, PID_SLOT);
+        leader.setPID(KF, KP, KI, KD, I_ZONE, -0.7, 0.7, PID_SLOT);
     }
 
     /**
