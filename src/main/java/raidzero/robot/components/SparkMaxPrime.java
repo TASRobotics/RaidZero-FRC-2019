@@ -52,24 +52,7 @@ public class SparkMaxPrime extends CANSparkMax {
         controller.setI(kI, pidSlot);
         controller.setD(kD, pidSlot);
         controller.setIZone(iZone, pidSlot);
-        controller.setOutputRange(minOutput, maxOutput);
-    }
-
-    /**
-     * Configure the parameters for SmartMotion
-     *
-     * @param minVel the mimimum velocity in RPM
-     * @param maxVel the maxiumum velocity in RPM
-     * @param maxAccel the maximum acceleration in RPM per second
-     * @param allowedErr the allowed deviation for the setpoint vs. current rotations
-     * @param smSlot the gain slot, ranging from 0 to 3
-     */
-    public void configureSmartMotion(double minVel, double maxVel, double maxAccel,
-    double allowedErr, int smSlot) {
-        controller.setSmartMotionMinOutputVelocity(minVel, smSlot);
-        controller.setSmartMotionMaxVelocity(maxVel, smSlot);
-        controller.setSmartMotionMaxAccel(maxAccel, smSlot);
-        controller.setSmartMotionAllowedClosedLoopError(allowedErr, smSlot);
+        controller.setOutputRange(minOutput, maxOutput, pidSlot);
     }
 
     /**
@@ -90,18 +73,18 @@ public class SparkMaxPrime extends CANSparkMax {
     }
 
     /**
-     * Sets the encoder to the desired position.
+     * Sets the encoder to the desired position in rotations.
      *
-     * @param pos the position desired
+     * @param pos the position desired in rotations
      */
     public void setPosition(double pos) {
         encoder.setPosition(pos);
     }
 
     /**
-     * Gets the position of the encoder.
+     * Gets the position in rotations of the encoder.
      *
-     * @return the encoder position
+     * @return the encoder position in rotations
      */
     public double getPosition() {
         return encoder.getPosition();
