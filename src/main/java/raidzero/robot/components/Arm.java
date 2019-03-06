@@ -13,14 +13,15 @@ public class Arm {
     private TalonSRX arm;
     private TalonSRX armFollower;
 
-    private static final int FLOOR = 0;
-    private static final int HATCH_LEVEL = 1250;
-    private static final int BACKWARD = 1;
+    // Preset arm positions
+    public static final int BALL_INTAKE = 227;
+    public static final int STARTING_POS = 3400;
+    public static final int CARGO = 6162;
 
     private static final int PID_X = 0;
 
-    private static final int TARGET_VEL = 400;
-    private static final int TARGET_ACCEL = 400;
+    private static final int TARGET_VEL = 500;
+    private static final int TARGET_ACCEL = 800;
 
     private static final double P_VALUE = 7.0;
     private static final double I_VALUE = 0;
@@ -35,7 +36,7 @@ public class Arm {
      * This enum contains the possible positions to go to
      */
     public enum Position {
-        Floor, Hatch, Back
+        Front, Starting, Back
     }
 
     /**
@@ -55,10 +56,9 @@ public class Arm {
 
         // The tachs are daisy chained together
         // Which solder pad is soldered will decide which one is forward and reverse
-        arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-            LimitSwitchNormal.NormallyOpen);
         arm.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-            LimitSwitchNormal.NormallyClosed);
+            LimitSwitchNormal.NormallyOpen);
+        arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.Disabled);
 
         arm.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
@@ -66,7 +66,7 @@ public class Arm {
         arm.configMotionAcceleration(TARGET_ACCEL);
 
         arm.setSensorPhase(false);
-        arm.setSelectedSensorPosition(0);
+        arm.setSelectedSensorPosition(STARTING_POS);
         arm.setInverted(false);
         armFollower.setInverted(true);
 
@@ -110,16 +110,7 @@ public class Arm {
      *
      * @return whether the reverse limit switch has been reached
      */
-    private boolean getReverseLimit() {
-        return arm.getSensorCollection().isRevLimitSwitchClosed();
-    }
-
-    /**
-     * Returns whether the forward limit switch has been reached
-     *
-     * @return whether the forward limit switch has been reached
-     */
-    private boolean getForwardLimit() {
+    public boolean getReverseLimit() {
         return arm.getSensorCollection().isRevLimitSwitchClosed();
     }
 
@@ -127,10 +118,8 @@ public class Arm {
      * Check if the hard limit has been reached and reset the encoder if so
      */
     public void checkAndResetAtHardLimit() {
-        if (getForwardLimit()) {
-            setEncoder(FLOOR);
-        } else if (getReverseLimit()) {
-            setEncoder(BACKWARD);
+        if (getReverseLimit()) {
+            setEncoder(0);
         }
     }
 
@@ -163,22 +152,22 @@ public class Arm {
         arm.set(ControlMode.MotionMagic, position);
     }
 
-    /**
-     * Moves the arm to one of three positions
-     *
-     * @param destination the position to move to
-     */
-    public void move(Position destination) {
-        switch (destination) {
-            case Floor:
-                arm.set(ControlMode.MotionMagic, FLOOR);
-                break;
-            case Hatch:
-                arm.set(ControlMode.MotionMagic, HATCH_LEVEL);
-                break;
-            case Back:
-                arm.set(ControlMode.MotionMagic, BACKWARD);
-                break;
-        }
-    }
+    // /**
+    //  * Moves the arm to one of three positions
+    //  *
+    //  * @param destination the position to move to
+    //  */
+    // public void move(Position destination) {
+    //     switch (destination) {
+    //         case Front:
+    //             arm.set(ControlMode.MotionMagic, BALL_INTAKE);
+    //             break;
+    //         case Starting:
+    //             arm.set(ControlMode.MotionMagic, STARTING_POS);
+    //             break;
+    //         case Back:
+    //             arm.set(ControlMode.MotionMagic, CARGO);
+    //             break;
+    //     }
+    // }
 }

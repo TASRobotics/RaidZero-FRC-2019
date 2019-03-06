@@ -14,9 +14,6 @@ public class Climb {
     private CANSparkMax follower3;
 
     private PWM servo1;
-    private PWM servo2;
-    private PWM servo3;
-    private PWM servo4;
 
     // Overall gearing: 192:1
     // Banebots gearbox: 64:1
@@ -45,9 +42,6 @@ public class Climb {
         follower3 = new CANSparkMax(follower3ID, MotorType.kBrushless);
 
         servo1 = new PWM(servoChannel1);
-        servo2 = new PWM(servoChannel2);
-        servo3 = new PWM(servoChannel3);
-        servo4 = new PWM(servoChannel4);
 
         leader.restoreFactoryDefaults();
         follower1.restoreFactoryDefaults();
@@ -90,9 +84,6 @@ public class Climb {
      */
     public void lockClimb() {
         servo1.setSpeed(1);
-        servo2.setSpeed(1);
-        servo3.setSpeed(1);
-        servo4.setSpeed(1);
     }
 
     /**
@@ -100,9 +91,6 @@ public class Climb {
      */
     public void unlockClimb() {
         servo1.setSpeed(-1);
-        servo2.setSpeed(-1);
-        servo3.setSpeed(-1);
-        servo4.setSpeed(-1);
     }
 
     /**

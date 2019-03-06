@@ -7,9 +7,6 @@ import com.revrobotics.ControlType;
 
 public class SparkMaxPrime extends CANSparkMax {
 
-    private static final double MAX_OUTPUT = 1.0;
-    private static final double MIN_OUTPUT = -1.0;
-
     /*
      * These objects are stored as instance variables so that
      * there is no overhead when calling PID controller and
@@ -30,6 +27,10 @@ public class SparkMaxPrime extends CANSparkMax {
         super(deviceID, type);
         controller = getPIDController();
         encoder = getEncoder();
+
+        // Reset conversion factors
+        encoder.setPositionConversionFactor(1.0);
+        encoder.setVelocityConversionFactor(1.0);
     }
 
     /**
@@ -40,15 +41,18 @@ public class SparkMaxPrime extends CANSparkMax {
      * @param kI the I gain value to set
      * @param kD the D gain value to set
      * @param iZone the IZone value to set
+     * @param minOutput the minimum output of the motor
+     * @param maxOutput the maximum output of the motor
      * @param pidSlot the PID slot for this PID
      */
-    public void setPID(double kF, double kP, double kI, double kD, double iZone, int pidSlot) {
+    public void setPID(double kF, double kP, double kI, double kD, double iZone, double minOutput,
+    double maxOutput, int pidSlot) {
         controller.setFF(kF, pidSlot);
         controller.setP(kP, pidSlot);
         controller.setI(kI, pidSlot);
         controller.setD(kD, pidSlot);
         controller.setIZone(iZone, pidSlot);
-        controller.setOutputRange(MIN_OUTPUT, MAX_OUTPUT);
+        controller.setOutputRange(minOutput, maxOutput);
     }
 
     /**

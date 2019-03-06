@@ -3,6 +3,7 @@ package raidzero.robot.teleop;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kLeft;
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
@@ -10,17 +11,17 @@ import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import raidzero.robot.components.Components;
-import raidzero.robot.components.Arm.Position;
+import raidzero.robot.components.Arm;
+import raidzero.robot.components.Lift;
 
 public class Teleop {
 
     private static XboxController controller1;
     private static XboxController controller2;
+    private static PowerDistributionPanel pdp;
 
-    private static int armPos;
+    private static int armSetpoint;
     private static double liftPos;
-    private static final int ARM_MAX = 2140;
-    private static final int ARM_MIN = 0;
 
     private static boolean climbing = false;
 
@@ -32,9 +33,13 @@ public class Teleop {
     public static void initialize() {
         controller1 = new XboxController(0);
         controller2 = new XboxController(1);
-        UsbCamera cam = CameraServer.getInstance().startAutomaticCapture(0);
+
+        // TODO: Re-enable camera after *cough* FiXEd *cough*
+        /*UsbCamera cam = CameraServer.getInstance().startAutomaticCapture(0);
         cam.setResolution(480, 320);
-        cam.setFPS(30);
+        cam.setFPS(30);*/
+
+        pdp = new PowerDistributionPanel(0);
     }
 
     /**
@@ -46,7 +51,7 @@ public class Teleop {
     public static void setup() {
         climbing = false;
 
-        armPos = Components.getArm().getEncoderPos();
+        armSetpoint = Components.getArm().getEncoderPos();
         liftPos = Components.getLift().getEncoderPos();
     }
 
@@ -56,7 +61,6 @@ public class Teleop {
      * <p>This should be called repeatedly during teleop mode.
      */
     public static void run() {
-
         // Buttons to toggle the climb
         if (controller1.getStartButton() && controller2.getStartButton()) {
             climbing = true;
@@ -96,7 +100,7 @@ public class Teleop {
 
         // Lift
         if (controller1.getAButton()) {
-            Components.getLift().movePosition(200);
+            Components.getLift().movePosition(5);
         } else {
             double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);
             double leftTriggerAxis1 = controller1.getTriggerAxis(kLeft);
@@ -110,6 +114,7 @@ public class Teleop {
                 Components.getLift().movePercent(0);
             }
         }
+        System.out.println(Components.getLift().getEncoderPos());
         if (controller1.getBButton()) {
             Components.getLift().resetEncoderPos();
         }
@@ -118,11 +123,26 @@ public class Teleop {
         // Player 2
 
         // Arm
-        // Components.getArm().movePercentOutput(-controller2.getY(kRight));
+        //Components.getArm().movePercentOutput(-controller2.getY(kRight));
 
-        Components.getArm().move(armPos);
+        System.out.println(armSetpoint);
+        Components.getArm().move(armSetpoint);
+
+        //Reset setpoint when limit is reached
+        Components.getArm().checkAndResetAtHardLimit();
+        if (Components.getArm().getReverseLimit()) {
+            armSetpoint = 0;
+            //System.out.println("Limit switch hit");
+        }
+        // Change the setpoint for the arm
         if (Math.abs(controller2.getY(kRight)) > 0.1) {
-            armPos = (int) (armPos - (controller2.getY(kRight) * 60));
+            armSetpoint = (int) (armSetpoint - (controller2.getY(kRight) * 80));
+        } else if (controller2.getXButton()) {
+            armSetpoint = Arm.BALL_INTAKE;
+        } else if (controller2.getYButton()) {
+            armSetpoint = Arm.STARTING_POS;
+        } else if (controller2.getBButton()) {
+            armSetpoint = Arm.CARGO;
         }
 
         // Intake Wheels

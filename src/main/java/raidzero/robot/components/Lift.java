@@ -10,6 +10,11 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class Lift {
 
+    // Preset arm positions
+    public static final double LOADING_BAY = 0.3;
+    public static final double SECOND_ROCKET = 21.7;
+    public static final double THIRD_ROCKET = 40.0;
+
     private static final double KF = 0.4663; // Max speed (up) is 2194 rpm
     private static final double KP = 0.18;
     private static final double KI = 0.00;
@@ -17,14 +22,8 @@ public class Lift {
     private static final double I_ZONE = 0.0;
     private static final double RAMP_RATE = 0.0;
 
-    private static final double MAX_VELOCITY = 1100.0;
-    private static final double MIN_VELOCITY = 0.0;
-    private static final double MAX_ACCELERATION = 1100.0;
-
-    private static final double ALLOWED_ERROR = 5;
-
     private static final int MANUAL_SLOT = 0;
-    private static final int SMART_SLOT = 1;
+    private static final int PID_SLOT = 1;
 
     private SparkMaxPrime leader;
     private CANSparkMax follower;
@@ -41,8 +40,9 @@ public class Lift {
         leader = new SparkMaxPrime(leaderID, MotorType.kBrushless);
         follower = new CANSparkMax(followerID, MotorType.kBrushless);
 
-        // Reset to factory defaults
+        // Restore to factory settings
         leader.restoreFactoryDefaults();
+        follower.restoreFactoryDefaults();
 
         // Set brake mode
         leader.setIdleMode(IdleMode.kBrake);
@@ -51,6 +51,8 @@ public class Lift {
         // Set limit switch
         // TODO: Re-enable the limit switch
         limitSwitch = leader.getReverseLimitSwitch(LimitSwitchPolarity.kNormallyOpen);
+        limitSwitch.enableLimitSwitch(false);
+        leader.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyOpen).enableLimitSwitch(false);
 
         // Limit the max output
         leader.setParameter(ConfigParameter.kOutputMin_0, -0.7);
@@ -76,10 +78,8 @@ public class Lift {
         // Make follower follow the leader motor
         follower.follow(leader);
 
-        // Configure PID values + SmartMotion
-        leader.setPID(KF, KP, KI, KD, I_ZONE, SMART_SLOT);
-        leader.configureSmartMotion(MIN_VELOCITY, MAX_VELOCITY, MAX_ACCELERATION,
-            ALLOWED_ERROR, SMART_SLOT);
+        // Configure PID values
+        leader.setPID(KF, KP, KI, KD, I_ZONE, -1.0, 1.0, PID_SLOT);
     }
 
     /**
@@ -94,7 +94,7 @@ public class Lift {
     /**
      * Returns the position of the encoder.
      *
-     * @return the encoder position
+     * @return the encoder position in rotations
      */
     public double getEncoderPos() {
         return leader.getPosition();
@@ -121,12 +121,12 @@ public class Lift {
     }
 
     /**
-     * Runs the lift to a certain encoder position (SmartMotion).
+     * Runs the lift to a certain encoder rotation (Position PID).
      *
-     * @param pos the encoder position to move to
+     * @param pos the target encoder rotation
      */
     public void movePosition(double pos) {
-        leader.set(pos, ControlType.kPosition, SMART_SLOT);
+        leader.set(pos, ControlType.kPosition, PID_SLOT);
     }
 
 }
