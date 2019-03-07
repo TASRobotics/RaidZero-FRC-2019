@@ -11,8 +11,17 @@ public class Lift {
 
     // Preset arm positions
     public static final double LOADING_BAY = 0.3;
+    public static final double FIRST_ROCKET_BALL = 0.0;
     public static final double SECOND_ROCKET = 21.7;
     public static final double THIRD_ROCKET = 40.0;
+
+    /* Don't ask why... Calculated from experimental data
+     * 3 -> 10.4
+     * 4 -> 13.9
+     * 5 -> 17.6
+     * 6 -> 21.09
+     */
+    private static final double POSITION_CONV_FACTOR = 3.58;
 
     private static final double KF = 0.4663; // Max speed (up) is 2194 rpm
     private static final double KP = 0.18;
@@ -114,7 +123,7 @@ public class Lift {
      * @param pos the target encoder rotation
      */
     public void movePosition(double pos) {
-        leader.set(pos, ControlType.kPosition, PID_SLOT);
+        leader.set(pos / POSITION_CONV_FACTOR, ControlType.kPosition, PID_SLOT);
     }
 
 }
