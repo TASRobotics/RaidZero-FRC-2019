@@ -143,7 +143,10 @@ public class Teleop {
             armSetpoint = Arm.STARTING_POS;
         } else if (controller2.getBButton()) {
             armSetpoint = Arm.CARGO;
+        } else if (controller2.getAButton()) {
+            armSetpoint = Arm.ROCKET_BALL;
         }
+
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
