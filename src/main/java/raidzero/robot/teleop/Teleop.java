@@ -5,6 +5,10 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.networktables.NetworkTableEntry;
+
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kLeft;
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
 
@@ -22,6 +26,10 @@ public class Teleop {
 
     private static int armSetpoint;
 
+    private static NetworkTableEntry armSetpointEntry;
+    private static NetworkTableEntry armEncoderEntry;
+    private static NetworkTableEntry liftEncoderEntry;
+
     private static boolean climbing = false;
 
     /**
@@ -38,6 +46,12 @@ public class Teleop {
         cam.setFPS(30);
 
         pdp = new PowerDistributionPanel(0);
+
+        // Setup Shuffleboard values
+        ShuffleboardTab rootTab = Shuffleboard.getTab("SmartDashboard");
+        armSetpointEntry = rootTab.add("Arm Setpoint", 0.0).getEntry();
+        armEncoderEntry = rootTab.add("Arm Encoder", 0.0).getEntry();
+        liftEncoderEntry = rootTab.add("Lift Encoder", 0.0).getEntry();
     }
 
     /**
@@ -51,6 +65,9 @@ public class Teleop {
 
         // Set starting setpoint as the current position
         armSetpoint = Components.getArm().getEncoderPos();
+
+        armSetpointEntry.setDouble(armSetpoint);
+        armEncoderEntry.setDouble(armSetpoint);
     }
 
     /**
@@ -115,15 +132,16 @@ public class Teleop {
         if (controller1.getBButton()) {
             Components.getLift().resetEncoderPos();
         }
-        System.out.println(Components.getLift().getEncoderPos());
+        liftEncoderEntry.setDouble(Components.getLift().getEncoderPos());
         //Components.getLift().movePosition(liftPos);
 
         // Player 2
 
         // Arm
         //Components.getArm().movePercentOutput(-controller2.getY(kRight));
+        armSetpointEntry.setDouble(armSetpoint);
+        armEncoderEntry.setDouble(Components.getArm().getEncoderPos());
 
-        System.out.println("Arm setpoint = " + armSetpoint);
         Components.getArm().move(armSetpoint);
 
         // Reset setpoint when limit is reached
