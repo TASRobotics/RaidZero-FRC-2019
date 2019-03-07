@@ -5,10 +5,6 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.networktables.NetworkTableEntry;
-
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kLeft;
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
 
@@ -26,10 +22,6 @@ public class Teleop {
 
     private static int armSetpoint;
 
-    private static NetworkTableEntry armSetpointEntry;
-    private static NetworkTableEntry armEncoderEntry;
-    private static NetworkTableEntry liftEncoderEntry;
-
     private static boolean climbing = false;
 
     /**
@@ -46,12 +38,6 @@ public class Teleop {
         cam.setFPS(30);
 
         pdp = new PowerDistributionPanel(0);
-
-        // Setup Shuffleboard values
-        ShuffleboardTab rootTab = Shuffleboard.getTab("SmartDashboard");
-        armSetpointEntry = rootTab.add("Arm Setpoint", 0.0).getEntry();
-        armEncoderEntry = rootTab.add("Arm Encoder", 0.0).getEntry();
-        liftEncoderEntry = rootTab.add("Lift Encoder", 0.0).getEntry();
     }
 
     /**
@@ -65,9 +51,6 @@ public class Teleop {
 
         // Set starting setpoint as the current position
         armSetpoint = Components.getArm().getEncoderPos();
-
-        armSetpointEntry.setDouble(armSetpoint);
-        armEncoderEntry.setDouble(armSetpoint);
     }
 
     /**
@@ -132,23 +115,20 @@ public class Teleop {
         if (controller1.getBButton()) {
             Components.getLift().resetEncoderPos();
         }
-        liftEncoderEntry.setDouble(Components.getLift().getEncoderPos());
         //Components.getLift().movePosition(liftPos);
 
         // Player 2
 
         // Arm
-        //Components.getArm().movePercentOutput(-controller2.getY(kRight));
-        armSetpointEntry.setDouble(armSetpoint);
-        armEncoderEntry.setDouble(Components.getArm().getEncoderPos());
+        // Components.getArm().movePercentOutput(-controller2.getY(kRight));
 
         Components.getArm().move(armSetpoint);
 
         // Reset setpoint when limit is reached
-        Components.getArm().checkAndResetAtHardLimit();
-        if (Components.getArm().getReverseLimit()) {
+        if (Components.getArm().getReverseLimit() && Components.getArm().getEncoderPos() < 100) {
+            Components.getArm().setEncoderPos(0);
             armSetpoint = 0;
-            //System.out.println("Limit switch hit");
+            System.out.println("Arm limit switch reached!");
         }
         // Change the setpoint for the arm
         if (Math.abs(controller2.getY(kRight)) > 0.1) {
@@ -162,7 +142,7 @@ public class Teleop {
         } else if (controller2.getAButton()) {
             armSetpoint = Arm.ROCKET_BALL;
         }
-
+        // System.out.println("Arm SP = " + armSetpoint + " | Encoder = " + Components.getArm().getEncoderPos());
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
