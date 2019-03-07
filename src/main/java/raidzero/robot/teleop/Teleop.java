@@ -97,13 +97,14 @@ public class Teleop {
         // }
 
         // Lift
+        Components.getLift().limitReset();
         // Presets
         if (controller1.getYButton()) {
             Components.getLift().movePosition(Lift.THIRD_ROCKET);
         } else if (controller1.getBButton()) {
             Components.getLift().movePosition(Lift.SECOND_ROCKET);
         } else if (controller1.getAButton()) {
-            Components.getLift().movePosition(Lift.LOADING_BAY);
+            Components.getLift().movePosition(Lift.CARGO_SHIP);
         } else if (controller1.getXButton()) {
             Components.getLift().movePosition(Lift.FIRST_ROCKET_BALL);
         } else { // Manual control

@@ -7,10 +7,10 @@ public class Auto {
 
     private static MotionProfile profile;
     private static Point[] points = {
-        new Point(119, 61, 0),
-        new Point(212, 118, 0)
-        // new Point(123.4, 264.5),
-        // new Point(168.5, 262.0),
+        new Point(66, 213, 0),
+        new Point(124, 213, 0),
+        new Point(275, 272, 90),
+        new Point(256, 310, 150),
         // new Point(252.34, 231.5),
         // new Point(385.74, 210.54)
     };
@@ -36,7 +36,7 @@ public class Auto {
         Components.getBase().getRightMotor().getSensorCollection().setQuadraturePosition(0, 10);
         Components.getBase().getPigeon().setYaw(0);
         profile.reset();
-        profile.start(points, 10, 20);
+        profile.start(points, 15, 20);
     }
 
     /**

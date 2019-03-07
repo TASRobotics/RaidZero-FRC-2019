@@ -10,10 +10,10 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 public class Lift {
 
     // Preset arm positions
-    public static final double LOADING_BAY = 0.3;
-    public static final double FIRST_ROCKET_BALL = 0.0;
-    public static final double SECOND_ROCKET = 21.7;
-    public static final double THIRD_ROCKET = 40.0;
+    public static final double CARGO_SHIP = 22.0;
+    public static final double FIRST_ROCKET_BALL = 8.0;
+    public static final double SECOND_ROCKET = 25.0;
+    public static final double THIRD_ROCKET = 42.0;
 
     /* Don't ask why... Calculated from experimental data
      * 3 -> 10.4
@@ -57,10 +57,8 @@ public class Lift {
         follower.setIdleMode(IdleMode.kBrake);
 
         // Set limit switch
-        // TODO: Re-enable the limit switch
-        limitSwitch = leader.getReverseLimitSwitch(LimitSwitchPolarity.kNormallyOpen);
-        limitSwitch.enableLimitSwitch(false);
-        leader.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyOpen).enableLimitSwitch(false);
+        limitSwitch = leader.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyClosed);
+        limitSwitch.enableLimitSwitch(true);
 
         // Set motor inversion
         leader.setInverted(true);
