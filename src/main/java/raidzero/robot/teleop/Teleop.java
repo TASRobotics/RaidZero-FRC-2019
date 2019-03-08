@@ -3,7 +3,7 @@ package raidzero.robot.teleop;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kLeft;
 import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
@@ -18,7 +18,6 @@ public class Teleop {
 
     private static XboxController controller1;
     private static XboxController controller2;
-    private static PowerDistributionPanel pdp;
 
     private static int armSetpoint;
 
@@ -37,7 +36,6 @@ public class Teleop {
         cam.setResolution(480, 320);
         cam.setFPS(30);
 
-        pdp = new PowerDistributionPanel(0);
     }
 
     /**
@@ -51,6 +49,9 @@ public class Teleop {
 
         // Set starting setpoint as the current position
         armSetpoint = Components.getArm().getEncoderPos();
+
+        SmartDashboard.putBoolean("Climbing?", climbing);
+
     }
 
     /**
@@ -148,7 +149,10 @@ public class Teleop {
         } else if (controller2.getAButton()) {
             armSetpoint = Arm.ROCKET_BALL;
         }
-        // System.out.println("Arm SP = " + armSetpoint + " | Encoder = " + Components.getArm().getEncoderPos());
+        /*
+        System.out.println("Arm SP = " + armSetpoint + " | Encoder = " +
+            Components.getArm().getEncoderPos());
+        */
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
@@ -184,6 +188,7 @@ public class Teleop {
             Components.getClimb().climbPWM(controller2.getY(kLeft));
         }
 
+        SmartDashboard.putBoolean("Climbing?", climbing);
     }
 
 }

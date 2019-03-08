@@ -17,11 +17,32 @@ public class Auto {
     private static int stage;
 
     // points is left here for now for single path testing in the future
-    private static Point[] points = {
+    private static Point[] level1Left = {
         new Point(66, 213, 0),
         new Point(124, 213, 0),
         new Point(275, 272, 90),
-        new Point(256, 310, 150),
+        new Point(256, 306, 150),
+    };
+
+    private static Point[] level2Left = {
+        new Point(22, 213, 0),
+        new Point(124, 213, 0),
+        new Point(275, 272, 90),
+        new Point(256, 306, 150),
+    };
+
+    private static Point[] level1Right = {
+        new Point(66, 111, 0),
+        new Point(124, 111, 0),
+        new Point(275, 52, -90),
+        new Point(256, 18, -150),
+    };
+
+    private static Point[] level2Right = {
+        new Point(22, 111, 0),
+        new Point(124, 111, 0),
+        new Point(275, 52, -90),
+        new Point(256, 18, -150),
     };
 
     /**
@@ -55,7 +76,7 @@ public class Auto {
 
         // Code below is temporary
         // Create empty paths
-        Point[] path0 = points;
+        Point[] path0 = level2Left;
         pathWayPoints.add(path0);
         profile.start(pathWayPoints.get(0), 10, 20);
     }
@@ -71,7 +92,11 @@ public class Auto {
             profile.move();
             if (profile.getSetValue() == SetValueMotionProfile.Hold) {
                 stage++;
-                profile.start(pathWayPoints.get(stage), 10, 20);
+                if (stage < pathWayPoints.size()) {
+                    profile.start(pathWayPoints.get(stage), 10, 20);
+                } else {
+                    Teleop.setup();
+                }
             }
         } else {
             Teleop.run();
