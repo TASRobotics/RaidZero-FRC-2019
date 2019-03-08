@@ -1,18 +1,27 @@
 package raidzero.robot.auto;
 
 import raidzero.robot.components.Components;
+import raidzero.robot.teleop.Teleop;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ctre.phoenix.motion.SetValueMotionProfile;
+
 import raidzero.pathgen.Point;
 
 public class Auto {
 
     private static MotionProfile profile;
+    private static List<Point[]> pathWayPoints;
+    private static int stage;
+
+    // points is left here for now for single path testing in the future
     private static Point[] points = {
         new Point(66, 213, 0),
         new Point(124, 213, 0),
         new Point(275, 272, 90),
         new Point(256, 310, 150),
-        // new Point(252.34, 231.5),
-        // new Point(385.74, 210.54)
     };
 
     /**
@@ -32,11 +41,23 @@ public class Auto {
      * calling {@link #run()}.
      */
     public static void setup() {
+        stage = 0;
+        pathWayPoints = new ArrayList<Point[]>();
+
+        // Reset encoders and motion profile
         Components.getBase().getLeftMotor().setSelectedSensorPosition(0);
         Components.getBase().getRightMotor().getSensorCollection().setQuadraturePosition(0, 10);
         Components.getBase().getPigeon().setYaw(0);
         profile.reset();
-        profile.start(points, 15, 20);
+
+        // Read waypoints
+        // Not done yet
+
+        // Code below is temporary
+        // Create empty paths
+        Point[] path0 = points;
+        pathWayPoints.add(path0);
+        profile.start(pathWayPoints.get(0), 10, 20);
     }
 
     /**
@@ -45,7 +66,16 @@ public class Auto {
      * <p>This should be called repeatedly during autonomous mode.
      */
     public static void run() {
-        profile.move();
-        profile.controlMP();
+        if (stage < pathWayPoints.size()) {
+            profile.controlMP();
+            profile.move();
+            if (profile.getSetValue() == SetValueMotionProfile.Hold) {
+                stage++;
+                profile.start(pathWayPoints.get(stage), 10, 20);
+            }
+        } else {
+            Teleop.run();
+        }
+
     }
 }
