@@ -122,7 +122,7 @@ public class Teleop {
         if (controller1.getBumper(kLeft)) {
             Components.getLift().resetEncoderPos();
         }
-        System.out.println("Lift encoder = " + Components.getLift().getEncoderPos());
+        // System.out.println("Lift encoder = " + Components.getLift().getEncoderPos());
 
         // Player 2
 

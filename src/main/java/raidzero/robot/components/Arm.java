@@ -155,22 +155,4 @@ public class Arm {
         arm.set(ControlMode.MotionMagic, position);
     }
 
-    // /**
-    //  * Moves the arm to one of three positions
-    //  *
-    //  * @param destination the position to move to
-    //  */
-    // public void move(Position destination) {
-    //     switch (destination) {
-    //         case Front:
-    //             arm.set(ControlMode.MotionMagic, BALL_INTAKE);
-    //             break;
-    //         case Starting:
-    //             arm.set(ControlMode.MotionMagic, STARTING_POS);
-    //             break;
-    //         case Back:
-    //             arm.set(ControlMode.MotionMagic, CARGO);
-    //             break;
-    //     }
-    // }
 }
