@@ -14,7 +14,7 @@ You should also have the FRC JDK which should have been installed as part of WPI
 
 #### Terminal
 
-Assuming you have this repository open in VS Code, you can press `ctrl` + `` ` `` to open the integrated terminal.
+Assuming you have this repository open in VS Code, you can press `ctrl` + `` ` `` to open the integrated terminal. If this is your first time opening it, there will be a notification asking you to configure the default shell. You should choose `cmd` as the shell.
 
 The current working directory after you open a new terminal should be `RaidZero-FRC-2019`. Run `cd zeropath` to change to the `zeropath` directory. **All subsequent commands should be run with `zeropath` as the current working directory.**
 

@@ -1,18 +1,48 @@
 package raidzero.robot.auto;
 
 import raidzero.robot.components.Components;
+import raidzero.robot.teleop.Teleop;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ctre.phoenix.motion.SetValueMotionProfile;
+
 import raidzero.pathgen.Point;
 
 public class Auto {
 
     private static MotionProfile profile;
-    private static Point[] points = {
-        new Point(119, 61, 0),
-        new Point(212, 118, 0)
-        // new Point(123.4, 264.5),
-        // new Point(168.5, 262.0),
-        // new Point(252.34, 231.5),
-        // new Point(385.74, 210.54)
+    private static List<Point[]> pathWayPoints;
+    private static int stage;
+
+    // points is left here for now for single path testing in the future
+    private static Point[] level1Left = {
+        new Point(66, 213, 0),
+        new Point(124, 213, 0),
+        new Point(275, 272, 90),
+        new Point(256, 306, 150),
+    };
+
+    private static Point[] level2Left = {
+        new Point(22, 213, 0),
+        new Point(124, 213, 0),
+        new Point(275, 272, 90),
+        new Point(256, 306, 150),
+    };
+
+    private static Point[] level1Right = {
+        new Point(66, 111, 0),
+        new Point(124, 111, 0),
+        new Point(275, 52, -90),
+        new Point(256, 18, -150),
+    };
+
+    private static Point[] level2Right = {
+        new Point(22, 111, 0),
+        new Point(124, 111, 0),
+        new Point(275, 52, -90),
+        new Point(256, 18, -150),
     };
 
     /**
@@ -32,11 +62,23 @@ public class Auto {
      * calling {@link #run()}.
      */
     public static void setup() {
+        stage = 0;
+        pathWayPoints = new ArrayList<Point[]>();
+
+        // Reset encoders and motion profile
         Components.getBase().getLeftMotor().setSelectedSensorPosition(0);
         Components.getBase().getRightMotor().getSensorCollection().setQuadraturePosition(0, 10);
         Components.getBase().getPigeon().setYaw(0);
         profile.reset();
-        profile.start(points, 10, 20);
+
+        // Read waypoints
+        // Not done yet
+
+        // Code below is temporary
+        // Create empty paths
+        Point[] path0 = level2Left;
+        pathWayPoints.add(path0);
+        profile.start(pathWayPoints.get(0), 10, 20);
     }
 
     /**
@@ -45,7 +87,20 @@ public class Auto {
      * <p>This should be called repeatedly during autonomous mode.
      */
     public static void run() {
-        profile.move();
-        profile.controlMP();
+        if (stage < pathWayPoints.size()) {
+            profile.controlMP();
+            profile.move();
+            if (profile.getSetValue() == SetValueMotionProfile.Hold) {
+                stage++;
+                if (stage < pathWayPoints.size()) {
+                    profile.start(pathWayPoints.get(stage), 10, 20);
+                } else {
+                    Teleop.setup();
+                }
+            }
+        } else {
+            Teleop.run();
+        }
+
     }
 }

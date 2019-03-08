@@ -20,7 +20,7 @@ interface Response {
 const scriptPath = path.join(__dirname, '..',
     'build', 'install', 'zeropath', 'bin', 'zeropath.bat');
 
-const proc = spawn(scriptPath, {
+const proc = spawn(`"${scriptPath}"`, {
     shell: true,
     env: {
         JAVA_HOME: 'C:\\Users\\Public\\frc2019\\jdk\\'

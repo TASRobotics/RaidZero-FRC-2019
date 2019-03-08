@@ -26,7 +26,7 @@ public class Components {
         lift = new Lift(2, 1);
         arm = new Arm(14, 15);
         intake = new Intake(2, 1);
-        climb = new Climb(6, 8, 7, 11, 0, 1, 2, 3);
+        climb = new Climb(6, 8, 7, 11, 0);
     }
 
     /**

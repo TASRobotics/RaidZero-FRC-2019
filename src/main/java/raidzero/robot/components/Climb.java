@@ -13,10 +13,7 @@ public class Climb {
     private CANSparkMax follower2;
     private CANSparkMax follower3;
 
-    private PWM servo1;
-    private PWM servo2;
-    private PWM servo3;
-    private PWM servo4;
+    private PWM servo;
 
     // Overall gearing: 192:1
     // Banebots gearbox: 64:1
@@ -35,19 +32,17 @@ public class Climb {
      * @param follower1ID ID of the first follower motor
      * @param follower2ID ID of the second follower motor
      * @param follower3ID ID of the third follower motor
+     * @param servoChannel
      */
-    public Climb(int leaderID, int follower1ID, int follower2ID, int follower3ID, int servoChannel1,
-    int servoChannel2, int servoChannel3, int servoChannel4) {
+    public Climb(int leaderID, int follower1ID, int follower2ID, int follower3ID,
+    int servoChannel) {
 
         leader = new CANSparkMax(leaderID, MotorType.kBrushless);
         follower1 = new CANSparkMax(follower1ID, MotorType.kBrushless);
         follower2 = new CANSparkMax(follower2ID, MotorType.kBrushless);
         follower3 = new CANSparkMax(follower3ID, MotorType.kBrushless);
 
-        servo1 = new PWM(servoChannel1);
-        servo2 = new PWM(servoChannel2);
-        servo3 = new PWM(servoChannel3);
-        servo4 = new PWM(servoChannel4);
+        servo = new PWM(servoChannel);
 
         leader.restoreFactoryDefaults();
         follower1.restoreFactoryDefaults();
@@ -89,20 +84,14 @@ public class Climb {
      * Locks the climb by moving the servo
      */
     public void lockClimb() {
-        servo1.setSpeed(1);
-        servo2.setSpeed(1);
-        servo3.setSpeed(1);
-        servo4.setSpeed(1);
+        servo.setPosition(1);
     }
 
     /**
      * Unlocks the climb by moving the servo
      */
     public void unlockClimb() {
-        servo1.setSpeed(-1);
-        servo2.setSpeed(-1);
-        servo3.setSpeed(-1);
-        servo4.setSpeed(-1);
+        servo.setPosition(-1);
     }
 
     /**

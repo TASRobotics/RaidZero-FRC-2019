@@ -59,15 +59,15 @@ const xAxis = d3axis.axisBottom(xScale);
 
 const yScale = d3scale.scaleLinear()
     .domain([0, fieldMeasurements.width])
-    .range([0, svgHeight]);
+    .range([svgHeight, 0]);
 const yAxis = d3axis.axisRight(yScale);
 
 const field = svg.append('g');
 
 field.append('svg:image')
     .attr('x', xScale(0))
-    .attr('y', yScale(0))
-    .attr('height', yScale(fieldMeasurements.width))
+    .attr('y', yScale(fieldMeasurements.width))
+    .attr('height', yScale(0))
     .attr('xlink:href', fieldImagePath);
 
 const xAxisGroup = svg.append('g').call(xAxis).style('color', 'white');
@@ -99,7 +99,7 @@ function selectCircles(): BasicSelection<SVGCircleElement> {
 
 const zoomBehavior = (d3zoom.zoom() as ZoomBehaviorOn<typeof svg>)
     .translateExtent([[0, 0],
-        [xScale(fieldMeasurements.length), yScale(fieldMeasurements.width)]])
+        [xScale(fieldMeasurements.length), yScale(0)]])
     .on('zoom', () => {
         const zoomEvent = d3selection.event as ZoomEventOn<typeof svg>;
         const transform = zoomEvent.transform;

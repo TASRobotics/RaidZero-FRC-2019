@@ -34,7 +34,7 @@ public class MotionProfile {
     private static final double PIGEON_SCALE = 3600.0 / 8192.0;
 
     private static final double PRIMARY_F = 0.51;
-    private static final double PRIMARY_P = 1.45;
+    private static final double PRIMARY_P = 1.5;
     private static final double PRIMARY_I = 0.0001;
     private static final double PRIMARY_D = 30;
     private static final int PRIMARY_INT_ZONE = 50;
@@ -195,6 +195,15 @@ public class MotionProfile {
     public void move() {
         rightTal.set(ControlMode.MotionProfileArc, setValue.value);
         leftTal.follow(rightTal, FollowerType.AuxOutput1);
+    }
+
+    /**
+     * Returns the current set value of the motors
+     *
+     * @return the set value of the motors
+     */
+    public SetValueMotionProfile getSetValue() {
+        return setValue;
     }
 
     /**
