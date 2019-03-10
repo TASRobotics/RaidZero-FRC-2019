@@ -151,7 +151,8 @@ public class Vision {
 		if (tv.getDouble(0) == 1.0) {
 			targPres = true;
 			if (pipedex == 0) {
-				switch(TAPE_TARGET_METHOD) {
+				// calculates tape position using the chosen method
+				switch (TAPE_TARGET_METHOD) {
 					case Crude:
 						calculateTapePosCrude();
 						break;
