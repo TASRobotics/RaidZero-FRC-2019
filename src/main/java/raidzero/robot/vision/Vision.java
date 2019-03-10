@@ -115,13 +115,62 @@ public class Vision {
 	}
 
 	/**
-     * Generates waypoints for splining to vision target.
+     * Outputs double array with left and right motor powers to move toward largest ball.
+     */
+	public static double[] moveToBall() {
+		// set limelight pipeline to target balls
+		pipedex = 1;
+		pipeline.setNumber(pipedex);
+
+		// tunable constants
+		double KpAim = 0.07;
+		double KpDistance = 0.11;
+		double min_aim_command = 0.1;
+
+		// get vertical and horizontal angle of ball in limelight view
+		double ax = tx.getDouble(0.0);
+		double ay = ty.getDouble(0.0);
+
+		double heading_error = -ax;
+		double distance_error = -ay;
+		double steering_adjust = 0;
+		steering_adjust = 0;
+
+		// steering adjust proportional with offset
+		if (ax > 2.0) {
+			steering_adjust += KpAim*heading_error - min_aim_command;
+		} else if (ax < -2.0) {
+			steering_adjust += KpAim*heading_error + min_aim_command;
+		}
+
+		// distance adjust proportional
+		double distance_adjust = KpDistance * distance_error;
+
+		// arcade drive with steering and heading adjust, applying a percentage speed limit
+		double limitus = 0.75;
+		double left_command = distance_adjust + steering_adjust;
+		double right_command = distance_adjust - steering_adjust;
+		left_command = Math.min(Math.max(left_command*limitus, -limitus), limitus);
+		right_command = Math.min(Math.max(right_command*limitus, -limitus), limitus);
+
+		return new double[] { left_command, right_command };
+	}
+
+	/**
+     * Generates waypoints for splining to vision target, call if target ang unknown (teleop).
 	 *
 	 * <p>If called without seeing target, will return empty optional.
      */
 	public static Optional<Point[]> pathToTarg() {
-		if (targPres) {
-			Point startPoint = new Point(0, 0, absoluteAng);
+		pipedex = 0;
+		pipeline.setNumber(pipedex);
+
+		// Calculate position of respective target, or none
+		if (tv.getDouble(0) == 1.0) {
+			// this method is independent of gyroscope
+			calculateTapePosPurePNP();
+
+			Point startPoint = new Point(0, 0, 90 - ang);
 			Point endPoint = new Point(xpos, ypos - Y_OFFSET, 90);
 			return Optional.of(new Point[] { startPoint, endPoint });
 		}
@@ -129,13 +178,25 @@ public class Vision {
 	}
 
 	/**
-     * Calculates and stores target position.
+     * Generates waypoints for splining to vision target, use only in autonomous.
 	 *
-	 * <p>Call periodically when using vision.
-     *
-     * @param absAng the gyroscope angle
+	 * <p>If called without seeing target, will return empty optional.
+	 *
+	 * @param absAng gyroscope angle
+	 * @param endAng desired ending angle
      */
-	public static void calculateTargPos(double absAng) {
+	public static Optional<Point[]> pathToTarg(double absAng, double endAng) {
+		calculateTargPos(absAng);
+
+		if (targPres) {
+			Point startPoint = new Point(0, 0, absoluteAng);
+			Point endPoint = new Point(xpos, ypos - Y_OFFSET, endAng);
+			return Optional.of(new Point[] { startPoint, endPoint });
+		}
+		return Optional.empty();
+	}
+
+	private static void calculateTargPos(double absAng) {
 		pipedex = 0;
 		pipeline.setNumber(pipedex);
 
@@ -215,47 +276,5 @@ public class Vision {
 		ypos = xpos * Math.tan(Math.toRadians(absoluteAng) - ax2);
 		xpos += TAPE_WIDTH/2;
 		ang = ax;
-	}
-
-	/**
-     * Outputs double array with left and right motor powers to move toward largest ball.
-     */
-	public static double[] moveToBall() {
-		// set limelight pipeline to target balls
-		pipedex = 1;
-		pipeline.setNumber(pipedex);
-
-		// tunable constants
-		double KpAim = 0.07;
-		double KpDistance = 0.11;
-		double min_aim_command = 0.1;
-
-		// get vertical and horizontal angle of ball in limelight view
-		double ax = tx.getDouble(0.0);
-		double ay = ty.getDouble(0.0);
-
-		double heading_error = -ax;
-		double distance_error = -ay;
-		double steering_adjust = 0;
-		steering_adjust = 0;
-
-		// steering adjust proportional with offset
-		if (ax > 2.0) {
-			steering_adjust += KpAim*heading_error - min_aim_command;
-		} else if (ax < -2.0) {
-			steering_adjust += KpAim*heading_error + min_aim_command;
-		}
-
-		// distance adjust proportional
-		double distance_adjust = KpDistance * distance_error;
-
-		// arcade drive with steering and heading adjust, applying a percentage speed limit
-		double limitus = 0.75;
-		double left_command = distance_adjust + steering_adjust;
-		double right_command = distance_adjust - steering_adjust;
-		left_command = Math.min(Math.max(left_command*limitus, -limitus), limitus);
-		right_command = Math.min(Math.max(right_command*limitus, -limitus), limitus);
-
-		return new double[] { left_command, right_command };
 	}
 }
