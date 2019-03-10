@@ -26,12 +26,14 @@ public class Intake {
         hookMotor = new TalonSRX(hookID);
 
         hookMotor.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-            LimitSwitchNormal.NormallyClosed);
+            LimitSwitchNormal.NormallyOpen);
         hookMotor.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-            LimitSwitchNormal.NormallyClosed);
+            LimitSwitchNormal.NormallyOpen);
 
         hookMotor.setNeutralMode(NeutralMode.Brake);
         intakeMotor.setNeutralMode(NeutralMode.Brake);
+
+        hookMotor.setInverted(true);
     }
 
     /**
@@ -64,6 +66,13 @@ public class Intake {
      */
     public void release() {
         hookMotor.set(ControlMode.PercentOutput, -HOOK_POWER);
+    }
+
+    /**
+     * Stops the hook.
+     */
+    public void stopHook() {
+        hookMotor.set(ControlMode.PercentOutput, 0);
     }
 
     /**

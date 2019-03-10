@@ -13,6 +13,7 @@ public class Components {
     private static Lift lift;
     private static Arm arm;
     private static Intake intake;
+    private static Climb climb;
 
     /**
      * Initializes each component by calling its constructor.
@@ -21,10 +22,11 @@ public class Components {
      * null before this method is called.
      */
     public static void initialize() {
-        base = new Base(0, 2, 4, 1, 3, 5, 0);
-        lift = new Lift(0, 1);
-        arm = new Arm(10, 11);
-        intake = new Intake(12, 13);
+        base = new Base(3, 4, 5, 11, 12, 13, 0);
+        lift = new Lift(2, 1);
+        arm = new Arm(14, 15);
+        intake = new Intake(2, 1);
+        climb = new Climb(6, 8, 7, 11, 0);
     }
 
     /**
@@ -52,6 +54,15 @@ public class Components {
      */
     public static Arm getArm() {
         return arm;
+    }
+
+    /**
+     * Returns the climb component.
+     *
+     * @return the climb component
+     */
+    public static Climb getClimb() {
+        return climb;
     }
 
     /**

@@ -7,11 +7,20 @@
     "**/CVS": true,
     "**/.DS_Store": true,
     "bin/": true,
-    ".classpath": true,
-    ".project": true
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true
   },
-  "editor.rulers": [
-    100
-  ],
+  "[java]": {
+    "editor.rulers": [
+      100
+    ]
+  },
+  "[typescript]": {
+    "editor.rulers": [
+      80
+    ]
+  },
   "files.trimTrailingWhitespace": true
 }

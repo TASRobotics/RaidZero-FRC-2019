@@ -13,9 +13,9 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
 import edu.wpi.first.wpilibj.Notifier;
-import raidzero.robot.pathgen.PathGenerator;
-import raidzero.robot.pathgen.PathPoint;
-import raidzero.robot.pathgen.Point;
+import raidzero.pathgen.PathGenerator;
+import raidzero.pathgen.PathPoint;
+import raidzero.pathgen.Point;
 
 public class MotionProfile {
 
@@ -32,21 +32,21 @@ public class MotionProfile {
     private static final int PID_AUX_SLOT = 1;
     private static final int TIMEOUT_MS = 10;
     private static final double PIGEON_SCALE = 3600.0 / 8192.0;
-    
-    private static final double PRIMARY_F = 0.8896;
-    private static final double PRIMARY_P = 2.5;
-    private static final double PRIMARY_I = 0.0;
-    private static final double PRIMARY_D = 35;
+
+    private static final double PRIMARY_F = 0.51;
+    private static final double PRIMARY_P = 1.5;
+    private static final double PRIMARY_I = 0.0001;
+    private static final double PRIMARY_D = 30;
     private static final int PRIMARY_INT_ZONE = 50;
 
-    private static final double AUX_F = 0.2623;
-    private static final double AUX_P = 12;
-    private static final double AUX_I = 0;
+    private static final double AUX_F = 0.269; // Max was 380 dps
+    private static final double AUX_P = 2.7;
+    private static final double AUX_I = 0.0001;
     private static final double AUX_D = 150;
-    private static final int AUX_INT_ZONE = 0;
+    private static final int AUX_INT_ZONE = 20;
 
     private static final int BASE_TRAJ_PERIOD_MS = 0;
-    private static final double SENSOR_UNITS_PER_INCH = 81.9;
+    private static final double SENSOR_UNITS_PER_INCH = 110;
     private static final int MIN_POINTS_IN_TALON = 10;
     private static final int CLOSED_LOOP_TIME_MS = 1;
 
@@ -64,7 +64,7 @@ public class MotionProfile {
 
     /**
      * Creates the motion profile object and sets up the motors
-     * 
+     *
      * @param rightMaster the right master of the base
      * @param leftMaster the left master of the base
      * @param pidgey the pigeon object to use
@@ -76,8 +76,8 @@ public class MotionProfile {
 
         setValue = SetValueMotionProfile.Disable;
         status = new MotionProfileStatus();
-        rightTal.changeMotionControlFramePeriod(5);
-        notifer.startPeriodic(0.005);
+        rightTal.changeMotionControlFramePeriod(3);
+        notifer.startPeriodic(0.003);
         state = State.FillPoints;
         setup();
     }
@@ -90,10 +90,10 @@ public class MotionProfile {
         rightTal.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
         leftTal.setSensorPhase(false);
-        rightTal.setSensorPhase(true);
+        rightTal.setSensorPhase(false);
 
         // Configure the left side encoder as a remote sensor for the right Talon
-        rightTal.configRemoteFeedbackFilter(leftTal.getDeviceID(), 
+        rightTal.configRemoteFeedbackFilter(leftTal.getDeviceID(),
             RemoteSensorSource.TalonSRX_SelectedSensor,	REMOTE_0);
 
         // Configure the Pigeon as the other Remote Slot on the Right Talon
@@ -105,14 +105,14 @@ public class MotionProfile {
         rightTal.configSensorTerm(SensorTerm.Sum1, FeedbackDevice.QuadEncoder);
 
         // Configure Sum [Sum of both QuadEncoders] to be used for Primary PID Index
-        rightTal.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_PRIMARY_SLOT, 
+        rightTal.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_PRIMARY_SLOT,
             TIMEOUT_MS);
 
         // Scale Feedback by 0.5 to half the sum of Distance
         rightTal.configSelectedFeedbackCoefficient(0.5, PID_PRIMARY_SLOT, TIMEOUT_MS);
 
         // Configure Pigeon's Yaw to be used for Auxiliary PID Index
-        rightTal.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor1, PID_AUX_SLOT, 
+        rightTal.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor1, PID_AUX_SLOT,
             TIMEOUT_MS);
 
         // Scale the Feedback Sensor using a coefficient (Configured for 360 units of resolution)
@@ -147,7 +147,7 @@ public class MotionProfile {
 
     /**
      * Starts the motion profile by filling the points.
-     * 
+     *
      * @param points the points to put in the path generator
      * @param tarVel the target velocity desired in in/100ms
      * @param tarAccel the target acceleration desired in in/100ms/s
@@ -169,10 +169,10 @@ public class MotionProfile {
                     state = State.WaitPoints;
                 }
                 break;
-            case WaitPoints: 
+            case WaitPoints:
                 rightTal.getMotionProfileStatus(status);
                 if (status.btmBufferCnt > MIN_POINTS_IN_TALON) {
-                    setValue = SetValueMotionProfile.Enable;    
+                    setValue = SetValueMotionProfile.Enable;
                     state = State.Run;
                 }
                 break;
@@ -186,17 +186,26 @@ public class MotionProfile {
         }
     }
 
-        
+
     /**
      * Moves the base in motion profile arc mode.
-     * 
+     *
      * <p>This should be periodically called.
      */
     public void move() {
         rightTal.set(ControlMode.MotionProfileArc, setValue.value);
         leftTal.follow(rightTal, FollowerType.AuxOutput1);
     }
-    
+
+    /**
+     * Returns the current set value of the motors
+     *
+     * @return the set value of the motors
+     */
+    public SetValueMotionProfile getSetValue() {
+        return setValue;
+    }
+
     /**
      * Clears the Motion profile buffer and resets state info
      */
@@ -206,10 +215,10 @@ public class MotionProfile {
         state = State.FillPoints;
         initRun = false;
     }
- 
+
     /**
      * Starts filling the buffer with trajectory points.
-     * 
+     *
      * @param waypoints the array of points created by the path generator
      */
     private void startFilling(PathPoint[] waypoints) {
@@ -217,7 +226,7 @@ public class MotionProfile {
         if (status.hasUnderrun) {
             rightTal.clearMotionProfileHasUnderrun();
         }
-        
+
         // Clear the buffer just in case the robot is still running some points
         rightTal.clearMotionProfileTrajectories();
         // Set the base period of the trajectory points

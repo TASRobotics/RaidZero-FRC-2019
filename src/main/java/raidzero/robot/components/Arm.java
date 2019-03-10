@@ -13,19 +13,21 @@ public class Arm {
     private TalonSRX arm;
     private TalonSRX armFollower;
 
-    private static final int FLOOR = 0;
-    private static final int HATCH_LEVEL = 1250;
-    private static final int BACKWARD = 1;
+    // Preset arm positions
+    public static final int BALL_INTAKE = 227;
+    public static final int ROCKET_BALL = 1347;
+    public static final int STARTING_POS = 3400;
+    public static final int CARGO = 6162;
 
     private static final int PID_X = 0;
 
-    private static final int TARGET_VEL = 400;
-    private static final int TARGET_ACCEL = 600;
+    private static final int TARGET_VEL = 500;
+    private static final int TARGET_ACCEL = 800;
 
     private static final double P_VALUE = 7.0;
-    private static final double I_VALUE = 0.01;
+    private static final double I_VALUE = 0;
     private static final double D_VALUE = 50.0;
-    private static final double F_VALUE = 2.048;
+    private static final double F_VALUE = 1.86 / 2;
     private static final int IZ_VALUE = 50;
 
     private static final int VEL_TOLERANCE = 1;
@@ -35,7 +37,7 @@ public class Arm {
      * This enum contains the possible positions to go to
      */
     public enum Position {
-        Floor, Hatch, Back
+        Front, Starting, Back
     }
 
     /**
@@ -53,22 +55,24 @@ public class Arm {
 
         armFollower.follow(arm);
 
-        //the tachs are daisy chained together
-        //which solder pad is soldered will decide which one is forward and reverse
-        arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-            LimitSwitchNormal.NormallyOpen);
+        // The tachs are daisy chained together
+        // Which solder pad is soldered will decide which one is forward and reverse
         arm.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
             LimitSwitchNormal.NormallyOpen);
+        arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+            LimitSwitchNormal.Disabled);
 
         arm.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
         arm.configMotionCruiseVelocity(TARGET_VEL);
         arm.configMotionAcceleration(TARGET_ACCEL);
 
-        arm.setSensorPhase(true);
-        arm.setSelectedSensorPosition(0);
-        arm.setInverted(true);
-        armFollower.setInverted(false);
+        arm.setSensorPhase(false);
+        arm.setInverted(false);
+        armFollower.setInverted(true);
+
+        // Set the starting position as the current one
+        arm.setSelectedSensorPosition(STARTING_POS);
 
         arm.config_kP(PID_X, P_VALUE);
         arm.config_kI(PID_X, I_VALUE);
@@ -78,13 +82,12 @@ public class Arm {
     }
 
     /**
-     * Resets encoder to a certain position
+     * Sets encoder to a certain position
      *
-     * @param resetPos the position to reset to
-     * resetPos may be changed into an enum, but for now a variable is fine
+     * @param pos the position to set the encoder to
      */
-    public void setEncoder(int resetPos) {
-        arm.setSelectedSensorPosition(resetPos);
+    public void setEncoderPos(int pos) {
+        arm.setSelectedSensorPosition(pos, PID_X, 0);
     }
 
     /**
@@ -110,16 +113,7 @@ public class Arm {
      *
      * @return whether the reverse limit switch has been reached
      */
-    private boolean getReverseLimit() {
-        return arm.getSensorCollection().isRevLimitSwitchClosed();
-    }
-
-    /**
-     * Returns whether the forward limit switch has been reached
-     *
-     * @return whether the forward limit switch has been reached
-     */
-    private boolean getForwardLimit() {
+    public boolean getReverseLimit() {
         return arm.getSensorCollection().isRevLimitSwitchClosed();
     }
 
@@ -127,10 +121,8 @@ public class Arm {
      * Check if the hard limit has been reached and reset the encoder if so
      */
     public void checkAndResetAtHardLimit() {
-        if (getForwardLimit()) {
-            setEncoder(FLOOR);
-        } else if (getReverseLimit()) {
-            setEncoder(BACKWARD);
+        if (getReverseLimit()) {
+            setEncoderPos(0);
         }
     }
 
@@ -163,22 +155,4 @@ public class Arm {
         arm.set(ControlMode.MotionMagic, position);
     }
 
-    /**
-     * Moves the arm to one of three positions
-     *
-     * @param destination the position to move to
-     */
-    public void move(Position destination) {
-        switch (destination) {
-            case Floor:
-                arm.set(ControlMode.MotionMagic, FLOOR);
-                break;
-            case Hatch:
-                arm.set(ControlMode.MotionMagic, HATCH_LEVEL);
-                break;
-            case Back:
-                arm.set(ControlMode.MotionMagic, BACKWARD);
-                break;
-        }
-    }
 }
