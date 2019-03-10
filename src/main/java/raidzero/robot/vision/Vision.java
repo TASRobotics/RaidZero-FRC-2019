@@ -21,7 +21,10 @@ import raidzero.pathgen.Point;
  */
 public class Vision {
 
-	enum TapeTargetMethod {
+	/**
+     * The ways of targetting tape targets
+     */
+	private enum TapeTargetMethod {
 		Crude, PNPGyro, PurePNP;
 	}
 
@@ -33,17 +36,25 @@ public class Vision {
     private static Mat mCameraMatrix;
 	private static MatOfDouble mDistortionCoefficients;
 
-	private static TapeTargetMethod tapeTargetMethod = TapeTargetMethod.PNPGyro;
+	/**
+     * The tape-targetting method to actually use.
+     */
+	private static final TapeTargetMethod TAPE_TARGET_METHOD = TapeTargetMethod.PNPGyro;
 
 	/**
-     * Width of tape target
+     * How far limelight should be behind the tape target in inches, adjustable.
      */
-	public static final double tapeWidth = 11;
+	private static final double Y_OFFSET = 30;
 
 	/**
-     * Width of ball target
+     * Width of tape target, only used for crude.
      */
-	public static final double ballWidth = 12;
+	private static final double TAPE_WIDTH = 11;
+
+	/**
+     * Width of ball target, adjustable.
+     */
+	private static final double BALL_WIDTH = 12;
 
 	/**
      * Initializes limelight network table entries.
@@ -111,7 +122,7 @@ public class Vision {
 			Point endPoint;
 			if (pipedex == 0) {
 				// Must be pointing directly at target for tape, while offsets tunable.
-				endPoint = new Point(xpos, ypos - 40, 90);
+				endPoint = new Point(xpos, ypos - Y_OFFSET, 90);
 			} else {
 				// Approach at an angle slightly steeper than angle at which target is seen.
 				// This will make the spline "smoother" in a sense.
@@ -140,7 +151,7 @@ public class Vision {
 		if (tv.getDouble(0) == 1.0) {
 			targPres = true;
 			if (pipedex == 0) {
-				switch(tapeTargetMethod) {
+				switch(TAPE_TARGET_METHOD) {
 					case Crude:
 						calculateTapePosCrude();
 						break;
@@ -207,10 +218,10 @@ public class Vision {
 		double ax2 = Math.atan2(Math.tan(Math.toRadians(27)) / 160 * (px - pwidth / 2.0 - 160), 1);
 
 		// Calculate position to ball using trigonometry with gyroscope angle
-		xpos = tapeWidth * Math.tan(Math.toRadians(absoluteAng) - ax1) / (Math.tan(Math.toRadians(
+		xpos = TAPE_WIDTH * Math.tan(Math.toRadians(absoluteAng) - ax1) / (Math.tan(Math.toRadians(
 			absoluteAng) - ax2) - Math.tan(Math.toRadians(absoluteAng) - ax1));
 		ypos = xpos * Math.tan(Math.toRadians(absoluteAng) - ax2);
-		xpos += tapeWidth/2;
+		xpos += TAPE_WIDTH/2;
 		ang = ax;
 	}
 
@@ -228,7 +239,7 @@ public class Vision {
 
 		// Calculate distance to ball using left and right bounding angles and use
 		// polar to Cartesian formula to get position.
-		double ballDist = ballWidth/2/Math.sin(-(ax2 - ax1)/2) - 44;
+		double ballDist = BALL_WIDTH/2/Math.sin(-(ax2 - ax1)/2) - 44;
 		xpos = ballDist*Math.cos(-(ax1 + ax2) / 2 + Math.toRadians(absoluteAng));
 		ypos = ballDist*Math.sin(-(ax1 + ax2) / 2 + Math.toRadians(absoluteAng));
 		ang = -ax;
