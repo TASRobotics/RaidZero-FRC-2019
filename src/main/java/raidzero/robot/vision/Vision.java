@@ -28,7 +28,7 @@ public class Vision {
 		Crude, PNPGyro, PurePNP;
 	}
 
-	private static NetworkTableEntry tx, tv, thor, pipeline, tcornx, tcorny, camtran;
+	private static NetworkTableEntry tx, ty, tv, thor, pipeline, tcornx, tcorny, camtran;
 	private static double xpos, ypos, absoluteAng, pipedex, ang;
 	private static boolean targPres;
 
@@ -64,6 +64,7 @@ public class Vision {
 
 		// Initialize the NetworkTable entries from the Limelight
 		tx = table.getEntry("tx");
+		ty = table.getEntry("ty");
 		tv = table.getEntry("tv");
 		thor = table.getEntry("thor");
 		pipeline = table.getEntry("pipeline");
@@ -87,12 +88,14 @@ public class Vision {
                 new Point3(1.377 + target_gap/2, -5.325, 0.0) // right bottom-left
         );
 
+		// setup camera matrix
         mCameraMatrix = Mat.eye(3, 3, CvType.CV_64F);
         mCameraMatrix.put(0, 0, 2.5751292067328632e+02);
         mCameraMatrix.put(0, 2, 1.5971077914723165e+02);
         mCameraMatrix.put(1, 1, 2.5635071715912881e+02);
 		mCameraMatrix.put(1, 2, 1.1971433393615548e+02);
 
+		// setup limelight 2 distortion coefficients
 		mDistortionCoefficients = new MatOfDouble(2.9684613693070039e-01, -1.4380252254747885e+00,
 			-2.2098421479494509e-03, -3.3894563533907176e-03, 2.5344430354806740e+00);
 	}
@@ -119,15 +122,7 @@ public class Vision {
 	public static Optional<Point[]> pathToTarg() {
 		if (targPres) {
 			Point startPoint = new Point(0, 0, absoluteAng);
-			Point endPoint;
-			if (pipedex == 0) {
-				// Must be pointing directly at target for tape, while offsets tunable.
-				endPoint = new Point(xpos, ypos - Y_OFFSET, 90);
-			} else {
-				// Approach at an angle slightly steeper than angle at which target is seen.
-				// This will make the spline "smoother" in a sense.
-				endPoint = new Point(xpos, ypos, 1.5 * ang + absoluteAng);
-			}
+			Point endPoint = new Point(xpos, ypos - Y_OFFSET, 90);
 			return Optional.of(new Point[] { startPoint, endPoint });
 		}
 		return Optional.empty();
@@ -138,11 +133,10 @@ public class Vision {
 	 *
 	 * <p>Call periodically when using vision.
      *
-     * @param pipelineIndex the pipeline to use (0=tape, 1=ball)
      * @param absAng the gyroscope angle
      */
-	public static void calculateTargPos(int pipelineIndex, double absAng) {
-		pipedex = pipelineIndex;
+	public static void calculateTargPos(double absAng) {
+		pipedex = 0;
 		pipeline.setNumber(pipedex);
 
 		absoluteAng = absAng;
@@ -150,21 +144,18 @@ public class Vision {
 		// Calculate position of respective target, or none
 		if (tv.getDouble(0) == 1.0) {
 			targPres = true;
-			if (pipedex == 0) {
-				// calculates tape position using the chosen method
-				switch (TAPE_TARGET_METHOD) {
-					case Crude:
-						calculateTapePosCrude();
-						break;
-					case PNPGyro:
-						calculateTapePosPNPGyro();
-						break;
-					case PurePNP:
-						calculateTapePosPurePNP();
-						break;
-				}
-			} else if (pipedex == 1) {
-				calculateBallPos();
+
+			// calculates tape position using the chosen method
+			switch (TAPE_TARGET_METHOD) {
+				case Crude:
+					calculateTapePosCrude();
+					break;
+				case PNPGyro:
+					calculateTapePosPNPGyro();
+					break;
+				case PurePNP:
+					calculateTapePosPurePNP();
+					break;
 			}
 		} else {
 			targPres = false;
@@ -226,23 +217,45 @@ public class Vision {
 		ang = ax;
 	}
 
-	private static void calculateBallPos() {
-		// Read x position and width from NetworkTable Entries
-		double ax = tx.getDouble(0);
-		double pwidth = thor.getDouble(0);
+	/**
+     * Outputs double array with left and right motor powers to move toward largest ball.
+     */
+	public static double[] moveToBall() {
+		// set limelight pipeline to target balls
+		pipedex = 1;
+		pipeline.setNumber(pipedex);
 
-		// Convert angle of box center to pixel
-		double px = 160*Math.tan(Math.toRadians(ax)) / Math.tan(Math.toRadians(27)) + 160;
+		// tunable constants
+		double KpAim = 0.07;
+		double KpDistance = 0.11;
+		double min_aim_command = 0.1;
 
-		// Get angle for left and right bounds of box
-		double ax1 = Math.atan2(Math.tan(Math.toRadians(27)) / 160 * (px + pwidth / 2.0 - 160), 1);
-		double ax2 = Math.atan2(Math.tan(Math.toRadians(27)) / 160 * (px - pwidth / 2.0 - 160), 1);
+		// get vertical and horizontal angle of ball in limelight view
+		double ax = tx.getDouble(0.0);
+		double ay = ty.getDouble(0.0);
 
-		// Calculate distance to ball using left and right bounding angles and use
-		// polar to Cartesian formula to get position.
-		double ballDist = BALL_WIDTH/2/Math.sin(-(ax2 - ax1)/2) - 44;
-		xpos = ballDist*Math.cos(-(ax1 + ax2) / 2 + Math.toRadians(absoluteAng));
-		ypos = ballDist*Math.sin(-(ax1 + ax2) / 2 + Math.toRadians(absoluteAng));
-		ang = -ax;
+		double heading_error = -ax;
+		double distance_error = -ay;
+		double steering_adjust = 0;
+		steering_adjust = 0;
+
+		// steering adjust proportional with offset
+		if (ax > 2.0) {
+			steering_adjust += KpAim*heading_error - min_aim_command;
+		} else if (ax < -2.0) {
+			steering_adjust += KpAim*heading_error + min_aim_command;
+		}
+
+		// distance adjust proportional
+		double distance_adjust = KpDistance * distance_error;
+
+		// arcade drive with steering and heading adjust, applying a percentage speed limit
+		double limitus = 0.75;
+		double left_command = distance_adjust + steering_adjust;
+		double right_command = distance_adjust - steering_adjust;
+		left_command = Math.min(Math.max(left_command*limitus, -limitus), limitus);
+		right_command = Math.min(Math.max(right_command*limitus, -limitus), limitus);
+
+		return new double[] { left_command, right_command };
 	}
 }
