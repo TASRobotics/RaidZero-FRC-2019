@@ -9,6 +9,7 @@ import java.util.List;
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import raidzero.pathgen.Point;
 
 public class Auto {
@@ -17,6 +18,7 @@ public class Auto {
     private static MotionProfile profile;
     private static List<Point[]> pathWayPoints;
     private static int stage;
+    private static boolean exit;
 
     // points is left here for now for single path testing in the future
     private static Point[] level1Left = {
@@ -77,6 +79,8 @@ public class Auto {
         choose.addOption("level 2 right front", level2RightFront);
         profile = new MotionProfile(Components.getBase().getRightMotor(),
             Components.getBase().getLeftMotor(), Components.getBase().getPigeon());
+        SmartDashboard.putData("Auto Options", choose);
+        exit = false;
     }
 
     /**
@@ -86,6 +90,7 @@ public class Auto {
      * calling {@link #run()}.
      */
     public static void setup() {
+        exit = false;
         stage = 0;
         pathWayPoints = new ArrayList<Point[]>();
 
@@ -113,7 +118,7 @@ public class Auto {
      * <p>This should be called repeatedly during autonomous mode.
      */
     public static void run() {
-        if (stage < pathWayPoints.size()) {
+        if (stage < pathWayPoints.size() && !exit) {
             profile.controlMP();
             profile.move();
             if (profile.getSetValue() == SetValueMotionProfile.Hold) {
@@ -128,5 +133,12 @@ public class Auto {
             Teleop.run();
         }
 
+    }
+
+    /**
+     * Run code for disabled periodic
+     */
+    public static void disabled() {
+        SmartDashboard.putData("Auto Options", choose);
     }
 }
