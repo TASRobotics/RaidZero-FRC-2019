@@ -22,5 +22,6 @@
       80
     ]
   },
-  "files.trimTrailingWhitespace": true
+  "files.trimTrailingWhitespace": true,
+  "git.ignoreLimitWarning": true
 }

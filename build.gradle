@@ -49,6 +49,7 @@ allprojects {
 dependencies {
     compile wpi.deps.wpilib()
     compile wpi.deps.vendor.java()
+    compile 'org.openpnp:opencv:3.4.2-1'
     compile project(':pathgen')
     nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
     nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
