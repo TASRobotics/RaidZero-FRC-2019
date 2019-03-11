@@ -51,6 +51,7 @@ public class MotionProfile {
     private static final int CLOSED_LOOP_TIME_MS = 1;
 
     private boolean initRun;
+    private PathPoint targetPoint;
     private State state;
     private MotionProfileStatus status;
     private SetValueMotionProfile setValue;
@@ -206,6 +207,17 @@ public class MotionProfile {
         return setValue;
     }
 
+    public PathPoint getTargetPoint() {
+        return targetPoint;
+    }
+
+    public double getProgress() {
+        if (targetPoint == null) {
+            return 0;
+        }
+        return rightTal.getSelectedSensorPosition() / (targetPoint.position * SENSOR_UNITS_PER_INCH);
+    }
+
     /**
      * Clears the Motion profile buffer and resets state info
      */
@@ -254,6 +266,8 @@ public class MotionProfile {
             rightTal.pushMotionProfileTrajectory(tp);
 
         }
+
+        targetPoint = waypoints[waypoints.length - 1];
 
     }
 

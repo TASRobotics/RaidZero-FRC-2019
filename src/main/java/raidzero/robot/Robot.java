@@ -22,7 +22,7 @@ public class Robot extends TimedRobot {
 
     /**
      * Runs setup code for autonomous mode.
-     * 
+     *
      * <p>This is called once when autonomous mode begins.
      */
     @Override
@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
 
     /**
      * Runs periodic code for autonomous mode.
-     * 
+     *
      * <p>This is called repeatedly during autonomous mode.
      */
     @Override
@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
 
     /**
      * Runs setup code for teleop mode.
-     * 
+     *
      * <p>This is called once when teleop mode begins.
      */
     @Override
@@ -52,7 +52,7 @@ public class Robot extends TimedRobot {
 
     /**
      * Runs periodic code for teleop mode.
-     * 
+     *
      * <p>This is called repeatedly during teleop mode.
      */
     @Override
@@ -61,8 +61,18 @@ public class Robot extends TimedRobot {
     }
 
     /**
+     * Runs periodic code for disabled mode.
+     *
+     * <p>This is called repeatedly during teleop mode.
+     */
+    @Override
+    public void disabledPeriodic() {
+        Auto.disabled();
+    }
+
+    /**
      * Runs setup code for test mode.
-     * 
+     *
      * <p>This is called once when test mode begins.
      */
     @Override
