@@ -111,6 +111,8 @@ public class Auto {
         if (selected != null) {
             pathWayPoints.add(selected);
             profile.start(pathWayPoints.get(0), 10, 20);
+        } else {
+            Teleop.setup();
         }
     }
 
