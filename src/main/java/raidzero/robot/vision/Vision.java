@@ -25,7 +25,8 @@ public class Vision {
      * The ways of targetting tape targets
      */
 	private enum TapeTargetMethod {
-		Crude, PNPGyro, PurePNP;
+		// Crude,
+		PNPGyro, PurePNP;
 	}
 
 	private static NetworkTableEntry tx, ty, tv, thor, pipeline, tcornx, tcorny, camtran;
@@ -160,18 +161,22 @@ public class Vision {
      * Generates waypoints for splining to vision target, call if target ang unknown (teleop).
 	 *
 	 * <p>If called without seeing target, will return empty optional.
+	 *
+	 * @param absAng gyroscope angle
      */
-	public static Optional<Point[]> pathToTarg() {
+	public static Optional<Point[]> pathToTarg(double absAng) {
 		pipedex = 0;
 		pipeline.setNumber(pipedex);
+
+		absoluteAng = absAng;
 
 		// Calculate position of respective target, or none
 		if (tv.getDouble(0) == 1.0) {
 			// this method is independent of gyroscope
 			calculateTapePosPurePNP();
 
-			Point startPoint = new Point(0, 0, 90 - ang);
-			Point endPoint = new Point(xpos, ypos - Y_OFFSET, 90);
+			Point startPoint = new Point(0, 0, absAng);
+			Point endPoint = new Point(xpos, ypos, ang);
 			return Optional.of(new Point[] { startPoint, endPoint });
 		}
 		return Optional.empty();
@@ -186,17 +191,17 @@ public class Vision {
 	 * @param endAng desired ending angle
      */
 	public static Optional<Point[]> pathToTarg(double absAng, double endAng) {
-		calculateTargPos(absAng);
+		calculateTargPos(absAng, endAng);
 
 		if (targPres) {
 			Point startPoint = new Point(0, 0, absoluteAng);
-			Point endPoint = new Point(xpos, ypos - Y_OFFSET, endAng);
+			Point endPoint = new Point(xpos, ypos, endAng);
 			return Optional.of(new Point[] { startPoint, endPoint });
 		}
 		return Optional.empty();
 	}
 
-	private static void calculateTargPos(double absAng) {
+	private static void calculateTargPos(double absAng, double endAng) {
 		pipedex = 0;
 		pipeline.setNumber(pipedex);
 
@@ -208,11 +213,11 @@ public class Vision {
 
 			// calculates tape position using the chosen method
 			switch (TAPE_TARGET_METHOD) {
-				case Crude:
-					calculateTapePosCrude();
-					break;
+				// case Crude:
+				// 	calculateTapePosCrude();
+				// 	break;
 				case PNPGyro:
-					calculateTapePosPNPGyro();
+					calculateTapePosPNPGyro(endAng);
 					break;
 				case PurePNP:
 					calculateTapePosPurePNP();
@@ -227,12 +232,19 @@ public class Vision {
 		double[] camdata = camtran.getDoubleArray(new double[] {});
 
 		// limelight's camtran array solves everything for us, with a sign change
-		xpos = -camdata[0];
-		ypos = -camdata[2];
-		ang = camdata[4];
+		double xtemp = -camdata[0];
+		double ytemp = -camdata[2] - Y_OFFSET; // offset controls how far back from target to go
+		double yawang = camdata[4];
+
+		double angus = yawang + absoluteAng - Math.toDegrees(Math.atan2(xtemp, ytemp));
+		double distus = Math.hypot(xtemp, ytemp);
+
+		xpos = distus * Math.cos(Math.toRadians(angus));
+		ypos = distus * Math.sin(Math.toRadians(angus));
+		ang = absoluteAng + yawang;
 	}
 
-	private static void calculateTapePosPNPGyro() {
+	private static void calculateTapePosPNPGyro(double endAng) {
 		double[] xcorners = tcornx.getDoubleArray(new double[] {});
 		double[] ycorners = tcorny.getDoubleArray(new double[] {});
 		if (xcorners.length != 8 || ycorners.length != 8) return;
@@ -250,12 +262,18 @@ public class Vision {
 		double xInInches = translationVector.get(0, 0)[0];
 		double zInInches = translationVector.get(2, 0)[0];
 		double distance = Math.hypot(xInInches, zInInches);
-		double angle = Math.atan2(xInInches, zInInches);
+		double angle = Math.toDegrees(Math.atan2(xInInches, zInInches));
 
-		// the polar coordinates are rotated by the gyro angle and turned back to Cartesian
-		xpos = distance * Math.cos(angle + Math.toRadians(absoluteAng));
-		ypos = distance * Math.sin(angle + Math.toRadians(absoluteAng));
-		ang = Math.toDegrees(angle);
+		double yawang = endAng - absoluteAng;
+		double xtemp = distance * Math.sin(Math.toRadians(yawang + angle));
+		double ytemp = distance * Math.cos(Math.toRadians(yawang + angle)) - Y_OFFSET;
+
+		double angus = endAng - Math.toDegrees(Math.atan2(xtemp, ytemp));
+		double distus = Math.hypot(xtemp, ytemp);
+
+		xpos = distus * Math.cos(Math.toRadians(angus));
+		ypos = distus * Math.sin(Math.toRadians(angus));
+		ang = endAng;
 	}
 
 	private static void calculateTapePosCrude() {
