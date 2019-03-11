@@ -132,7 +132,7 @@ public class Teleop {
         Components.getArm().move(armSetpoint);
 
         // Reset setpoint when limit is reached
-        if (Components.getArm().getReverseLimit() && Components.getArm().getEncoderPos() < 100) {
+        if (Components.getArm().getReverseLimit() && Components.getArm().getEncoderPos() < 150) {
             Components.getArm().setEncoderPos(0);
             armSetpoint = 0;
             System.out.println("Arm limit switch reached!");
@@ -149,10 +149,10 @@ public class Teleop {
         } else if (controller2.getAButton()) {
             armSetpoint = Arm.ROCKET_BALL;
         }
-        /*
+
         System.out.println("Arm SP = " + armSetpoint + " | Encoder = " +
             Components.getArm().getEncoderPos());
-        */
+
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);

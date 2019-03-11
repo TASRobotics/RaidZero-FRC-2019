@@ -8,12 +8,14 @@ import java.util.List;
 
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import raidzero.pathgen.Point;
 
 public class Auto {
 
+    private static XboxController joy = new XboxController(0);
     private static SendableChooser<Point[]> choose;
     private static MotionProfile profile;
     private static List<Point[]> pathWayPoints;
@@ -53,14 +55,14 @@ public class Auto {
         new Point(22, 213, 0),
         new Point(72, 213),
         new Point(156, 190),
-        new Point(200, 173, 0),
+        new Point(190, 173, 0),
     };
 
     private static Point[] level2RightFront = {
         new Point(22, 111, 0),
         new Point(72, 111),
         new Point(156, 134),
-        new Point(200, 151, 0),
+        new Point(190, 151, 0),
     };
 
     /**
@@ -118,6 +120,10 @@ public class Auto {
      * <p>This should be called repeatedly during autonomous mode.
      */
     public static void run() {
+        if (joy.getBackButton()) {
+            exit = true;
+            Teleop.setup();
+        }
         if (stage < pathWayPoints.size() && !exit) {
             profile.controlMP();
             profile.move();

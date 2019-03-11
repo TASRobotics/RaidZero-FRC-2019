@@ -15,9 +15,9 @@ public class Arm {
 
     // Preset arm positions
     public static final int BALL_INTAKE = 227;
-    public static final int ROCKET_BALL = 1347;
+    public static final int ROCKET_BALL = 1357;
     public static final int STARTING_POS = 3310;
-    public static final int CARGO = 6162;
+    public static final int CARGO = 5562;
 
     private static final int PID_X = 0;
 
