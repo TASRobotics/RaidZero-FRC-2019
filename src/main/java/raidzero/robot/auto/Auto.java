@@ -141,7 +141,7 @@ public class Auto {
                     Teleop.setup();
                 }
             }
-            if (!usingVisionSpline && profile.getProgress() > 0.95) {
+            if (!usingVisionSpline && profile.getProgress() > 0.9) {
                 Vision.pathToTarg(
                     Components.getBase().getPigeon().getFusedHeading(),
                     profile.getTargetPoint().angle
