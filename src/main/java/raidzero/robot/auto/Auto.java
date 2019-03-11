@@ -2,6 +2,7 @@ package raidzero.robot.auto;
 
 import raidzero.robot.components.Components;
 import raidzero.robot.teleop.Teleop;
+import raidzero.robot.vision.Vision;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +13,14 @@ import raidzero.pathgen.Point;
 
 public class Auto {
 
+    private static final double CRUISE_VELOCITY = 10;
+    private static final double TARGET_ACCELERATION = 20;
+
     private static MotionProfile profile;
     private static List<Point[]> pathWayPoints;
     private static int stage;
+    private static boolean usingVisionSpline;
 
-    // points is left here for now for single path testing in the future
     private static Point[] level1Left = {
         new Point(66, 213, 0),
         new Point(124, 213, 0),
@@ -64,6 +68,7 @@ public class Auto {
     public static void setup() {
         stage = 0;
         pathWayPoints = new ArrayList<Point[]>();
+        usingVisionSpline = false;
 
         // Reset encoders and motion profile
         Components.getBase().getLeftMotor().setSelectedSensorPosition(0);
@@ -78,7 +83,7 @@ public class Auto {
         // Create empty paths
         Point[] path0 = level2Left;
         pathWayPoints.add(path0);
-        profile.start(pathWayPoints.get(0), 10, 20);
+        profile.start(pathWayPoints.get(0), CRUISE_VELOCITY, TARGET_ACCELERATION);
     }
 
     /**
@@ -92,11 +97,21 @@ public class Auto {
             profile.move();
             if (profile.getSetValue() == SetValueMotionProfile.Hold) {
                 stage++;
+                usingVisionSpline = false;
                 if (stage < pathWayPoints.size()) {
-                    profile.start(pathWayPoints.get(stage), 10, 20);
+                    profile.start(pathWayPoints.get(stage), CRUISE_VELOCITY, TARGET_ACCELERATION);
                 } else {
                     Teleop.setup();
                 }
+            }
+            if (!usingVisionSpline && profile.getProgress() > 0.95) {
+                Vision.pathToTarg(
+                    Components.getBase().getPigeon().getFusedHeading(),
+                    profile.getTargetPoint().angle
+                ).ifPresent(waypoints -> {
+                    usingVisionSpline = true;
+                    profile.start(waypoints, CRUISE_VELOCITY, TARGET_ACCELERATION);
+                });
             }
         } else {
             Teleop.run();
