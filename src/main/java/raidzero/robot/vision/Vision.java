@@ -47,6 +47,8 @@ public class Vision {
      */
 	private static final double Y_OFFSET = 30;
 
+	private static final double X_OFFSET = -1.5;
+
 	/**
      * Width of tape target, only used for crude.
      */
@@ -232,7 +234,7 @@ public class Vision {
 		double[] camdata = camtran.getDoubleArray(new double[] {});
 
 		// limelight's camtran array solves everything for us, with a sign change
-		double xtemp = -camdata[0];
+		double xtemp = -camdata[0] + X_OFFSET;
 		double ytemp = -camdata[2] - Y_OFFSET; // offset controls how far back from target to go
 		double yawang = camdata[4];
 
