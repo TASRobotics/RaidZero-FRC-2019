@@ -89,8 +89,14 @@ public class MotionProfile {
         leftTal.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
         rightTal.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
-        leftTal.setSensorPhase(false);
-        rightTal.setSensorPhase(false);
+
+        // Comp bot
+        leftTal.setSensorPhase(true);
+        rightTal.setSensorPhase(true);
+
+        // Practice bot
+        // rightTal.setSensorPhase(false);
+        // leftTal.setSensorPhase(false);
 
         // Configure the left side encoder as a remote sensor for the right Talon
         rightTal.configRemoteFeedbackFilter(leftTal.getDeviceID(),

@@ -156,7 +156,7 @@ public class Teleop {
         if (rightTriggerAxis2 > 0.1) {
             Components.getIntake().runWheelsIn(rightTriggerAxis2);
         } else if (leftTriggerAxis2 > 0.1) {
-            Components.getIntake().runWheelsOut(leftTriggerAxis2);
+            Components.getIntake().runWheelsOut(leftTriggerAxis2 * 0.5);
         } else {
             Components.getIntake().stopWheels();
         }
