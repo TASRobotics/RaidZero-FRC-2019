@@ -50,6 +50,7 @@ public class MotionProfile {
     private static final int MIN_POINTS_IN_TALON = 10;
     private static final int CLOSED_LOOP_TIME_MS = 1;
 
+    private boolean reversed;
     private boolean initRun;
     private State state;
     private MotionProfileStatus status;
@@ -79,6 +80,7 @@ public class MotionProfile {
         rightTal.changeMotionControlFramePeriod(3);
         notifer.startPeriodic(0.003);
         state = State.FillPoints;
+        reversed = false;
         setup();
     }
 
@@ -213,6 +215,15 @@ public class MotionProfile {
     }
 
     /**
+     * Set the path to go reversed or not
+     *
+     * @param reversed true if want bot to go backwards, else false
+     */
+    public void setReverse(boolean reversed) {
+        this.reversed = reversed;
+    }
+
+    /**
      * Clears the Motion profile buffer and resets state info
      */
     public void reset() {
@@ -228,6 +239,7 @@ public class MotionProfile {
      * @param waypoints the array of points created by the path generator
      */
     private void startFilling(PathPoint[] waypoints) {
+        int reverse = reversed ? -1 : 1;
         // Clear under run error
         if (status.hasUnderrun) {
             rightTal.clearMotionProfileHasUnderrun();
@@ -240,8 +252,8 @@ public class MotionProfile {
 
         for (int i = 0; i < waypoints.length; i++) {
             TrajectoryPoint tp = new TrajectoryPoint();
-            tp.position = waypoints[i].position * SENSOR_UNITS_PER_INCH;
-            tp.velocity = waypoints[i].velocity * SENSOR_UNITS_PER_INCH;
+            tp.position = waypoints[i].position * reverse * SENSOR_UNITS_PER_INCH;
+            tp.velocity = waypoints[i].velocity * reverse * SENSOR_UNITS_PER_INCH;
             tp.timeDur = (int) waypoints[i].time;
             tp.auxiliaryPos = waypoints[i].angle * 10;
             tp.useAuxPID = true;
