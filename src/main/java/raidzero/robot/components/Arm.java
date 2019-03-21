@@ -14,6 +14,7 @@ public class Arm {
 
     private TalonSRX arm;
     private TalonSRX armFollower;
+    private int onTheLeft;
 
     // Preset arm positions
     public static final int BALL_INTAKE = -450;
@@ -34,8 +35,6 @@ public class Arm {
 
     private static final int VEL_TOLERANCE = 1;
     private static final int POS_TOLERANCE = 1;
-
-    private static final int ONTHELEFT = -1;
 
     /**
      * This enum contains the possible positions to go to
@@ -75,17 +74,19 @@ public class Arm {
 
         switch(Settings.VERSION) {
             case PRAC:
+                onTheLeft = 1;
                 arm.setInverted(false);
                 armFollower.setInverted(true);
                 break;
             case COMP:
+                onTheLeft = -1;
                 arm.setInverted(true);
                 armFollower.setInverted(false);
                 break;
         }
 
         // Set the starting position as the current one
-        arm.setSelectedSensorPosition(ONTHELEFT * STARTING_POS, PID_X, 100);
+        arm.setSelectedSensorPosition(onTheLeft * STARTING_POS, PID_X, 100);
 
         arm.config_kP(PID_X, P_VALUE);
         arm.config_kI(PID_X, I_VALUE);
