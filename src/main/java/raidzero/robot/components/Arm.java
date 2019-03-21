@@ -3,6 +3,8 @@ package raidzero.robot.components;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import raidzero.robot.Settings;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
@@ -70,10 +72,17 @@ public class Arm {
         arm.configMotionAcceleration(TARGET_ACCEL);
 
         arm.setSensorPhase(false);
-        // arm.setInverted(false);
-        // armFollower.setInverted(true);
-        arm.setInverted(true);
-        armFollower.setInverted(false);
+
+        switch(Settings.VERSION) {
+            case PRAC:
+                arm.setInverted(false);
+                armFollower.setInverted(true);
+                break;
+            case COMP:
+                arm.setInverted(true);
+                armFollower.setInverted(false);
+                break;
+        }
 
         // Set the starting position as the current one
         arm.setSelectedSensorPosition(ONTHELEFT * STARTING_POS, PID_X, 100);

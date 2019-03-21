@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.Notifier;
 import raidzero.pathgen.PathGenerator;
 import raidzero.pathgen.PathPoint;
 import raidzero.pathgen.Point;
+import raidzero.robot.Settings;
 
 public class MotionProfile {
 
@@ -91,14 +92,16 @@ public class MotionProfile {
         leftTal.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
         rightTal.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
-
-        // Comp bot
-        leftTal.setSensorPhase(true);
-        rightTal.setSensorPhase(true);
-
-        // Practice bot
-        // rightTal.setSensorPhase(false);
-        // leftTal.setSensorPhase(false);
+        switch(Settings.VERSION) {
+            case PRAC:
+                rightTal.setSensorPhase(false);
+                leftTal.setSensorPhase(false);
+                break;
+            case COMP:
+                rightTal.setSensorPhase(true);
+                leftTal.setSensorPhase(true);
+                break;
+        }
 
         // Configure the left side encoder as a remote sensor for the right Talon
         rightTal.configRemoteFeedbackFilter(leftTal.getDeviceID(),
