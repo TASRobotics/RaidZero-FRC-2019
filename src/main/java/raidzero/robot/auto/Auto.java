@@ -8,13 +8,19 @@ import java.util.List;
 
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import raidzero.pathgen.Point;
 
 public class Auto {
 
+    private static XboxController joy = new XboxController(0);
+    private static SendableChooser<Point[]> choose;
     private static MotionProfile profile;
     private static List<Point[]> pathWayPoints;
     private static int stage;
+    private static boolean exit;
 
     // points is left here for now for single path testing in the future
     private static Point[] level1Left = {
@@ -45,14 +51,38 @@ public class Auto {
         new Point(256, 18, -150),
     };
 
+    private static Point[] level2LeftFront = {
+        new Point(22, 213, 0),
+        new Point(72, 213),
+        new Point(156, 190),
+        new Point(190, 173, 0),
+    };
+
+    private static Point[] level2RightFront = {
+        new Point(22, 111, 0),
+        new Point(72, 111),
+        new Point(156, 134),
+        new Point(190, 151, 0),
+    };
+
     /**
      * Initialize the auto-specific components.
      *
      * <p>Should be called when the robot starts up.
      */
     public static void initialize() {
+        choose = new SendableChooser<>();
+        choose.setDefaultOption("Do nothing", null);
+        choose.addOption("level 1 left", level1Left);
+        choose.addOption("level 2 left", level2Left);
+        choose.addOption("level 1 right", level1Right);
+        choose.addOption("level 2 right", level2Right);
+        choose.addOption("level 2 left front", level2LeftFront);
+        choose.addOption("level 2 right front", level2RightFront);
         profile = new MotionProfile(Components.getBase().getRightMotor(),
             Components.getBase().getLeftMotor(), Components.getBase().getPigeon());
+        SmartDashboard.putData("Auto Options", choose);
+        exit = false;
     }
 
     /**
@@ -62,6 +92,7 @@ public class Auto {
      * calling {@link #run()}.
      */
     public static void setup() {
+        exit = false;
         stage = 0;
         pathWayPoints = new ArrayList<Point[]>();
 
@@ -76,9 +107,13 @@ public class Auto {
 
         // Code below is temporary
         // Create empty paths
-        Point[] path0 = level2Left;
-        pathWayPoints.add(path0);
-        profile.start(pathWayPoints.get(0), 10, 20);
+        var selected = choose.getSelected();
+        if (selected != null) {
+            pathWayPoints.add(selected);
+            profile.start(pathWayPoints.get(0), 10, 20);
+        } else {
+            Teleop.setup();
+        }
     }
 
     /**
@@ -87,7 +122,11 @@ public class Auto {
      * <p>This should be called repeatedly during autonomous mode.
      */
     public static void run() {
-        if (stage < pathWayPoints.size()) {
+        if (joy.getBackButton()) {
+            exit = true;
+            Teleop.setup();
+        }
+        if (stage < pathWayPoints.size() && !exit) {
             profile.controlMP();
             profile.move();
             if (profile.getSetValue() == SetValueMotionProfile.Hold) {
@@ -102,5 +141,12 @@ public class Auto {
             Teleop.run();
         }
 
+    }
+
+    /**
+     * Run code for disabled periodic
+     */
+    public static void disabled() {
+        SmartDashboard.putData("Auto Options", choose);
     }
 }

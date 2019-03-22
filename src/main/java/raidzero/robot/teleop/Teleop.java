@@ -100,14 +100,10 @@ public class Teleop {
         // Lift
         Components.getLift().limitReset();
         // Presets
-        if (controller1.getYButton()) {
+        if (controller1.getXButton()) {
             Components.getLift().movePosition(Lift.THIRD_ROCKET);
-        } else if (controller1.getBButton()) {
-            Components.getLift().movePosition(Lift.SECOND_ROCKET);
         } else if (controller1.getAButton()) {
-            Components.getLift().movePosition(Lift.CARGO_SHIP);
-        } else if (controller1.getXButton()) {
-            Components.getLift().movePosition(Lift.FIRST_ROCKET_BALL);
+            Components.getLift().movePosition(Lift.SECOND_ROCKET);
         } else { // Manual control
             double rightTriggerAxis1 = controller1.getTriggerAxis(kRight);
             double leftTriggerAxis1 = controller1.getTriggerAxis(kLeft);
@@ -122,7 +118,7 @@ public class Teleop {
         if (controller1.getBumper(kLeft)) {
             Components.getLift().resetEncoderPos();
         }
-        // System.out.println("Lift encoder = " + Components.getLift().getEncoderPos());
+        System.out.println("Lift encoder = " + Components.getLift().getEncoderPos());
 
         // Player 2
 
@@ -132,7 +128,7 @@ public class Teleop {
         Components.getArm().move(armSetpoint);
 
         // Reset setpoint when limit is reached
-        if (Components.getArm().getReverseLimit() && Components.getArm().getEncoderPos() < 100) {
+        if (Components.getArm().getReverseLimit() && Components.getArm().getEncoderPos() < 150) {
             Components.getArm().setEncoderPos(0);
             armSetpoint = 0;
             System.out.println("Arm limit switch reached!");
@@ -149,10 +145,10 @@ public class Teleop {
         } else if (controller2.getAButton()) {
             armSetpoint = Arm.ROCKET_BALL;
         }
-        /*
+
         System.out.println("Arm SP = " + armSetpoint + " | Encoder = " +
             Components.getArm().getEncoderPos());
-        */
+
 
         // Intake Wheels
         double rightTriggerAxis2 = controller2.getTriggerAxis(kRight);
@@ -160,7 +156,7 @@ public class Teleop {
         if (rightTriggerAxis2 > 0.1) {
             Components.getIntake().runWheelsIn(rightTriggerAxis2);
         } else if (leftTriggerAxis2 > 0.1) {
-            Components.getIntake().runWheelsOut(leftTriggerAxis2);
+            Components.getIntake().runWheelsOut(leftTriggerAxis2 * 0.5);
         } else {
             Components.getIntake().stopWheels();
         }
