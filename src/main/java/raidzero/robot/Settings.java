@@ -12,7 +12,7 @@ public class Settings {
     /**
      * The version of the robot.
      */
-    public static final Version VERSION = Version.COMP;
+    public static final Version VERSION = Version.PRAC;
 
     /**
      * The possible versions of the robot.
