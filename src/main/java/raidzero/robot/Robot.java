@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
     /**
      * Runs periodic code for disabled mode.
      *
-     * <p>This is called repeatedly during teleop mode.
+     * <p>This is called repeatedly during disabled mode.
      */
     @Override
     public void disabledPeriodic() {

@@ -116,6 +116,8 @@ public class Auto {
         if (selected != null) {
             pathWayPoints.add(selected);
             profile.start(pathWayPoints.get(0), CRUISE_VELOCITY, TARGET_ACCELERATION);
+        } else {
+            Teleop.setup();
         }
     }
 
