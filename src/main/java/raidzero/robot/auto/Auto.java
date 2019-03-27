@@ -110,8 +110,7 @@ public class Auto {
         var selected = choose.getSelected();
         if (selected != null) {
             pathWayPoints.add(selected);
-            // profile.start(pathWayPoints.get(0), 10, 20);
-            profile.start(pathWayPoints.get(0), 3, 3);
+            profile.start(pathWayPoints.get(0), 10, 20);
         } else {
             Teleop.setup();
         }
