@@ -46,6 +46,7 @@ public class Teleop {
      */
     public static void setup() {
         climbing = false;
+        Components.getClimb().lockClimb();
 
         // Set starting setpoint as the current position
         armSetpoint = Components.getArm().getEncoderPos();
@@ -170,17 +171,13 @@ public class Teleop {
             Components.getIntake().stopHook();
         }
 
-        //Components.getClimb().lockClimb();
         // Climb
-
-        if (controller2.getPOV() == 0) {
-            Components.getClimb().lockClimb();
-        } else if (controller2.getPOV() == 180) {
-            Components.getClimb().unlockClimb();
-        }
-
         if (climbing) {
-           // Components.getClimb().unlockClimb();
+            if (controller2.getPOV() == 0) {
+                Components.getClimb().lockClimb();
+            } else if (controller2.getPOV() == 180) {
+                Components.getClimb().unlockClimb();
+            }
             Components.getClimb().climbPWM(controller2.getY(kLeft));
         }
 
