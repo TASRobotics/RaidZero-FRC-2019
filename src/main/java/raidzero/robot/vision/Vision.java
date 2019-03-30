@@ -174,10 +174,8 @@ public class Vision {
 		absoluteAng = absAng;
 
 		// Calculate position of respective target, or none
-		if (tv.getDouble(0) == 1.0) {
-			// this method is independent of gyroscope
-			calculateTapePosPurePNP();
-
+		// this method is independent of gyroscope
+		if (tv.getDouble(0) == 1.0 && calculateTapePosPurePNP()) {
 			Point startPoint = new Point(0, 0, absAng);
 			Point endPoint = new Point(xpos, ypos, ang);
 			System.out.println("xpos " + xpos + "\typos " + ypos + "\tang " + ang);
@@ -232,21 +230,29 @@ public class Vision {
 		}
 	}
 
-	private static void calculateTapePosPurePNP() {
+	/**
+	 * @return if PNP worked
+	 */
+	private static boolean calculateTapePosPurePNP() {
 		double[] camdata = camtran.getDoubleArray(new double[] {});
 		System.out.println(Arrays.toString(camdata));
+		if (Arrays.stream(camdata).allMatch(x -> x == 0)) {
+			return false;
+		}
 
 		// limelight's camtran array solves everything for us, with a sign change
 		double xtemp = -camdata[0] + X_OFFSET;
 		double ytemp = -camdata[2] - Y_OFFSET; // offset controls how far back from target to go
 		double yawang = camdata[4];
 
-		double angus = yawang + absoluteAng - Math.toDegrees(Math.atan2(xtemp, ytemp));
+		ang = absoluteAng - yawang;
+		double angus = ang - Math.toDegrees(Math.atan2(xtemp, ytemp));
 		double distus = Math.hypot(xtemp, ytemp);
 
 		xpos = distus * Math.cos(Math.toRadians(angus));
 		ypos = distus * Math.sin(Math.toRadians(angus));
-		ang = absoluteAng + yawang;
+
+		return true;
 	}
 
 	private static void calculateTapePosPNPGyro(double endAng) {
