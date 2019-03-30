@@ -14,6 +14,7 @@ import org.opencv.core.MatOfDouble;
 import org.opencv.core.CvType;
 
 import java.util.Optional;
+import java.util.Arrays;
 import raidzero.pathgen.Point;
 
 /**
@@ -179,6 +180,7 @@ public class Vision {
 
 			Point startPoint = new Point(0, 0, absAng);
 			Point endPoint = new Point(xpos, ypos, ang);
+			System.out.println("xpos " + xpos + "\typos " + ypos + "\tang " + ang);
 			return Optional.of(new Point[] { startPoint, endPoint });
 		}
 		return Optional.empty();
@@ -232,6 +234,7 @@ public class Vision {
 
 	private static void calculateTapePosPurePNP() {
 		double[] camdata = camtran.getDoubleArray(new double[] {});
+		System.out.println(Arrays.toString(camdata));
 
 		// limelight's camtran array solves everything for us, with a sign change
 		double xtemp = -camdata[0] + X_OFFSET;
