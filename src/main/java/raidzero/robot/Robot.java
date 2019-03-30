@@ -6,6 +6,8 @@ import raidzero.robot.auto.Auto;
 import raidzero.robot.components.Components;
 import raidzero.robot.teleop.Teleop;
 
+import raidzero.robot.vision.Vision;
+
 /**
  * The main robot class.
  */
@@ -97,6 +99,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
+        Vision.pathToTarg(Components.getBase().getPigeon().getFusedHeading());
     }
 
 }

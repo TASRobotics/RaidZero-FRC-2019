@@ -112,6 +112,15 @@ public class Auto {
 
         // Code below is temporary
         // Create empty paths
+
+        // Vision.pathToTarg(Components.getBase().getPigeon().getFusedHeading())
+        // .ifPresentOrElse(waypoints -> {
+        //     System.out.println("Target found");
+        //     profile.start(waypoints, CRUISE_VELOCITY, TARGET_ACCELERATION);
+        // }, () -> {
+        //     System.out.println("No target found");
+        // });
+
         var selected = choose.getSelected();
         if (selected != null) {
             pathWayPoints.add(selected);
@@ -127,35 +136,41 @@ public class Auto {
      * <p>This should be called repeatedly during autonomous mode.
      */
     public static void run() {
-        if (joy.getBackButton()) {
-            exit = true;
-            Teleop.setup();
-        }
-        if (stage < pathWayPoints.size() && !exit) {
+        // if (joy.getBackButton()) {
+        //     exit = true;
+        //     Teleop.setup();
+        // }
+        // if (stage < pathWayPoints.size() && !exit) {
+        //     profile.controlMP();
+        //     profile.move();
+        //     if (profile.getSetValue() == SetValueMotionProfile.Hold) {
+        //         stage++;
+        //         usingVisionSpline = false;
+        //         if (stage < pathWayPoints.size()) {
+        //             profile.start(pathWayPoints.get(stage), CRUISE_VELOCITY, TARGET_ACCELERATION);
+        //         } else {
+        //             Teleop.setup();
+        //         }
+        //     }
+        //     if (!usingVisionSpline && profile.getProgress() > 0.9) {
+        //         Vision.pathToTarg(
+        //             Components.getBase().getPigeon().getFusedHeading(),
+        //             profile.getTargetPoint().angle
+        //         ).ifPresent(waypoints -> {
+        //             usingVisionSpline = true;
+        //             profile.start(waypoints, CRUISE_VELOCITY, TARGET_ACCELERATION);
+        //         });
+        //     }
+        // } else {
+        //     Teleop.run();
+        // }
+        if (stage == 0) {
             profile.controlMP();
             profile.move();
             if (profile.getSetValue() == SetValueMotionProfile.Hold) {
                 stage++;
-                usingVisionSpline = false;
-                if (stage < pathWayPoints.size()) {
-                    profile.start(pathWayPoints.get(stage), CRUISE_VELOCITY, TARGET_ACCELERATION);
-                } else {
-                    Teleop.setup();
-                }
             }
-            if (!usingVisionSpline && profile.getProgress() > 0.9) {
-                Vision.pathToTarg(
-                    Components.getBase().getPigeon().getFusedHeading(),
-                    profile.getTargetPoint().angle
-                ).ifPresent(waypoints -> {
-                    usingVisionSpline = true;
-                    profile.start(waypoints, CRUISE_VELOCITY, TARGET_ACCELERATION);
-                });
-            }
-        } else {
-            Teleop.run();
         }
-
     }
 
     /**
