@@ -10,8 +10,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 public class Lift {
 
     // Preset arm positions
-    public static final double SECOND_ROCKET = 18;
-    public static final double THIRD_ROCKET = 38.5;
+    public static final double SECOND_ROCKET = 22.2;
+    public static final double THIRD_ROCKET = 42.5;
 
     /* Don't ask why... Calculated from experimental data
      * 3 -> 10.4

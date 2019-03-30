@@ -57,15 +57,15 @@ public class Auto {
 
     private static Point[] level2LeftFront = {
         new Point(22, 213, 0),
-        new Point(72, 213),
-        new Point(156, 190),
+        new Point(70, 213, 0),
+        new Point(180, 173),
         new Point(190, 173, 0),
     };
 
     private static Point[] level2RightFront = {
         new Point(22, 111, 0),
-        new Point(72, 111),
-        new Point(156, 134),
+        new Point(70, 111, 0),
+        new Point(180, 151),
         new Point(190, 151, 0),
     };
 
