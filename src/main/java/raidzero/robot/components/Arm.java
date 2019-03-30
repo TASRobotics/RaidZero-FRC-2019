@@ -3,6 +3,8 @@ package raidzero.robot.components;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import raidzero.robot.Settings;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
@@ -12,10 +14,11 @@ public class Arm {
 
     private TalonSRX arm;
     private TalonSRX armFollower;
+    private int onTheLeft;
 
     // Preset arm positions
-    public static final int BALL_INTAKE = 227;
-    public static final int ROCKET_BALL = 1357;
+    public static final int BALL_INTAKE = -450;
+    public static final int ROCKET_BALL = 850;
     public static final int STARTING_POS = 3310;
     public static final int CARGO = 5562;
 
@@ -32,8 +35,6 @@ public class Arm {
 
     private static final int VEL_TOLERANCE = 1;
     private static final int POS_TOLERANCE = 1;
-
-    private static final int ONTHELEFT = -1;
 
     /**
      * This enum contains the possible positions to go to
@@ -60,7 +61,7 @@ public class Arm {
         // The tachs are daisy chained together
         // Which solder pad is soldered will decide which one is forward and reverse
         arm.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-            LimitSwitchNormal.NormallyOpen);
+            LimitSwitchNormal.Disabled);
         arm.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
             LimitSwitchNormal.Disabled);
 
@@ -70,13 +71,22 @@ public class Arm {
         arm.configMotionAcceleration(TARGET_ACCEL);
 
         arm.setSensorPhase(false);
-        // arm.setInverted(false);
-        // armFollower.setInverted(true);
-        arm.setInverted(true);
-        armFollower.setInverted(false);
+
+        switch(Settings.VERSION) {
+            case PRAC:
+                onTheLeft = 1;
+                arm.setInverted(false);
+                armFollower.setInverted(true);
+                break;
+            case COMP:
+                onTheLeft = -1;
+                arm.setInverted(true);
+                armFollower.setInverted(false);
+                break;
+        }
 
         // Set the starting position as the current one
-        arm.setSelectedSensorPosition(ONTHELEFT * STARTING_POS, PID_X, 100);
+        arm.setSelectedSensorPosition(onTheLeft * STARTING_POS, PID_X, 100);
 
         arm.config_kP(PID_X, P_VALUE);
         arm.config_kI(PID_X, I_VALUE);

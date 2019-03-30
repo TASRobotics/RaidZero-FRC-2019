@@ -112,18 +112,22 @@ public class Auto {
 
         // Code below is temporary
         // Create empty paths
-        // var selected = choose.getSelected();
-        // if (selected != null) {
-        //     pathWayPoints.add(selected);
-        //     profile.start(pathWayPoints.get(0), CRUISE_VELOCITY, TARGET_ACCELERATION);
-        // }
-        Vision.pathToTarg(Components.getBase().getPigeon().getFusedHeading())
-        .ifPresentOrElse(waypoints -> {
-            System.out.println("Target found");
-            profile.start(waypoints, CRUISE_VELOCITY, TARGET_ACCELERATION);
-        }, () -> {
-            System.out.println("No target found");
-        });
+
+        // Vision.pathToTarg(Components.getBase().getPigeon().getFusedHeading())
+        // .ifPresentOrElse(waypoints -> {
+        //     System.out.println("Target found");
+        //     profile.start(waypoints, CRUISE_VELOCITY, TARGET_ACCELERATION);
+        // }, () -> {
+        //     System.out.println("No target found");
+        // });
+
+        var selected = choose.getSelected();
+        if (selected != null) {
+            pathWayPoints.add(selected);
+            profile.start(pathWayPoints.get(0), CRUISE_VELOCITY, TARGET_ACCELERATION);
+        } else {
+            Teleop.setup();
+        }
     }
 
     /**
