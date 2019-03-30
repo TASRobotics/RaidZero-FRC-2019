@@ -136,7 +136,7 @@ public class Arm {
      */
     public void checkAndResetAtHardLimit() {
         if (getReverseLimit()) {
-            setEncoderPos(0);
+            setEncoderPos(STARTING_POS);
         }
     }
 
