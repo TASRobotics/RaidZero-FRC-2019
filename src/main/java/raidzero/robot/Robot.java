@@ -99,7 +99,11 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
-        Vision.pathToTarg(Components.getBase().getPigeon().getFusedHeading());
+        var pigeon = Components.getBase().getPigeon();
+        pigeon.setYaw(0);
+        double[] xs = new double[3];
+        pigeon.getYawPitchRoll(xs);
+        Vision.pathToTarg(xs[0]);
     }
 
 }

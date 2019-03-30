@@ -46,9 +46,9 @@ public class Vision {
 	/**
      * How far limelight should be behind the tape target in inches, adjustable.
      */
-	private static final double Y_OFFSET = 30;
+	private static final double Y_OFFSET = -20;
 
-	private static final double X_OFFSET = -1.5;
+	private static final double X_OFFSET = -1; // -1.5;
 
 	/**
      * Width of tape target, only used for crude.
@@ -178,7 +178,7 @@ public class Vision {
 		if (tv.getDouble(0) == 1.0 && calculateTapePosPurePNP()) {
 			Point startPoint = new Point(0, 0, absAng);
 			Point endPoint = new Point(xpos, ypos, ang);
-			System.out.println("xpos " + xpos + "\typos " + ypos + "\tang " + ang);
+			System.out.println("xpos " + xpos + "\typos " + ypos + "\tang " + ang + "\tabsang" + absAng);
 			return Optional.of(new Point[] { startPoint, endPoint });
 		}
 		return Optional.empty();
@@ -242,7 +242,7 @@ public class Vision {
 
 		// limelight's camtran array solves everything for us, with a sign change
 		double xtemp = -camdata[0] + X_OFFSET;
-		double ytemp = -camdata[2] - Y_OFFSET; // offset controls how far back from target to go
+		double ytemp = -camdata[2] + Y_OFFSET; // offset controls how far back from target to go
 		double yawang = camdata[4];
 
 		ang = absoluteAng - yawang;
