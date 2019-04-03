@@ -21,6 +21,7 @@ public class Teleop {
     private static XboxController controller2;
 
     private static int armSetpoint;
+    private static double driveMult = 0.8;
 
     private static boolean climbing = false;
 
@@ -32,10 +33,6 @@ public class Teleop {
     public static void initialize() {
         controller1 = new XboxController(0);
         controller2 = new XboxController(1);
-        // UsbCamera cam = CameraServer.getInstance().startAutomaticCapture(0);
-        // cam.setResolution(480, 320);
-        // cam.setFPS(30);
-
     }
 
     /**
@@ -74,29 +71,21 @@ public class Teleop {
         // Drive
         // Tank
         if (controller1.getBumper(kLeft)) {
-            if (controller1.getBumper(kRight)) {
-                Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-                    controller1.getY(kLeft));
-                Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-                    controller1.getY(kRight));
-            } else {
-                Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-                    -controller1.getY(kRight));
-                Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-                    -controller1.getY(kLeft));
-            }
+            driveMult = 1.0;
         } else {
-            if (controller1.getBumper(kRight)) {
-                Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-                    controller1.getY(kLeft) * 0.8);
-                Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-                    controller1.getY(kRight) * 0.8);
-            } else {
-                Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-                    -controller1.getY(kRight) * 0.8);
-                Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-                    -controller1.getY(kLeft) * 0.8);
-            }
+            driveMult = 0.8;
+        }
+
+        if (controller1.getBumper(kRight)) {
+            Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
+                controller1.getY(kLeft) * driveMult);
+            Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
+                controller1.getY(kRight) * driveMult);
+        } else {
+            Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
+                -controller1.getY(kRight) * driveMult);
+            Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
+                -controller1.getY(kLeft) * driveMult);
         }
 
         // Arcade
