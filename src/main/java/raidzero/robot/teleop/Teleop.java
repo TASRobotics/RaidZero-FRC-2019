@@ -21,7 +21,6 @@ public class Teleop {
     private static XboxController controller2;
 
     private static int armSetpoint;
-    private static double driveMult = 0.8;
 
     private static boolean climbing = false;
 
@@ -70,10 +69,9 @@ public class Teleop {
 
         // Drive
         // Tank
+        double driveMult = 0.8;
         if (controller1.getBumper(kLeft)) {
             driveMult = 1.0;
-        } else {
-            driveMult = 0.8;
         }
 
         if (controller1.getBumper(kRight)) {
