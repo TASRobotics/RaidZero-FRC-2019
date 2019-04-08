@@ -2,6 +2,7 @@ package raidzero.robot.teleop;
 
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -31,11 +32,6 @@ public class Teleop {
     public static void initialize() {
         controller1 = new XboxController(0);
         controller2 = new XboxController(1);
-
-        UsbCamera cam = CameraServer.getInstance().startAutomaticCapture(0);
-        cam.setResolution(480, 320);
-        cam.setFPS(30);
-
     }
 
     /**
@@ -73,16 +69,21 @@ public class Teleop {
 
         // Drive
         // Tank
+        double driveMult = 0.8;
+        if (controller1.getBumper(kLeft)) {
+            driveMult = 1.0;
+        }
+
         if (controller1.getBumper(kRight)) {
             Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-                controller1.getY(kLeft) * 0.8);
+                controller1.getY(kLeft) * driveMult);
             Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-                controller1.getY(kRight) * 0.8);
+                controller1.getY(kRight) * driveMult);
         } else {
             Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-                -controller1.getY(kRight) * 0.8);
+                -controller1.getY(kRight) * driveMult);
             Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-                -controller1.getY(kLeft) * 0.8);
+                -controller1.getY(kLeft) * driveMult);
         }
 
         // Arcade
@@ -99,7 +100,7 @@ public class Teleop {
         // }
 
         // Lift
-        Components.getLift().limitReset();
+        // Components.getLift().limitReset();
         // Presets
         if (controller1.getXButton()) {
             Components.getLift().movePosition(Lift.THIRD_ROCKET);
@@ -116,9 +117,6 @@ public class Teleop {
                 Components.getLift().movePercent(0.0);
             }
         }
-        if (controller1.getBumper(kLeft)) {
-            Components.getLift().resetEncoderPos();
-        }
         System.out.println("Lift encoder = " + Components.getLift().getEncoderPos());
 
         // Player 2
@@ -128,10 +126,14 @@ public class Teleop {
 
         Components.getArm().move(armSetpoint);
 
+        // Emergency Stop Arm
+        if (controller2.getPOV() == 90) {
+            armSetpoint = Components.getArm().getEncoderPos();
+        }
+
         // Reset setpoint when limit is reached
-        if (Components.getArm().getReverseLimit() && Components.getArm().getEncoderPos() < 150) {
-            Components.getArm().setEncoderPos(0);
-            armSetpoint = 0;
+        if (Components.getArm().getReverseLimit()) {
+            Components.getArm().setEncoderPos(Arm.STARTING_POS);
             System.out.println("Arm limit switch reached!");
         }
         // Change the setpoint for the arm
