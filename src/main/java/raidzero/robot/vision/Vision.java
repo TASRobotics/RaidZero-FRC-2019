@@ -46,9 +46,9 @@ public class Vision {
 	/**
      * How far limelight should be behind the tape target in inches, adjustable.
      */
-	private static final double Y_OFFSET = -20;
+	private static final double Y_OFFSET = -30;
 
-	private static final double X_OFFSET = -1; // -1.5;
+	private static final double X_OFFSET = 1; // -1.5;
 
 	/**
      * Width of tape target, only used for crude.

@@ -16,8 +16,8 @@ import raidzero.pathgen.Point;
 
 public class Auto {
 
-    private static final double CRUISE_VELOCITY = 10;
-    private static final double TARGET_ACCELERATION = 20;
+    private static final double CRUISE_VELOCITY = 2;
+    private static final double TARGET_ACCELERATION = 2;
 
     private static XboxController joy = new XboxController(0);
     private static SendableChooser<Point[]> choose;
@@ -113,7 +113,7 @@ public class Auto {
         // Code below is temporary
         // Create empty paths
 
-        Vision.pathToTarg(Components.getBase().getPigeon().getFusedHeading())
+        Vision.pathToTarg(Components.getBase().getYaw())
         .ifPresentOrElse(waypoints -> {
             System.out.println("Target found");
             profile.start(waypoints, CRUISE_VELOCITY, TARGET_ACCELERATION);

@@ -30,6 +30,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
+        Vision.setup();
         Auto.setup();
         // NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("pipeline").setNumber(2);
         NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("camMode").setNumber(0);
@@ -103,6 +104,7 @@ public class Robot extends TimedRobot {
         pigeon.setYaw(0);
         double[] xs = new double[3];
         pigeon.getYawPitchRoll(xs);
+        System.out.println(xs[0]);
         Vision.pathToTarg(xs[0]);
     }
 
