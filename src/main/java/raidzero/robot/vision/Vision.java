@@ -12,6 +12,7 @@ import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.MatOfPoint3f;
 import org.opencv.core.MatOfDouble;
 import org.opencv.core.CvType;
+import org.opencv.core.Core;
 
 import java.util.Optional;
 import java.util.Arrays;
@@ -26,8 +27,7 @@ public class Vision {
      * The ways of targetting tape targets
      */
 	private enum TapeTargetMethod {
-		// Crude,
-		PNPGyro, PurePNP;
+		PNPRIO, PNPLL;
 	}
 
 	private static NetworkTableEntry tx, ty, tv, thor, pipeline, tcornx, tcorny, camtran;
@@ -41,7 +41,7 @@ public class Vision {
 	/**
      * The tape-targetting method to actually use.
      */
-	private static final TapeTargetMethod TAPE_TARGET_METHOD = TapeTargetMethod.PNPGyro;
+	private static final TapeTargetMethod TAPE_TARGET_METHOD = TapeTargetMethod.PNPRIO;
 
 	/**
      * How far limelight should be behind the tape target in inches, adjustable.
@@ -85,11 +85,11 @@ public class Vision {
 				new Point3(-1.9363 - target_gap/2, 0.5008, 0.0), // left top-left
 				new Point3(0.0 - target_gap/2, 0.0, 0.0), // left top-right
 				new Point3(-3.3133 - target_gap/2, -4.8242, 0.0), // left bottom-left
-                new Point3(-1.377 - target_gap/2, -5.325, 0.0), // left bottom-right
+                // new Point3(-1.377 - target_gap/2, -5.325, 0.0), // left bottom-right
                 new Point3(1.9363 + target_gap/2, 0.5008, 0.0), // right top-right
 				new Point3(0.0 + target_gap/2, 0.0, 0.0), // right top-left
-				new Point3(3.3133 + target_gap/2, -4.8242, 0.0), // right bottom-right
-                new Point3(1.377 + target_gap/2, -5.325, 0.0) // right bottom-left
+				new Point3(3.3133 + target_gap/2, -4.8242, 0.0) // right bottom-right
+                // new Point3(1.377 + target_gap/2, -5.325, 0.0) // right bottom-left
         );
 
 		// setup camera matrix
@@ -174,8 +174,18 @@ public class Vision {
 		absoluteAng = absAng;
 
 		// Calculate position of respective target, or none
-		// this method is independent of gyroscope
-		if (tv.getDouble(0) == 1.0 && calculateTapePosPurePNP()) {
+		boolean safe = tv.getDouble(0) == 1.0;
+		switch (TAPE_TARGET_METHOD) {
+			case PNPLL:
+				safe &= calculateTapePosPNPLL();
+				break;
+			case PNPRIO:
+				safe &= calculateTapePosPNPRIO();
+				break;
+		}
+
+		// if target seen and methods return true, go ahead and make waypoints
+		if (safe) {
 			Point startPoint = new Point(0, 0, absAng);
 			Point endPoint = new Point(xpos, ypos, ang);
 			System.out.println("xpos " + xpos + "\typos " + ypos + "\tang " + ang + "\tabsang" + absAng);
@@ -184,66 +194,10 @@ public class Vision {
 		return Optional.empty();
 	}
 
-	/**
-     * Generates waypoints for splining to vision target, use only in autonomous.
-	 *
-	 * <p>If called without seeing target, will return empty optional.
-	 *
-	 * @param absAng gyroscope angle
-	 * @param endAng desired ending angle
-     */
-	public static Optional<Point[]> pathToTarg(double absAng, double endAng) {
-		calculateTargPos(absAng, endAng);
-
-		if (targPres) {
-			Point startPoint = new Point(0, 0, absoluteAng);
-			Point endPoint = new Point(xpos, ypos, endAng);
-			return Optional.of(new Point[] { startPoint, endPoint });
-		}
-		return Optional.empty();
-	}
-
-	private static void calculateTargPos(double absAng, double endAng) {
-		pipedex = 0;
-		pipeline.setNumber(pipedex);
-
-		absoluteAng = absAng;
-
-		// Calculate position of respective target, or none
-		if (tv.getDouble(0) == 1.0) {
-			targPres = true;
-
-			// calculates tape position using the chosen method
-			switch (TAPE_TARGET_METHOD) {
-				// case Crude:
-				// 	calculateTapePosCrude();
-				// 	break;
-				case PNPGyro:
-					calculateTapePosPNPGyro(endAng);
-					break;
-				case PurePNP:
-					calculateTapePosPurePNP();
-					break;
-			}
-		} else {
-			targPres = false;
-		}
-	}
-
-	/**
-	 * @return if PNP worked
-	 */
-	private static boolean calculateTapePosPurePNP() {
-		double[] camdata = camtran.getDoubleArray(new double[] {});
-		System.out.println(Arrays.toString(camdata));
-		if (Arrays.stream(camdata).allMatch(x -> x == 0)) {
-			return false;
-		}
-
-		// limelight's camtran array solves everything for us, with a sign change
-		double xtemp = -camdata[0] + X_OFFSET;
-		double ytemp = -camdata[2] + Y_OFFSET; // offset controls how far back from target to go
-		double yawang = camdata[4];
+	private static void objectToFieldCoords(double[] info) {
+		double xtemp = -info[0] + X_OFFSET;
+		double ytemp = -info[1] + Y_OFFSET; // offset controls how far back from target to go
+		double yawang = info[2];
 
 		ang = absoluteAng - yawang;
 		double angus = ang - Math.toDegrees(Math.atan2(xtemp, ytemp));
@@ -251,59 +205,63 @@ public class Vision {
 
 		xpos = distus * Math.cos(Math.toRadians(angus));
 		ypos = distus * Math.sin(Math.toRadians(angus));
+	}
+
+	/**
+	 * @return if PNP worked
+	 */
+	private static boolean calculateTapePosPNPLL() {
+		double[] camdata = camtran.getDoubleArray(new double[] {});
+		System.out.println(Arrays.toString(camdata));
+		if (Arrays.stream(camdata).allMatch(x -> x == 0)) {
+			return false;
+		}
+
+		// limelight's camtran array solves everything for us, with a sign change
+		objectToFieldCoords(new double[] {camdata[0], camdata[2], camdata[4]});
 
 		return true;
 	}
 
-	private static void calculateTapePosPNPGyro(double endAng) {
+	private static boolean calculateTapePosPNPRIO() {
 		double[] xcorners = tcornx.getDoubleArray(new double[] {});
 		double[] ycorners = tcorny.getDoubleArray(new double[] {});
-		if (xcorners.length != 8 || ycorners.length != 8) return;
+		if (xcorners.length != 8 || ycorners.length != 8) {
+			return false;
+		}
 
 		// if there are indeed 8 points total, then use helper class to sort the points
 		PointSorter pointsorter = new PointSorter(xcorners, ycorners);
 		MatOfPoint2f imagePoints = pointsorter.sortPoints();
 
 		// solvePNP gets the object "pose," providing translation and rotation
+		Mat rotationVector = new Mat();
 		Mat translationVector = new Mat();
 		Calib3d.solvePnP(mObjectPoints, imagePoints, mCameraMatrix, mDistortionCoefficients,
-			new Mat(), translationVector);
+			rotationVector, translationVector);
+
+		// System.out.println("rotationVector: " + rotationVector.dump());
+		// System.out.println("translationVector: " + translationVector.dump());
+
+		Mat rotationMatrix = new Mat();
+		Calib3d.Rodrigues(rotationVector, rotationMatrix);
+		Mat objectSpaceTranslationVector = new Mat();
+		Core.gemm(rotationMatrix, translationVector, -1.0, new Mat(), 0.0, objectSpaceTranslationVector);
 
 		// the x and z are turned to polar coordinates
-		double xInInches = translationVector.get(0, 0)[0];
-		double zInInches = translationVector.get(2, 0)[0];
-		double distance = Math.hypot(xInInches, zInInches);
-		double angle = Math.toDegrees(Math.atan2(xInInches, zInInches));
+		double camX = translationVector.get(0, 0)[0];
+		double camZ = translationVector.get(2, 0)[0];
+		double angle1 = Math.toDegrees(Math.atan2(camX, camZ));
 
-		double yawang = endAng - absoluteAng;
-		double xtemp = distance * Math.sin(Math.toRadians(yawang + angle));
-		double ytemp = distance * Math.cos(Math.toRadians(yawang + angle)) - Y_OFFSET;
+		double objectX = objectSpaceTranslationVector.get(0, 0)[0];
+		double objectZ = objectSpaceTranslationVector.get(2, 0)[0];
+		double angle2 = Math.toDegrees(Math.atan2(-objectX, objectZ));
 
-		double angus = endAng - Math.toDegrees(Math.atan2(xtemp, ytemp));
-		double distus = Math.hypot(xtemp, ytemp);
+		double[] camdata = {objectX, objectZ, angle2 - angle1};
+		System.out.println(Arrays.toString(camdata));
 
-		xpos = distus * Math.cos(Math.toRadians(angus));
-		ypos = distus * Math.sin(Math.toRadians(angus));
-		ang = endAng;
-	}
+		objectToFieldCoords(camdata);
 
-	private static void calculateTapePosCrude() {
-		// Read x position and width from NetworkTable Entries
-		double ax = tx.getDouble(0);
-		double pwidth = thor.getDouble(0);
-
-		// Convert angle of box center to pixel
-		double px = 160*Math.tan(Math.toRadians(ax)) / Math.tan(Math.toRadians(27)) + 160;
-
-		// Get angle for left and right bounds of box
-		double ax1 = Math.atan2(Math.tan(Math.toRadians(27)) / 160 * (px + pwidth / 2.0 - 160), 1);
-		double ax2 = Math.atan2(Math.tan(Math.toRadians(27)) / 160 * (px - pwidth / 2.0 - 160), 1);
-
-		// Calculate position to ball using trigonometry with gyroscope angle
-		xpos = TAPE_WIDTH * Math.tan(Math.toRadians(absoluteAng) - ax1) / (Math.tan(Math.toRadians(
-			absoluteAng) - ax2) - Math.tan(Math.toRadians(absoluteAng) - ax1));
-		ypos = xpos * Math.tan(Math.toRadians(absoluteAng) - ax2);
-		xpos += TAPE_WIDTH/2;
-		ang = ax;
+		return true;
 	}
 }
