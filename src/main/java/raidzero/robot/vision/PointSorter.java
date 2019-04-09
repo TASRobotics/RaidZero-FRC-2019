@@ -48,11 +48,11 @@ public class PointSorter {
                 leftPoints.get(0),
                 leftPoints.get(1),
                 leftPoints.get(2),
-                leftPoints.get(3),
+                // leftPoints.get(3),
                 rightPoints.get(0),
                 rightPoints.get(1),
-                rightPoints.get(2),
-                rightPoints.get(3)
+                rightPoints.get(2)
+                // rightPoints.get(3)
         );
     }
 }
