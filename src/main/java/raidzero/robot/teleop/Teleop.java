@@ -12,17 +12,21 @@ import static edu.wpi.first.wpilibj.GenericHID.Hand.kRight;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import raidzero.robot.components.Components;
+import raidzero.robot.auto.MotionProfile;
 import raidzero.robot.components.Arm;
 import raidzero.robot.components.Lift;
+import raidzero.robot.vision.Vision;
 
 public class Teleop {
 
     private static XboxController controller1;
     private static XboxController controller2;
+    private static MotionProfile profile;
 
     private static int armSetpoint;
 
     private static boolean climbing = false;
+    private static boolean inMP = false;
 
     /**
      * Initializes the teleop-specific components.
@@ -32,6 +36,8 @@ public class Teleop {
     public static void initialize() {
         controller1 = new XboxController(0);
         controller2 = new XboxController(1);
+        profile = new MotionProfile(Components.getBase().getRightMotor(),
+            Components.getBase().getLeftMotor(), Components.getBase().getPigeon());
     }
 
     /**
@@ -48,7 +54,7 @@ public class Teleop {
         armSetpoint = Components.getArm().getEncoderPos();
 
         SmartDashboard.putBoolean("Climbing?", climbing);
-
+        profile.reset();
     }
 
     /**
@@ -74,16 +80,31 @@ public class Teleop {
             driveMult = 1.0;
         }
 
-        if (controller1.getBumper(kRight)) {
-            Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-                controller1.getY(kLeft) * driveMult);
-            Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-                controller1.getY(kRight) * driveMult);
+        if (controller1.getYButtonPressed()) {
+            inMP = true;
+            Vision.pathToTarg(Components.getBase().getYaw())
+            .ifPresentOrElse(waypoints -> {
+                System.out.println("Target found");
+                profile.start(waypoints, 2, 2);
+            }, () -> {
+                System.out.println("No target found");
+            });
+        } else if (controller1.getYButton() && inMP) {
+            profile.controlMP();
+            profile.move();
         } else {
-            Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
-                -controller1.getY(kRight) * driveMult);
-            Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
-                -controller1.getY(kLeft) * driveMult);
+            inMP = false;
+            if (controller1.getBumper(kRight)) {
+                Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
+                    controller1.getY(kLeft) * driveMult);
+                Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
+                    controller1.getY(kRight) * driveMult);
+            } else {
+                Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
+                    -controller1.getY(kRight) * driveMult);
+                Components.getBase().getLeftMotor().set(ControlMode.PercentOutput,
+                    -controller1.getY(kLeft) * driveMult);
+            }
         }
 
         // Arcade

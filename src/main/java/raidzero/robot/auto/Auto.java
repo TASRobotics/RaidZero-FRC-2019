@@ -16,8 +16,8 @@ import raidzero.pathgen.Point;
 
 public class Auto {
 
-    private static final double CRUISE_VELOCITY = 2;
-    private static final double TARGET_ACCELERATION = 2;
+    private static final double CRUISE_VELOCITY = 10;
+    private static final double TARGET_ACCELERATION = 20;
 
     private static XboxController joy = new XboxController(0);
     private static SendableChooser<Point[]> choose;
@@ -25,7 +25,6 @@ public class Auto {
     private static List<Point[]> pathWayPoints;
     private static int stage;
     private static boolean exit;
-    private static boolean usingVisionSpline;
 
     private static Point[] level1Left = {
         new Point(66, 213, 0),
@@ -99,7 +98,6 @@ public class Auto {
         exit = false;
         stage = 0;
         pathWayPoints = new ArrayList<Point[]>();
-        usingVisionSpline = false;
 
         // Reset encoders and motion profile
         Components.getBase().getLeftMotor().setSelectedSensorPosition(0);
@@ -112,22 +110,13 @@ public class Auto {
 
         // Code below is temporary
         // Create empty paths
-
-        Vision.pathToTarg(Components.getBase().getYaw())
-        .ifPresentOrElse(waypoints -> {
-            System.out.println("Target found");
-            profile.start(waypoints, CRUISE_VELOCITY, TARGET_ACCELERATION);
-        }, () -> {
-            System.out.println("No target found");
-        });
-
-        // var selected = choose.getSelected();
-        // if (selected != null) {
-        //     pathWayPoints.add(selected);
-        //     profile.start(pathWayPoints.get(0), CRUISE_VELOCITY, TARGET_ACCELERATION);
-        // } else {
-        //     Teleop.setup();
-        // }
+        var selected = choose.getSelected();
+        if (selected != null) {
+            pathWayPoints.add(selected);
+            profile.start(pathWayPoints.get(0), CRUISE_VELOCITY, TARGET_ACCELERATION);
+        } else {
+            Teleop.setup();
+        }
     }
 
     /**
@@ -136,40 +125,23 @@ public class Auto {
      * <p>This should be called repeatedly during autonomous mode.
      */
     public static void run() {
-        // if (joy.getBackButton()) {
-        //     exit = true;
-        //     Teleop.setup();
-        // }
-        // if (stage < pathWayPoints.size() && !exit) {
-        //     profile.controlMP();
-        //     profile.move();
-        //     if (profile.getSetValue() == SetValueMotionProfile.Hold) {
-        //         stage++;
-        //         usingVisionSpline = false;
-        //         if (stage < pathWayPoints.size()) {
-        //             profile.start(pathWayPoints.get(stage), CRUISE_VELOCITY, TARGET_ACCELERATION);
-        //         } else {
-        //             Teleop.setup();
-        //         }
-        //     }
-        //     if (!usingVisionSpline && profile.getProgress() > 0.9) {
-        //         Vision.pathToTarg(
-        //             Components.getBase().getPigeon().getFusedHeading(),
-        //             profile.getTargetPoint().angle
-        //         ).ifPresent(waypoints -> {
-        //             usingVisionSpline = true;
-        //             profile.start(waypoints, CRUISE_VELOCITY, TARGET_ACCELERATION);
-        //         });
-        //     }
-        // } else {
-        //     Teleop.run();
-        // }
-        if (stage == 0) {
+        if (joy.getBackButton()) {
+            exit = true;
+            Teleop.setup();
+        }
+        if (stage < pathWayPoints.size() && !exit) {
             profile.controlMP();
             profile.move();
             if (profile.getSetValue() == SetValueMotionProfile.Hold) {
                 stage++;
+                if (stage < pathWayPoints.size()) {
+                    profile.start(pathWayPoints.get(stage), 10, 20);
+                } else {
+                    Teleop.setup();
+                }
             }
+        } else {
+            Teleop.run();
         }
     }
 

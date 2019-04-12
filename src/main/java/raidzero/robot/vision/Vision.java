@@ -41,7 +41,7 @@ public class Vision {
 	/**
      * The tape-targetting method to actually use.
      */
-	private static final TapeTargetMethod TAPE_TARGET_METHOD = TapeTargetMethod.PNPRIO;
+	private static final TapeTargetMethod TAPE_TARGET_METHOD = TapeTargetMethod.PNPLL;
 
 	/**
      * How far limelight should be behind the tape target in inches, adjustable.
@@ -63,7 +63,7 @@ public class Vision {
 	/**
      * Initializes limelight network table entries.
      */
-	public static void setup() {
+	public static void initialize() {
 		NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-kaluza");
 
 		// Initialize the NetworkTable entries from the Limelight
@@ -102,6 +102,23 @@ public class Vision {
 		// setup limelight 2 distortion coefficients
 		mDistortionCoefficients = new MatOfDouble(2.9684613693070039e-01, -1.4380252254747885e+00,
 			-2.2098421479494509e-03, -3.3894563533907176e-03, 2.5344430354806740e+00);
+	}
+
+	/**
+	 * Setup the limelight for vision
+	 */
+	public static void limelightSetup() {
+		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("camMode").setNumber(0);
+        NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("stream").setNumber(1);
+	}
+
+	/**
+	 * Setup the cameras for purely driver cam view
+	 */
+	public static void driverCamSetup() {
+		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("pipeline").setNumber(2);
+        NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("camMode").setNumber(0);
+        NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("stream").setNumber(2);
 	}
 
 	/**

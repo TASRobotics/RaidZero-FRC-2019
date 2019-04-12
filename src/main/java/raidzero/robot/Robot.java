@@ -21,6 +21,7 @@ public class Robot extends TimedRobot {
         Components.initialize();
         Auto.initialize();
         Teleop.initialize();
+        Vision.initialize();
     }
 
     /**
@@ -30,12 +31,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
-        Vision.setup();
         Auto.setup();
-        // NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("pipeline").setNumber(2);
-        NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("camMode").setNumber(0);
-        NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("stream").setNumber(1);
-
+        Vision.limelightSetup();
     }
 
     /**
@@ -56,10 +53,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         Teleop.setup();
-        // NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("pipeline").setNumber(2);
-        NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("camMode").setNumber(0);
-        NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("stream").setNumber(1);
-
+        Vision.limelightSetup();
     }
 
     /**
@@ -80,9 +74,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledPeriodic() {
         Auto.disabled();
-        // NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("pipeline").setNumber(2);
-        NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("camMode").setNumber(0);
-        NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("stream").setNumber(1);
+        Vision.limelightSetup();
     }
 
     /**
@@ -92,7 +84,6 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testInit() {
-        Vision.setup();
     }
 
     /**
@@ -100,12 +91,6 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
-        var pigeon = Components.getBase().getPigeon();
-        pigeon.setYaw(0);
-        double[] xs = new double[3];
-        pigeon.getYawPitchRoll(xs);
-        System.out.println(xs[0]);
-        Vision.pathToTarg(xs[0]);
     }
 
 }
