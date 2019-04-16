@@ -81,7 +81,10 @@ public class Teleop {
         }
 
         if (controller1.getYButtonPressed()) {
+            Vision.limelightSetup();
             inMP = true;
+            Components.getBase().getLeftMotor().setSelectedSensorPosition(0);
+            Components.getBase().getRightMotor().getSensorCollection().setQuadraturePosition(0, 10);
             Vision.pathToTarg(Components.getBase().getYaw())
             .ifPresentOrElse(waypoints -> {
                 System.out.println("Target found");
@@ -93,6 +96,7 @@ public class Teleop {
             profile.controlMP();
             profile.move();
         } else {
+            Vision.driverCamSetup();
             inMP = false;
             if (controller1.getBumper(kRight)) {
                 Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
@@ -133,7 +137,7 @@ public class Teleop {
             if (rightTriggerAxis1 > 0.1) {
                 Components.getLift().movePercent(rightTriggerAxis1 * 0.6);
             } else if (leftTriggerAxis1 > 0.1) {
-                Components.getLift().movePercent(-leftTriggerAxis1 * 0.2);
+                Components.getLift().movePercent(-leftTriggerAxis1 * 0.3);
             } else {
                 Components.getLift().movePercent(0.0);
             }

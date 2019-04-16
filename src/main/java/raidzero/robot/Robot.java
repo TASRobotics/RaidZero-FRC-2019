@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         Auto.setup();
-        Vision.limelightSetup();
+        Vision.driverCamSetup();
     }
 
     /**
@@ -53,7 +53,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         Teleop.setup();
-        Vision.limelightSetup();
+        Vision.driverCamSetup();
     }
 
     /**
@@ -74,7 +74,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledPeriodic() {
         Auto.disabled();
-        Vision.limelightSetup();
+        Vision.driverCamSetup();
     }
 
     /**
