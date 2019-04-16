@@ -46,7 +46,7 @@ public class Vision {
 	/**
      * How far limelight should be behind the tape target in inches, adjustable.
      */
-	private static final double Y_OFFSET = -30;
+	private static final double Y_OFFSET = -32;
 
 	private static final double X_OFFSET = 1; // -1.5;
 
@@ -116,9 +116,10 @@ public class Vision {
 	 * Setup the cameras for purely driver cam view
 	 */
 	public static void driverCamSetup() {
-		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("pipeline").setNumber(2);
+		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("pipeline").setNumber(0);
         NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("camMode").setNumber(0);
-        NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("stream").setNumber(2);
+		// Picture-in-Picture mode
+		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("stream").setNumber(2);
 	}
 
 	/**
@@ -205,8 +206,11 @@ public class Vision {
 		if (safe) {
 			Point startPoint = new Point(0, 0, absAng);
 			Point endPoint = new Point(xpos, ypos, ang);
-			System.out.println("xpos " + xpos + "\typos " + ypos + "\tang " + ang + "\tabsang" + absAng);
-			return Optional.of(new Point[] { startPoint, endPoint });
+			Point straightenPoint = new Point(
+				2 * Math.cos(Math.toRadians(ang)) + xpos,
+				2 * Math.sin(Math.toRadians(ang)) + ypos, ang);
+			// System.out.println("xpos " + xpos + "\typos " + ypos + "\tang " + ang + "\tabsang" + absAng);
+			return Optional.of(new Point[] { startPoint, endPoint, straightenPoint });
 		}
 		return Optional.empty();
 	}

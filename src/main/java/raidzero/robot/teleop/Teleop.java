@@ -81,7 +81,6 @@ public class Teleop {
         }
 
         if (controller1.getYButtonPressed()) {
-            Vision.limelightSetup();
             inMP = true;
             Components.getBase().getLeftMotor().setSelectedSensorPosition(0);
             Components.getBase().getRightMotor().getSensorCollection().setQuadraturePosition(0, 10);
@@ -96,7 +95,6 @@ public class Teleop {
             profile.controlMP();
             profile.move();
         } else {
-            Vision.driverCamSetup();
             inMP = false;
             if (controller1.getBumper(kRight)) {
                 Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
