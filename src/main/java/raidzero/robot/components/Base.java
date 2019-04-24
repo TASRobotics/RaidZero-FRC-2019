@@ -96,4 +96,13 @@ public class Base {
         return pigeon;
     }
 
+    /**
+     * Get the yaw value of the pigeon
+     */
+    public double getYaw() {
+        double[] angles = new double[3];
+        pigeon.getYawPitchRoll(angles);
+        return angles[0];
+    }
+
 }

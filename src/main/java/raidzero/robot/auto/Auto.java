@@ -2,6 +2,7 @@ package raidzero.robot.auto;
 
 import raidzero.robot.components.Components;
 import raidzero.robot.teleop.Teleop;
+import raidzero.robot.vision.Vision;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,9 @@ import raidzero.pathgen.Point;
 
 public class Auto {
 
+    private static final double CRUISE_VELOCITY = 10;
+    private static final double TARGET_ACCELERATION = 20;
+
     private static XboxController joy = new XboxController(0);
     private static SendableChooser<Point[]> choose;
     private static MotionProfile profile;
@@ -22,7 +26,6 @@ public class Auto {
     private static int stage;
     private static boolean exit;
 
-    // points is left here for now for single path testing in the future
     private static Point[] level1Left = {
         new Point(66, 213, 0),
         new Point(124, 213, 0),
@@ -110,7 +113,7 @@ public class Auto {
         var selected = choose.getSelected();
         if (selected != null) {
             pathWayPoints.add(selected);
-            profile.start(pathWayPoints.get(0), 10, 20);
+            profile.start(pathWayPoints.get(0), CRUISE_VELOCITY, TARGET_ACCELERATION);
         } else {
             Teleop.setup();
         }
@@ -140,7 +143,6 @@ public class Auto {
         } else {
             Teleop.run();
         }
-
     }
 
     /**
