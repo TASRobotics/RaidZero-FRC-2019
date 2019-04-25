@@ -105,19 +105,26 @@ public class Vision {
 	}
 
 	/**
-	 * Setup the limelight for vision
+	 * Turn on limelight led
 	 */
-	public static void limelightSetup() {
-		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("camMode").setNumber(0);
-        NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("stream").setNumber(1);
+	public static void ledOn() {
+		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("ledMode").setNumber(3);
+	}
+
+	/**
+	 * Turn off limelight led
+	 */
+	public static void ledOff() {
+		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("ledMode").setNumber(1);
 	}
 
 	/**
 	 * Setup the cameras for purely driver cam view
 	 */
 	public static void driverCamSetup() {
-		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("pipeline").setNumber(0);
-        NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("camMode").setNumber(0);
+		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("pipeline").setNumber(2);
+		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("camMode").setNumber(0);
+		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("ledMode").setNumber(1);
 		// Picture-in-Picture mode
 		NetworkTableInstance.getDefault().getTable("limelight-kaluza").getEntry("stream").setNumber(2);
 	}
