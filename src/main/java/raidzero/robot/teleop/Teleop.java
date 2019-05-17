@@ -3,6 +3,7 @@ package raidzero.robot.teleop;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -22,6 +23,7 @@ public class Teleop {
     private static XboxController controller1;
     private static XboxController controller2;
     private static MotionProfile profile;
+    private static Timer time;
 
     private static int armSetpoint;
 
@@ -38,6 +40,7 @@ public class Teleop {
         controller2 = new XboxController(1);
         profile = new MotionProfile(Components.getBase().getRightMotor(),
             Components.getBase().getLeftMotor(), Components.getBase().getPigeon());
+        time = new Timer();
     }
 
     /**
@@ -55,6 +58,7 @@ public class Teleop {
 
         SmartDashboard.putBoolean("Climbing?", climbing);
         profile.reset();
+        time.reset();
     }
 
     /**
@@ -79,21 +83,27 @@ public class Teleop {
         if (controller1.getBumper(kLeft)) {
             driveMult = 1.0;
         }
-
         if (controller1.getYButtonPressed()) {
+            Vision.ledOn();
             inMP = true;
+            profile.reset();
             Components.getBase().getLeftMotor().setSelectedSensorPosition(0);
             Components.getBase().getRightMotor().getSensorCollection().setQuadraturePosition(0, 10);
-            Vision.pathToTarg(Components.getBase().getYaw())
-            .ifPresentOrElse(waypoints -> {
-                System.out.println("Target found");
-                profile.start(waypoints, 2, 2);
-            }, () -> {
-                System.out.println("No target found");
-            });
+            time.reset();
+            time.start();
         } else if (controller1.getYButton() && inMP) {
-            profile.controlMP();
-            profile.move();
+            if (time.get() < 0.5) {
+                Vision.pathToTarg(Components.getBase().getYaw())
+                .ifPresentOrElse(waypoints -> {
+                    System.out.println("Target found");
+                    profile.start(waypoints, 2, 2);
+                }, () -> {
+                    System.out.println("No target found");
+                });
+            } else {
+                profile.controlMP();
+                profile.move();
+            }
         } else {
             inMP = false;
             if (controller1.getBumper(kRight)) {
@@ -108,7 +118,10 @@ public class Teleop {
                     -controller1.getY(kLeft) * driveMult);
             }
         }
-
+        if (controller1.getYButtonReleased()) {
+            Vision.ledOff();
+        }
+        System.out.println(time.get());
         // Arcade
         // if (controller1.getBumper(kRight)) {
         //     Components.getBase().getRightMotor().set(ControlMode.PercentOutput,
@@ -135,7 +148,7 @@ public class Teleop {
             if (rightTriggerAxis1 > 0.1) {
                 Components.getLift().movePercent(rightTriggerAxis1 * 0.6);
             } else if (leftTriggerAxis1 > 0.1) {
-                Components.getLift().movePercent(-leftTriggerAxis1 * 0.3);
+                Components.getLift().movePercent(-leftTriggerAxis1 * 0.35);
             } else {
                 Components.getLift().movePercent(0.0);
             }
